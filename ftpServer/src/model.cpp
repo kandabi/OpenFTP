@@ -5,9 +5,9 @@
 
 ServerModel::ServerModel(QWidget* parent) : QObject(parent), networkManager(registeredUsersList, parent), settingsManager(parent)
 {
-	QCoreApplication::setOrganizationName("kandabi");
-	QCoreApplication::setOrganizationDomain("kandabi.com");
-	QCoreApplication::setApplicationName("qtFtpServer");
+	//QCoreApplication::setOrganizationName("kandabi");
+	//QCoreApplication::setOrganizationDomain("kandabi.com");
+	//QCoreApplication::setApplicationName("qtFtpServer");
 
 	registeredUsersList = settingsManager.getUsersFromSettings();
 }
@@ -20,10 +20,16 @@ void ServerModel::initServer()
 	emit writeTextSignal("Setting up FTP Server");
 
 	QString ftpDirectory = settingsManager.getFtpDirectory();
+	QDir dir;
 	if (ftpDirectory.isEmpty())
 	{
 		emit writeTextSignal("An FTP directory has not yet been set, please go to the Tools -> Settings menu and choose a directory.", Qt::darkRed);
 		return;
+	}
+	else if (!dir.exists(ftpDirectory))
+	{
+		dir.mkdir(ftpDirectory);
+		emit writeTextSignal("FTP directory created in: " + ftpDirectory);
 	}
 
 	emit startServerSignal();

@@ -1,7 +1,7 @@
 #include "./headers/stdafx.h"
 #include "./headers/list_model.h"
 
-FileListServerModel::FileListServerModel(QVector<File>& fileList, QObject* parent ) : QAbstractTableModel(parent), itemData(fileList)
+FileListServerModel::FileListServerModel(QList<File>& fileList, QObject* parent ) : QAbstractTableModel(parent), itemData(fileList)
 {	
 
 }
@@ -78,7 +78,7 @@ QVariant FileListServerModel::headerData(int section, Qt::Orientation orientatio
 		}
 		else if (section == 4)
 		{
-			return QStringLiteral("Path");
+			return QStringLiteral("Path On Server");
 		}
 		else {
 			return QStringLiteral("");

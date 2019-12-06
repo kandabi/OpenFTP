@@ -38,10 +38,11 @@ void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
 	connectionResults.append(connect(view.ui.deleteButton, &QPushButton::clicked, &view, &clientView::deleteAtServerBrowser));
 	connectionResults.append(connect(&view, &clientView::renameActionSignal, &data, &ClientModel::renameFile));
 	connectionResults.append(connect(&view, &clientView::createNewFolderSignal, &data, &ClientModel::createFolderAction));
-	connectionResults.append(connect(&view, &clientView::uploadFileSignal, &data, &ClientModel::uploadFileRequest));
+	connectionResults.append(connect(&view, &clientView::queueFilesToUploadSignal, &data, &ClientModel::queueFilesToUpload));
 	connectionResults.append(connect(view.ui.uploadButton, &QPushButton::clicked, &view, &clientView::uploadFileButton));
 	connectionResults.append(connect(view.ui.downloadButton, &QPushButton::clicked, &view, &clientView::downloadFileButton));
-	connectionResults.append(connect(&view, &clientView::downloadFileSignal, &data, &ClientModel::queueFilesToDownload));
+	connectionResults.append(connect(&view, &clientView::queueFilesToDownloadSignal, &data, &ClientModel::queueFilesToDownload));
+	connectionResults.append(connect(&view, &clientView::copyFilesToDirectorySignal, &data, &ClientModel::copyFilesToDirectory));
 }
 
 void clientController::connectModelSignalSlots(QList<bool>& connectionResults)
@@ -61,7 +62,7 @@ void clientController::connectModelSignalSlots(QList<bool>& connectionResults)
 	connectionResults.append(connect(&data, &ClientModel::setFileBrowserSignal, &view, &clientView::setFileBrowser));
 	//connectionResults << connect(&data, &ClientModel::hideProgressBarSignal, &view, &clientView::hideProgressBar);
 
-	connectionResults << connect(&data, &ClientModel::fileAlreadyExistsSignal, &view, &clientView::fileExists);
+	connectionResults << connect(&data, &ClientModel::fileAlreadyExistsSignal, &view, &clientView::fileAlreadyExists);
 	connectionResults << connect(&data, &ClientModel::deletedFilesSignal, &view, &clientView::deletedFiles);
 
 }

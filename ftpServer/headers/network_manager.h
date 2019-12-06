@@ -36,7 +36,8 @@ private:
 
 	QList<User>& registeredUsersList;
 	QList<Transfer> transfersInProgress;
-	const qint16 port = 57184;
+	//const qint16 port = 21;
+	const qint16 port = 57112;
 	//QSslSocket server;
 	QTcpServer server;
 	QList<User> connectedUsers;

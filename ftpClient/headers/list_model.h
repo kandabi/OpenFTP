@@ -7,7 +7,7 @@ class FileListServerModel : public QAbstractTableModel
 	Q_OBJECT
 
 public:
-	FileListServerModel(QVector<File>& fileList, QObject* parent = nullptr);
+	FileListServerModel(QList<File>& fileList, QObject* parent = nullptr);
 
 	int rowCount(const QModelIndex& parent = QModelIndex()) const override;
 	int columnCount(const QModelIndex& parent = QModelIndex()) const override;
@@ -15,7 +15,7 @@ public:
 	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
 private:
-	QVector<File> itemData;
+	QList<File> itemData;
 	QFileIconProvider provider;
 	QLocale locale;
 };

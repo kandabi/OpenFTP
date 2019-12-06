@@ -21,11 +21,12 @@ signals:
 	void deleteActionSignal(const QModelIndexList& index, bool deleteInServer);
 	void renameActionSignal(const QModelIndex& index, const QString& newFileName);
 	void createNewFolderSignal(const QString& newFolderName, bool createInServer);
-	void uploadFileSignal(QStringList files, bool appendMoreFiles);
+	void queueFilesToUploadSignal(const QStringList& files, bool appendMoreFiles);
 	void searchFolderSignal(const QString& directory, bool searchInServer);
 	void serverEnterKeySignal(const QModelIndex& index);
 	void localEnterKeySignal(const QModelIndex& index);
-	void downloadFileSignal(const QModelIndexList& indices);
+	void queueFilesToDownloadSignal(const QModelIndexList& indices, bool appendMorefiles);
+	void copyFilesToDirectorySignal(const QStringList& files, bool lastFunction, const QString& directoryTocopy = {});
 
 public slots:
 	void writeTextToScreen(QString text, QColor color = Qt::black);
@@ -54,7 +55,7 @@ public slots:
 	void serverSearchBrowser();
 	void openFileBrowser();
 	void beep();
-	void fileExists(QString filename);
+	void fileAlreadyExists(const QString& filename);
 	void deletedFiles();
 	void uploadFileButton();
 	void downloadFileButton();
@@ -65,6 +66,7 @@ private:
 	bool connectedToServerBool = false;
 	bool transfersInProgress = false;
 	QString currentLocalBrowserPath;
+	
 
 	Ui::clientGui ui;
 

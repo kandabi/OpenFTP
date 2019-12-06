@@ -1,8 +1,8 @@
 #include "./headers/stdafx.h"
 #include "./headers/transfer.h"
 
-Transfer::Transfer(int _userIndex,QString _fileName, QString _filePath, int _fileSize, bool _isBaseDir, QString _requestPath) :
-   userIndex{ _userIndex } ,fileName {_fileName }, filePath{ _filePath }, fileSize{ _fileSize }, isBaseDir{ _isBaseDir }, requestPath{ _requestPath }
+Transfer::Transfer(int _userIndex,QString _fileName, QString _filePath, int _fileSize, bool _isBaseDir, QString _directoryToReturn) :
+   userIndex{ _userIndex } ,fileName {_fileName }, filePath{ _filePath }, fileSize{ _fileSize }, isBaseDir{ _isBaseDir }, directoryToReturn{ _directoryToReturn }
 {
 	file = new QSaveFile(filePath + "/" + fileName);
 	bool open = file->open(QIODevice::WriteOnly);

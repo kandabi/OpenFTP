@@ -25,11 +25,11 @@ QJsonObject RequestManager::createServerRequest(RequestManager::RequestType acti
 		serverRequest.insert("renameFile", requestVariables["renameFile"]);
 		serverRequest.insert("changedFileName", requestVariables["changedFileName"]);
 	}
-	else if (!requestVariables["createFolderName"].isEmpty())
+	else if (!requestVariables["createFolderPath"].isEmpty())
 	{
-		serverRequest.insert("newFolderName", requestVariables["createFolderName"]);
+		serverRequest.insert("createFolderPath", requestVariables["createFolderPath"]);
 	}
-	else if (!requestVariables["uploadFileName"].isEmpty() && !requestVariables["uploadFileSize"].isEmpty() && !requestVariables["uploadOverwriteExisting"].isEmpty() && !requestVariables["uploadFilePath"].isEmpty())
+	else if (!requestVariables["uploadFileName"].isEmpty() && !requestVariables["uploadFileSize"].isEmpty() && !requestVariables["uploadOverwriteExisting"].isEmpty() && !requestVariables["uploadFilePath"].isEmpty() )
 	{
 		serverRequest.insert("fileName", requestVariables["uploadFileName"]);
 		serverRequest.insert("fileSize", requestVariables["uploadFileSize"]);
@@ -39,6 +39,7 @@ QJsonObject RequestManager::createServerRequest(RequestManager::RequestType acti
 	else if (!requestVariables["downloadFileName"].isEmpty())
 	{
 		serverRequest.insert("fileName", requestVariables["downloadFileName"]);
+		
 	}
 
 

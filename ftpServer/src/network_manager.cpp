@@ -8,7 +8,7 @@ NetworkManager::NetworkManager(QList<User>& _registeredUsersList ,QWidget* paren
 bool NetworkManager::initServer()
 {
 	//sslServer.startServerEncryption();
-	 bool result = server.listen(QHostAddress::Any, port);
+	 bool result = server.listen(QHostAddress::Any, 20);
 	 if (result)
 		 emit writeTextSignal("Server listening on all available addresses: " + server.serverAddress().toString() + " , in port: " + QString::number(server.serverPort()));
 	 else
@@ -49,11 +49,6 @@ void NetworkManager::disconnectUser(QString userName)
 	}
 }
 
-bool NetworkManager::writeToClient(QTcpSocket* socketToWrite, const QByteArray& data)
-{
-	//QByteArray::number(data.size()) +
-	return socketToWrite->write(data);
-}
 
 void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int userIndex)
 {
@@ -91,7 +86,7 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 		}
 		case FtpManager::RequestType::CreateFolder: 
 		{
-			bool created = FtpManager::createFolder(directory, json.value("newFolderName").toString());
+			bool created = FtpManager::createFolder(json.value("createFolderPath").toString());
 			responseCode = (created) ? FtpManager::ResponseType::FolderCreated : FtpManager::ResponseType::FolderAlreadyExists;
 			break;
 		}
@@ -139,9 +134,21 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 		case FtpManager::RequestType::NextPendingDownload:
 		{
 			QString errorString;
-			Transfer& download = transfersInProgress[getTransferByUserIndex(userIndex)];
+			int transferIndex = getTransferByUserIndex(userIndex);
+			Transfer& download = transfersInProgress[transferIndex];
 			bool result = FtpManager::beginFileDownload(download, socket, errorString);
+			Q_ASSERT(result);
+			transfersInProgress.removeAt(transferIndex);
 			responseCode = FtpManager::ResponseType::DownloadComplete;
+			break;
+		}
+		case FtpManager::RequestType::DownloadFolder:
+		{
+			QString fileName = json.value("fileName").toString();
+			writeTextSignal("Download folder request: " + fileName);
+			responseCode = FtpManager::ResponseType::DownloadFolder;
+			//directory += "/" + fileName;
+			baseDir = true;
 			break;
 		}
 	}
@@ -171,7 +178,7 @@ void NetworkManager::parseUpload(const QByteArray& data, QTcpSocket* socket, int
 		bool result = currentUpload.finishUpload();
 		Q_ASSERT(result);
 		writeTextSignal("Upload complete: " + currentUpload.fileName, Qt::darkGreen);
-		serverResponse = FtpManager::createServerResponse(FtpManager::ResponseType::UploadCompleted, currentUpload.requestPath, currentUpload.isBaseDir, writtenBytes);
+		serverResponse = FtpManager::createServerResponse(FtpManager::ResponseType::UploadCompleted, currentUpload.directoryToReturn, currentUpload.isBaseDir, writtenBytes);
 		socket->flush();
 		transfersInProgress.removeAt(transferIndex);
 		sendResponseData = true;
@@ -179,7 +186,7 @@ void NetworkManager::parseUpload(const QByteArray& data, QTcpSocket* socket, int
 
 	}
 	else {
-		serverResponse = FtpManager::createUploadProgressResponse(FtpManager::ResponseType::FileUploading, currentUpload.requestPath, writtenBytes);
+		serverResponse = FtpManager::createUploadProgressResponse(FtpManager::ResponseType::FileUploading, currentUpload.directoryToReturn, writtenBytes);
 		sendResponseData = (currentUpload.numOfPacketsSent % 10 == 0) ? true : false;
 		currentUpload.numOfPacketsSent++;
 	}
@@ -229,7 +236,7 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 
 		if (userIndex != -1)
 		{
-			emit writeTextSignal("User " + connectedUsers[userIndex].username + " has disconnected");
+			emit writeTextSignal("User " + connectedUsers[userIndex].username + " has disconnected", Qt::darkRed);
 			emit deleteUserFromListSignal(connectedUsers[userIndex].username);
 
 			connectedUsers.removeAt(userIndex);
@@ -305,6 +312,13 @@ int NetworkManager::validateUser(const QList<User>& userList, QString name, QStr
 	}
 	return -1;
 }
+
+bool NetworkManager::writeToClient(QTcpSocket* socketToWrite, const QByteArray& data)
+{
+	//QByteArray::number(data.size()) +
+	return socketToWrite->write(data);
+}
+
 
 QTcpSocket* NetworkManager::getCurrentSocket()
 {

@@ -4,7 +4,6 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\file.cpp" />
     <ClCompile Include="src\list_model.cpp" />
-    <ClCompile Include="src\request_manager.cpp" />
     <ClCompile Include="src\serialization_manager.cpp" />
     <ClCompile Include="src\settings_view.cpp" />
     <ClCompile Include="src\stdafx.cpp" />
@@ -27,14 +26,19 @@
     <ClCompile Include="src\fileExists_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\request_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\file.h" />
-    <ClInclude Include="headers\request_manager.h" />
     <ClInclude Include="headers\serialization_manager.h" />
     <ClInclude Include="headers\user.h" />
     <ClInclude Include="headers\stdafx.h" />
     <ClInclude Include="headers\file_manager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\request_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

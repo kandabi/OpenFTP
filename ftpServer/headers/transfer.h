@@ -6,7 +6,7 @@ class Transfer
 {
 
 public:
-	Transfer(int _userIndex,QString _fileName, QString _filePath, int _fileSize, bool _isBaseDir, QString requestPath);
+	Transfer(int _userIndex,QString _fileName, QString _filePath, int _fileSize, bool _isBaseDir, QString _directoryToReturn);
 	Transfer(int _userIndex, QString _fileName, QString _filePath, bool _isBaseDir);
 	Transfer();
 
@@ -20,7 +20,7 @@ public:
 	QString filePath;
 	bool isBaseDir;
 	int fileSize = -1;
-	QString requestPath = "";
+	QString directoryToReturn;
 	int numOfPacketsSent = 0;
 
 private:

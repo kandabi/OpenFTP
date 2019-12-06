@@ -13,6 +13,7 @@ public:
 		UploadFile,
 		UploadCompleted,
 		DownloadFile,
+		DownloadFolder,
 		NextPendingDownload,
 	};
 
@@ -31,6 +32,7 @@ public:
 		UploadCompleted,
 		BeginFileDownload,
 		DownloadComplete,
+		DownloadFolder,
 		DownloadFileError,
 		UnknownResponse,
 	};

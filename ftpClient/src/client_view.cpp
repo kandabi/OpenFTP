@@ -39,7 +39,7 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent) , serverMouseMenu(
 }
 
 
-void clientView::fileExists(QString filename)
+void clientView::fileAlreadyExists(const QString& filename)
 {
 	//QMessageBox msgBox(this);
 	//msgBox.setText(filename + " already exists on the server.\n");
@@ -53,16 +53,23 @@ void clientView::fileExists(QString filename)
 
 void clientView::uploadFileButton()
 {
-	if (connectedToServerBool && !ui.localBrowser->selectionModel()->selectedRows().isEmpty())
+	if (connectedToServerBool && !transfersInProgress && !ui.localBrowser->selectionModel()->selectedRows().isEmpty())
 	{   //!transfersInProgress
 		QStringList filesToUpload;
 		for (const QModelIndex& selected : ui.localBrowser->selectionModel()->selectedRows())
 		{
-			filesToUpload.append(currentLocalBrowserPath + "/" + selected.data().toString());
+			QString fileName = selected.data().toString();
+			if (!fileName.startsWith("."))
+			{
+				filesToUpload.append(currentLocalBrowserPath + "/" + selected.data().toString());
+			}
 		}
 		
-		emit uploadFileSignal(filesToUpload, transfersInProgress);
-		transfersInProgress = true;
+		if(!filesToUpload.isEmpty())
+		{
+			emit queueFilesToUploadSignal(filesToUpload, transfersInProgress);
+			transfersInProgress = true;
+		}
 	}
 }
 
@@ -70,20 +77,25 @@ void clientView::downloadFileButton()
 {
 	if (connectedToServerBool && !transfersInProgress && !ui.serverBrowser->selectionModel()->selectedRows().isEmpty())
 	{
-		downloadFileSignal(ui.serverBrowser->selectionModel()->selectedRows());
+		emit queueFilesToDownloadSignal(ui.serverBrowser->selectionModel()->selectedRows(), transfersInProgress);
+		transfersInProgress = true;
 	}
 }
 
 
 void clientView::dropEvent(QDropEvent* e)
 {
-	if (!connectedToServerBool)
-		return;
+	QStringList filesSelected = getFileListFromMimeData(e->mimeData());
+	if (connectedToServerBool && !transfersInProgress &&  ui.serverBrowser->geometry().contains(e->pos()))
+	{
+		emit queueFilesToUploadSignal(filesSelected, transfersInProgress);
+		transfersInProgress = true;
+	}
+	else if (ui.localBrowser->geometry().contains(e->pos()))
+	{
+		emit copyFilesToDirectorySignal(filesSelected, true);
+	}
 
-	QStringList filesToUpload = getFileListFromMimeData(e->mimeData());
-
-	emit uploadFileSignal(filesToUpload, transfersInProgress);
-	transfersInProgress = true;
 }
 
 void clientView::dragEnterEvent(QDragEnterEvent* e)
@@ -219,11 +231,18 @@ void clientView::keyPressEvent(QKeyEvent* event)
 	}
 	else if ((event->key() == Qt::Key_V) && QApplication::keyboardModifiers() && Qt::ControlModifier)
 	{
-		QStringList filesToUpload = getFileListFromMimeData(QApplication::clipboard()->mimeData());
-		if (!filesToUpload.isEmpty()) //*** Remove this
+		QStringList filesSelected = getFileListFromMimeData(QApplication::clipboard()->mimeData());
+		if (!filesSelected.isEmpty()) //*** Remove this
 		{
-			emit uploadFileSignal(filesToUpload, transfersInProgress);
-			transfersInProgress = true;
+			if (connectedToServerBool && !transfersInProgress && ui.serverBrowser->hasFocus())
+			{
+				emit queueFilesToUploadSignal(filesSelected, transfersInProgress);
+				transfersInProgress = true;
+			}
+			else if (ui.localBrowser->hasFocus())
+			{
+				emit copyFilesToDirectorySignal(filesSelected, true);
+			}
 		}
 	}
 }
@@ -276,6 +295,7 @@ void clientView::hideProgressBar()
 void clientView::setProgressBar(qint64 bytesTotal)
 {
 	showProgressBar();
+	ui.progressBar->setValue(0);
 	ui.progressBar->setMaximum(bytesTotal);
 }
 

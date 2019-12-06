@@ -81,9 +81,9 @@ void FtpManager::renameFile(const QString& filePath, const QString& fileToRename
 	bool result = directory.rename(fileToRename ,newFileName);
 }
 
-bool FtpManager::createFolder(const QString& filePath, const QString& newFolderName)
+bool FtpManager::createFolder(const QString& newFolderPath)
 {
-	return QDir(filePath).mkdir(newFolderName);
+	return QDir().mkdir(newFolderPath);
 }
 
 
@@ -92,9 +92,9 @@ bool FtpManager::checkFileExists(const QString& filePath, const QString& fileNam
 	return QDir(filePath).exists(fileName);
 }
 
-Transfer FtpManager::startFileUpload(const int& userIndex ,const QString& fileName, const QString& filePath, const int& fileSize, const bool& baseDir, const QString& requestPath)
+Transfer FtpManager::startFileUpload(const int& userIndex ,const QString& fileName, const QString& filePath, const int& fileSize, const bool& baseDir, const QString& directoryToReturn)
 {
-	return Transfer(userIndex, filePath, fileName, fileSize, baseDir, requestPath);
+	return Transfer(userIndex, filePath, fileName, fileSize, baseDir, directoryToReturn);
 }
 
 
@@ -121,6 +121,8 @@ bool FtpManager::beginFileDownload(const Transfer& download, QTcpSocket* socket,
 	}
 
 	QByteArray fileData = qfile.readAll();
+	if (fileData.isEmpty())
+		fileData = " ";
 	qint64 result = socket->write(fileData);
 	return true;
 }
