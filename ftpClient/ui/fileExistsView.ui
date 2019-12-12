@@ -6,19 +6,23 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>342</width>
-    <height>273</height>
+    <width>390</width>
+    <height>263</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>File Already Exists</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/alienIcon/images/icon.png</normaloff>:/alienIcon/images/icon.png</iconset>
   </property>
   <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
-     <x>50</x>
+     <x>150</x>
      <y>210</y>
-     <width>241</width>
+     <width>191</width>
      <height>42</height>
     </rect>
    </property>
@@ -56,6 +60,9 @@
       <property name="text">
        <string>OK</string>
       </property>
+      <property name="autoDefault">
+       <bool>true</bool>
+      </property>
      </widget>
     </item>
     <item>
@@ -70,33 +77,36 @@
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>30</y>
+     <x>20</x>
+     <y>40</y>
      <width>221</width>
-     <height>161</height>
+     <height>121</height>
     </rect>
    </property>
    <property name="title">
-    <string>GroupBox</string>
+    <string>Select action to perform:</string>
    </property>
-   <widget class="QRadioButton" name="radioButton">
+   <widget class="QRadioButton" name="overwriteRadioButton">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>30</y>
+      <y>20</y>
       <width>171</width>
       <height>17</height>
      </rect>
     </property>
     <property name="text">
-     <string>Overwrite to existing file</string>
+     <string>Overwrite existing file</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radioButton_2">
+   <widget class="QRadioButton" name="differentNameRadioButton">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>70</y>
+      <y>50</y>
       <width>171</width>
       <height>17</height>
      </rect>
@@ -105,11 +115,11 @@
      <string>Upload with a different name</string>
     </property>
    </widget>
-   <widget class="QRadioButton" name="radioButton_3">
+   <widget class="QRadioButton" name="skipFileRadioButton">
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>110</y>
+      <y>80</y>
       <width>101</width>
       <height>17</height>
      </rect>
@@ -119,8 +129,49 @@
     </property>
    </widget>
   </widget>
+  <widget class="QLabel" name="fileExistsLabel">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>10</y>
+     <width>311</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="temporaryCheckbox">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>170</y>
+     <width>311</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Remember my selection for this session.</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="permanentCheckbox">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>190</y>
+     <width>361</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Remember my selection in the settings. (You can change this later)</string>
+   </property>
+  </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>okButton</sender>

@@ -10,6 +10,12 @@ public:
 
 	File() {};
 
+	bool isEmpty()
+	{
+		return fileName.isEmpty();
+	}
+
+
 	QString fileName;
 	QString filePath;
 	int fileSize;

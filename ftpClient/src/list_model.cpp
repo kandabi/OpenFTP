@@ -34,7 +34,7 @@ QVariant FileListServerModel::data(const QModelIndex& index, int role) const
 	{
 		if (index.column() == 1)
 			return QVariant(itemData[index.row()].fileName);
-		else if (index.column() == 2)
+		else if (index.column() == 2 && itemData[index.row()].fileSize != 0)
 			return QVariant(locale.formattedDataSize(itemData[index.row()].fileSize));
 		else if (index.column() == 3)
 			return QVariant(itemData[index.row()].lastModified);
@@ -74,7 +74,7 @@ QVariant FileListServerModel::headerData(int section, Qt::Orientation orientatio
 		}
 		else if (section == 3) 
 		{
-			return QStringLiteral("Last Modified");
+			return QStringLiteral("Date Modified");
 		}
 		else if (section == 4)
 		{

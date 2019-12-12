@@ -27,6 +27,8 @@ public:
 		FolderCreated,
 		FolderAlreadyExists,
 		Browse,
+		Rename,
+		RenameError,
 		DeletedFiles,
 		FileAlreadyExists,
 		BeginFileUpload,
@@ -39,11 +41,19 @@ public:
 		UnknownResponse,
 	};
 
+	enum class FileOverwrite
+	{
+		NoneSelected,
+		OverwriteExisting,
+		CreateNewFileName,
+		SkipFile,
+	};
+
 	static QJsonArray createServerResponse(ResponseType responseStatus, const QString& dir, bool isBaseDir, int bytesWritten = {});
 	static QJsonArray createUploadProgressResponse(ResponseType responseStatus, const QString& path, int bytesWritten);
 	static bool checkIfBaseDir(const QString& directory, const QString& homeDirectory);
 	static void deleteFiles(const QJsonArray& filesToDelete);
-	static void renameFile(const QString& filePath, const QString& fileToRename, const QString& newFileName);
+	static bool renameFile(const QString& filePath, const QString& oldFileName, QString& newFileName);
 	static bool createFolder(const QString& newFolderName);
 	static Transfer startFileUpload(const int& userIndex,const QString& fileName, const QString& filePath, const int& fileSize, const bool& baseDir, const QString& directoryToReturn);
 	static Transfer createPendingFileDownload(const int& userIndex, const QString& filePath, const QString& fileName, const bool& baseDir, QString& errorString);
@@ -52,6 +62,7 @@ public:
 	static bool completeFileUpload(Transfer& upload);
 	static void cancelFileUpload(Transfer& upload);
 	static bool checkFileExists(const QString& filePath, const QString& fileName);
+	static QString changeFileName(const QString& fileName, const QString& filePath);
 
 private:
 	static QJsonValue encodePixmapForJson(const QPixmap& p);

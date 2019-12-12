@@ -81,7 +81,8 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 			break;
 		}
 		case FtpManager::RequestType::Rename: { 
-			FtpManager::renameFile(directory, json.value("renameFile").toString(), json.value("changedFileName").toString()); 
+			bool renamed = FtpManager::renameFile(directory, json.value("renameFile").toString(), json.value("changedFileName").toString()); 
+			responseCode = (renamed) ? FtpManager::ResponseType::Rename : FtpManager::ResponseType::RenameError;
 			break; 
 		}
 		case FtpManager::RequestType::CreateFolder: 
@@ -93,19 +94,30 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 		case FtpManager::RequestType::UploadFile: 
 		{
 			QString fileName = json.value("fileName").toString();
-			QString filePath = json.value("filePath").toString();;
-			if (!FtpManager::checkFileExists(filePath, fileName) || json.value("overwrite").toString().toInt())
+			QString filePath = json.value("filePath").toString();
+			FtpManager::FileOverwrite overwriteExistingFile = (FtpManager::FileOverwrite)json.value("overwrite").toString().toInt();
+			writeTextSignal("Uploading file: " + fileName + ", File size: " + json.value("fileSize").toString());
+
+			if (FtpManager::checkFileExists(filePath, fileName))
 			{
-				responseCode = FtpManager::ResponseType::BeginFileUpload;
-				Transfer fileTransfer = FtpManager::startFileUpload(userIndex, filePath, fileName, json.value("fileSize").toString().toInt(), baseDir, directory);
-				transfersInProgress.append(fileTransfer);
-				currentUser.transferInProgress = true;
-				writeTextSignal("Uploading file: " + fileName + ", File size: " + json.value("fileSize").toString());
+				if (overwriteExistingFile == FtpManager::FileOverwrite::SkipFile || overwriteExistingFile == FtpManager::FileOverwrite::NoneSelected)
+				{
+					responseCode = FtpManager::ResponseType::FileAlreadyExists;
+					writeTextSignal("File " + fileName + " already exists on the server.", Qt::darkRed);
+					break;
+				}
+				else if (overwriteExistingFile == FtpManager::FileOverwrite::CreateNewFileName)
+				{
+					fileName = FtpManager::changeFileName(fileName, filePath);
+				}
 			}
-			else {
-				responseCode = FtpManager::ResponseType::FileAlreadyExists;
-				writeTextSignal("File already exists on the server.", Qt::darkRed);
-			}
+
+
+			responseCode = FtpManager::ResponseType::BeginFileUpload;
+			Transfer fileTransfer = FtpManager::startFileUpload(userIndex, filePath, fileName, json.value("fileSize").toString().toInt(), baseDir, directory);
+			transfersInProgress.append(fileTransfer);
+			currentUser.transferInProgress = true;
+			
 			break;
 		}
 		case FtpManager::RequestType::DownloadFile:

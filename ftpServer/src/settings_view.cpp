@@ -6,8 +6,8 @@ settingsView::settingsView(QWidget *parent)
 {
 	ui.setupUi(this);
 	setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
-	
 	this->setModal(true);
+
 	ui.applyButton->setEnabled(false);
 
 	ui.userValidationLabel->setText("");

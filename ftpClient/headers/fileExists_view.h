@@ -8,12 +8,22 @@ class fileExistsView : public QDialog
 
 public:
 	fileExistsView(QWidget* parent = Q_NULLPTR);
+	void setFileName(QString fileName);
 
 signals:
-	void onClose();
+	void onCloseSignal();
+	void performSelectionSignal(const int& selection, const bool& rememberSelectionForever, const bool& rememberForRemainingDownloads);
+
+public slots:
+	void performSelection();
+	void togglePermanentCheckbox();
+	void toggleTemporaryCheckbox();
 
 private:
 	Ui::fileExists ui;
+
+	friend class clientView;
+	friend class clientController;
 	//virtual void reject();
 };
 

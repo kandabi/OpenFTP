@@ -24,7 +24,7 @@ signals:
 	void setProgressBarSignal(qint64 bytesTotal);
 	void uploadCompleteSignal();
 	void uploadFailedSignal(QString errorString);
-	void setFileBrowserSignal(QFileSystemModel& model);
+	void setLocalFileBrowserSignal(QFileSystemModel& model);
 	void beepSignal();
 	void fileAlreadyExistsSignal(const QString& filename);
 	void deletedFilesSignal();
@@ -37,18 +37,23 @@ private slots:
 	void onDoubleClickServerBrowser(const QModelIndex& index);
 	void onDoubleClickLocalBrowser(const QModelIndex& index);
 	void deleteAction(const QModelIndexList& indices, bool deleteInServer);
-	void renameFile(const QModelIndex& indices, const QString& newFileName);
+	void renameInServer(const QModelIndex& indices, const QString& newFileName);
+	void renameInLocal(const QString& oldFileName, QString& newFileName);
 	void createFolderAction(const QString& newFolderPath, bool createInServer);
 	void browseHome();
 	void localBrowseHome();
 	void returnToLastFolder();
 	void localReturnToLastFolder();
-	void uploadFileRequest(const QFileInfo& fileList, bool isDir);
+	void uploadFileRequest(const QFileInfo& currentUpload, bool isDir, const RequestManager::FileOverwrite& overwriteOptionSelected = RequestManager::FileOverwrite::NoneSelected);
 	void searchFolder(const QString& directory, bool searchInServer);
 	void queueFilesToDownload(const QModelIndexList& indices, bool appendMorefiles);
 	void queueFilesToUpload(const QStringList& fileList, bool appendMorefiles);
 	void copyFilesToDirectory(const QStringList& files, bool lastFunction, const QString& directoryTocopy = {});
-
+	void copyFilesToClipboardLocal(const QStringList& files);
+	void copyFilesToClipboardServer(const QModelIndexList& files);
+	void fileAlreadyExistsSelection(const int& selection, const bool& rememberSelectionForever, const bool& rememberTemporary);
+	void resetFileAlreadyExistsBehavior();
+	
 	//void updateProgressBar(qint64 bytesReceived);
 	//void setProgressBar(qint64 bytesTotal);
 
@@ -60,7 +65,7 @@ private:
 	void uploadFileData();
 	void checkRemainingUploads();
 	void checkRemainingDownloads();
-	void createDownloadRequest(const File& file);
+	void downloadFileRequest(File& file, const RequestManager::FileOverwrite& overwriteOptionSelected = RequestManager::FileOverwrite::NoneSelected);
 	void beginPendingDownload(const File& file);
 	void parseDownload(const QByteArray& data);
 	void parseJson(const QByteArray& jsonArray);
@@ -89,7 +94,10 @@ private:
 	QFileInfo currentUpload;
 	QString directoryToSave;
 	
+	bool copiedServerFiles = false;
 	bool downloadInProgress = false;
 	int writtenBytes = 0;
+	RequestManager::FileOverwrite currentSessionFileBehavior = RequestManager::FileOverwrite::NoneSelected;
+
 };
 
