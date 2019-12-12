@@ -12,6 +12,17 @@ QString SettingsManager::getDefaultBrowserDirectory()
 }
 
 
+RequestManager::FileOverwrite SettingsManager::getOverwriteExistingFileBehavior()
+{
+	return static_cast<RequestManager::FileOverwrite>(settings->value("overwriteExistingFileBehavior").toInt());
+}
+
+void SettingsManager::setOverwriteExistingFileBehavior(const int& selection)
+{
+	settings->setValue("overwriteExistingFileBehavior", selection);
+}
+
+
 void SettingsManager::setDefaultBrowserDirectory(QString directory)
 {
 	 settings->setValue("defaultLocalDirectory", directory);

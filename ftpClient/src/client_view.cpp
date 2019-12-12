@@ -7,13 +7,19 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent) , serverMouseMenu(
 
 	setAcceptDrops(true);
 
-	serverMouseMenu.addAction("Rename", this, &clientView::renameAction);
+	serverMouseMenu.addAction("Rename", this, &clientView::renameAtServer);
+	//serverMouseMenu.addAction("Copy", this, &clientView::copyFilesToClipboard);
 	serverMouseMenu.addAction("Delete", this, &clientView::deleteAtServerBrowser);
 
+
+	pasteAction = serverEmptyMouseMenu.addAction("Paste", this, &clientView::pasteFilesFromClipboard);
 	serverEmptyMouseMenu.addAction("New Folder", this, &clientView::createServerFolder);
 
-	localMouseMenu.addAction("Rename", this, &clientView::renameAction);
+	localMouseMenu.addAction("Rename", this, &clientView::renameAtLocal);
+	localMouseMenu.addAction("Copy", this, &clientView::copyFilesToClipboard);
 	localMouseMenu.addAction("Delete", this, &clientView::deleteAtLocalBrowser);
+
+	localEmptyMouseMenu.addAction("Paste", this, &clientView::pasteFilesFromClipboard);
 	localEmptyMouseMenu.addAction("New Folder", this, &clientView::createLocalFolder);
 
 	ui.serverBrowser->viewport()->installEventFilter(parent);
@@ -33,9 +39,9 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent) , serverMouseMenu(
 	ui.deleteButton->setDisabled(true);
 	ui.uploadButton->setDisabled(true);
 	ui.downloadButton->setDisabled(true);
+	pasteAction->setEnabled(false);
 
 	ui.progressBar->hide();
-
 }
 
 
@@ -46,6 +52,7 @@ void clientView::fileAlreadyExists(const QString& filename)
 	//msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
 	////msgBox.setDefaultButton(QMessageBox::Save);
 	//int ret = msgBox.exec();
+	fileExistsWindow.setFileName(filename + " already exists on the server.");
 	fileExistsWindow.show();
 
 }
@@ -77,8 +84,9 @@ void clientView::downloadFileButton()
 {
 	if (connectedToServerBool && !transfersInProgress && !ui.serverBrowser->selectionModel()->selectedRows().isEmpty())
 	{
-		emit queueFilesToDownloadSignal(ui.serverBrowser->selectionModel()->selectedRows(), transfersInProgress);
 		transfersInProgress = true;
+		emit queueFilesToDownloadSignal(ui.serverBrowser->selectionModel()->selectedRows(), !transfersInProgress);
+		
 	}
 }
 
@@ -170,7 +178,7 @@ void clientView::deleteAtLocalBrowser()
 		return;
 
 	QModelIndexList selected = ui.localBrowser->selectionModel()->selectedRows();
-	if (!selected.isEmpty())
+	if (!selected.isEmpty() && !transfersInProgress)
 		emit deleteActionSignal(selected, false);
 }
 
@@ -185,7 +193,7 @@ void clientView::deleteAtServerBrowser()
 		return;
 
 	QModelIndexList selected = ui.serverBrowser->selectionModel()->selectedRows();
-	if(!selected.isEmpty())
+	if(!selected.isEmpty() && !transfersInProgress)
 		emit deleteActionSignal(selected, true);
 }
 
@@ -226,37 +234,64 @@ void clientView::keyPressEvent(QKeyEvent* event)
 	}
 	else if ((event->key() == Qt::Key_S) && QApplication::keyboardModifiers() && Qt::ControlModifier)
 	{
-		 //if (ui.serverSearchEdit->hasFocus())
-			 renameAction();
+		if (ui.serverBrowser->hasFocus() && !ui.serverBrowser->selectionModel()->selectedRows().isEmpty())
+		{
+			renameAtServer();
+		}
+		else if (ui.localBrowser->hasFocus() && !ui.localBrowser->selectionModel()->selectedRows().isEmpty())
+		{
+			renameAtLocal();
+		}
+	}
+	else if ((event->key() == Qt::Key_C) && QApplication::keyboardModifiers() && Qt::ControlModifier)
+	{
+		copyFilesToClipboard();
 	}
 	else if ((event->key() == Qt::Key_V) && QApplication::keyboardModifiers() && Qt::ControlModifier)
 	{
-		QStringList filesSelected = getFileListFromMimeData(QApplication::clipboard()->mimeData());
-		if (!filesSelected.isEmpty()) //*** Remove this
-		{
-			if (connectedToServerBool && !transfersInProgress && ui.serverBrowser->hasFocus())
-			{
-				emit queueFilesToUploadSignal(filesSelected, transfersInProgress);
-				transfersInProgress = true;
-			}
-			else if (ui.localBrowser->hasFocus())
-			{
-				emit copyFilesToDirectorySignal(filesSelected, true);
-			}
-		}
+
+		pasteFilesFromClipboard();
+		//}
+		//else if(!pasteAction->isEnabled())
+		//{
+		//	beep();
+		//}
+
+		//QStringList filesSelected = getFileListFromMimeData(QApplication::clipboard()->mimeData());
+		//if (!filesSelected.isEmpty()) 
+		//{
+		//	if (connectedToServerBool && !transfersInProgress && ui.serverBrowser->hasFocus())
+		//	{
+		//		emit queueFilesToUploadSignal(filesSelected, transfersInProgress);
+		//		transfersInProgress = true;
+		//	}
+		//	else if (ui.localBrowser->hasFocus())
+		//	{
+		//		emit copyFilesToDirectorySignal(filesSelected, true);
+		//	}
+		//}
 	}
 }
 
 
-void clientView::renameAction()
+void clientView::renameAtServer()
 {
 	bool ok;
 	QString text = QInputDialog::getText(this, tr("Rename File"),
 		tr("Please enter the text to rename:"), QLineEdit::Normal, "", &ok);
 	if (ok && !text.isEmpty())
-		emit renameActionSignal(ui.serverBrowser->selectionModel()->currentIndex(), text);
+		emit renameInServerSignal(ui.serverBrowser->selectionModel()->currentIndex(), text);
 }
 
+
+void clientView::renameAtLocal()
+{
+	bool ok;
+	QString text = QInputDialog::getText(this, tr("Rename File"),
+		tr("Please enter the text to rename:"), QLineEdit::Normal, "", &ok);
+	if (ok && !text.isEmpty())
+		emit renameInLocalSignal(ui.localBrowser->selectionModel()->selectedRows().first().data().toString(), text);
+}
 
 
 
@@ -266,7 +301,7 @@ void clientView::createServerFolder()
 	QString text = QInputDialog::getText(this, tr("Create Folder"),
 		tr("Please enter new folder name:"), QLineEdit::Normal, "", &ok);
 	if (ok && !text.isEmpty())
-		emit createNewFolderSignal(text, true);
+		emit createNewFolderSignal(currentServerBrowserPath  + "/" + text, true);
 }
 
 
@@ -276,7 +311,7 @@ void clientView::createLocalFolder()
 	QString text = QInputDialog::getText(this, tr("Create Folder"),
 		tr("Please enter new folder name:"), QLineEdit::Normal, "", &ok);
 	if (ok && !text.isEmpty())
-		emit createNewFolderSignal(text, false);
+		emit createNewFolderSignal(currentLocalBrowserPath + "/" + text, false);
 }
 
 
@@ -357,25 +392,22 @@ void clientView::openFileBrowser()
 
 
 
-void clientView::setFileBrowser(QFileSystemModel& model)
+void clientView::setLocalFileBrowser(QFileSystemModel& model)
 {
+
 	ui.localBrowser->setModel(&model);
 
 	currentLocalBrowserPath = model.rootPath();
 	ui.localBrowser->setRootIndex(model.index(currentLocalBrowserPath));
 
-	ui.localBrowser->hideColumn(2);
+	//ui.localBrowser->hideColumn(2);
 	ui.localBrowser->setColumnWidth(0, 260);
 	ui.localBrowser->setColumnWidth(3, 120);
 	ui.localSearchEdit->setText(model.rootPath());
-
-	//ui.clientBrowser->setColumnWidth(1, 200);
-	//ui.clientBrowser->setColumnWidth(2, 250);
 }
 
 void clientView::connectedToServer(FileListServerModel* model,const QString& currentDirectory)
 {
-
 	if(model != Q_NULLPTR)
 		ui.serverBrowser->setModel(model);
 
@@ -384,7 +416,7 @@ void clientView::connectedToServer(FileListServerModel* model,const QString& cur
 	ui.serverBrowser->setColumnWidth(3, 120);
 	ui.serverBrowser->setColumnWidth(4, 200);
 	
-
+	currentServerBrowserPath = currentDirectory;
 	ui.serverSearchEdit->setText(currentDirectory);
 
 	ui.disconnectButton->setDisabled(false);
@@ -413,11 +445,59 @@ void clientView::disconnectedFromServer()
 	ui.downloadButton->setDisabled(true);
 	ui.serverSearchEdit->clear();
 	connectedToServerBool = false;
-
+	pasteAction->setEnabled(false);
 	setProgressBar(0);
 	hideProgressBar();
 }
 
+
+void clientView::pasteFilesFromClipboard()
+{
+	QStringList filesSelected = getFileListFromMimeData(QApplication::clipboard()->mimeData());
+	if (!filesSelected.isEmpty()) 
+	{
+		if (connectedToServerBool && !transfersInProgress && ui.serverBrowser->hasFocus())
+		{
+			emit queueFilesToUploadSignal(filesSelected, transfersInProgress);
+			transfersInProgress = true;
+		}
+		else if (ui.localBrowser->hasFocus())
+		{
+			if (!pasteAction->isEnabled())
+			{
+				beep(); //*** Implement blinking on download button.
+			}
+			else {
+				emit copyFilesToDirectorySignal(filesSelected, true, currentLocalBrowserPath);
+			}
+		}
+	}
+	
+}
+
+
+void clientView::copyFilesToClipboard()
+{
+	if (ui.localBrowser->hasFocus() && !ui.localBrowser->selectionModel()->selectedRows().isEmpty())
+	{
+		QStringList filesToUpload;
+		for (const QModelIndex& selected : ui.localBrowser->selectionModel()->selectedRows())
+		{
+			QString fileName = selected.data().toString();
+			if (!fileName.startsWith("."))
+			{
+				filesToUpload.append(currentLocalBrowserPath + "/" + selected.data().toString());
+			}
+		}
+		emit copyFilesToClipboardLocalSignal(filesToUpload);
+		pasteAction->setEnabled(true);
+	}
+	else if (ui.serverBrowser->hasFocus() && !ui.serverBrowser->selectionModel()->selectedRows().isEmpty())
+	{
+		emit copyFilesToClipboardServerSignal(ui.serverBrowser->selectionModel()->selectedRows());
+		pasteAction->setEnabled(false);
+	}
+}
 
 QStringList clientView::getFileListFromMimeData(const QMimeData* data)
 {

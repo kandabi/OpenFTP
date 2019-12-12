@@ -11,15 +11,15 @@ ClientModel::ClientModel(QWidget* parent) : QObject(parent), settingsManager(par
 	currentLocalDirectory = settingsManager.getDefaultBrowserDirectory();
 
 	localBrowserModel = new QFileSystemModel(this);
-	localBrowserModel->setFilter( QDir::NoDotDot | QDir::AllEntries);
+	localBrowserModel->setFilter(QDir::NoDotDot | QDir::AllEntries);
 	localBrowserModel->setRootPath(currentLocalDirectory);
 }
 
 
 void ClientModel::init()
 {
-	emit writeTextSignal("OpenFTP client 0.1.1, written by kandabi", Qt::darkGray);
-	emit setFileBrowserSignal(*localBrowserModel);
+	emit writeTextSignal("OpenFTP client 0.1.3, written by kandabi", Qt::darkGray);
+	emit setLocalFileBrowserSignal(*localBrowserModel);
 }
 
 
@@ -35,6 +35,8 @@ void ClientModel::connectToServer()
 void ClientModel::disconnectFromServer()
 {
 	socket.close();
+	copiedServerFiles = false;
+	downloadInProgress = false;
 }
 
 
@@ -89,12 +91,29 @@ void ClientModel::parseJson(const QByteArray& data)
 	case RequestManager::ResponseType::DeletedFiles:
 		emit deletedFilesSignal();
 		break;
+	case RequestManager::ResponseType::Rename:
+		break;
+	case RequestManager::ResponseType::RenameError:
+		beepSignal();
+		break;
 	case RequestManager::ResponseType::FileUploading:
 		emit updateProgressBarSignal(serverDetails.value("bytesWritten").toInt());
 		break;
 	case RequestManager::ResponseType::FileAlreadyExists:
-		emit fileAlreadyExistsSignal(QFileInfo(fileListToUpload.first()).fileName());
+	{
+		RequestManager::FileOverwrite overwriteBehaviour = (currentSessionFileBehavior != RequestManager::FileOverwrite::NoneSelected) ?
+			currentSessionFileBehavior : settingsManager.getOverwriteExistingFileBehavior();
+
+		if (overwriteBehaviour == RequestManager::FileOverwrite::SkipFile)
+		{
+			emit writeTextSignal("File: " + currentUpload.fileName() + " has been skipped.", Qt::darkRed);
+			checkRemainingUploads();
+		}
+		else
+			emit fileAlreadyExistsSignal(currentUpload.fileName());
+
 		break;
+	}
 	case RequestManager::ResponseType::BeginFileUpload:
 		uploadFileData();
 		break;
@@ -108,8 +127,9 @@ void ClientModel::parseJson(const QByteArray& data)
 		break;
 	case RequestManager::ResponseType::DownloadFolder:
 	{
-		QList<File> extraFiles = getFilesListFromJson(jsonArray);
-		for (const File& file : extraFiles)
+		auto fileArray = getFilesListFromJson(jsonArray);
+		writeTextSignal("Appended " + QString::number(fileArray.count()) + " extra files to download from directory: " + currentDownload.fileName);
+		for (const File& file : fileArray)
 		{
 			fileListToDownload.prepend(file);
 		}
@@ -161,28 +181,62 @@ void ClientModel::checkRemainingDownloads()
 	downloadInProgress = false;
 	if (!fileListToDownload.isEmpty())
 	{
-		for (int index = 0; index < fileListToDownload.count(); ++index)
+		RequestManager::FileOverwrite overwriteBehaviour = (currentSessionFileBehavior != RequestManager::FileOverwrite::NoneSelected) ?
+															currentSessionFileBehavior : settingsManager.getOverwriteExistingFileBehavior();
+
+		for (int index = 0; index < fileListToDownload.count();)
 		{
-			currentDownload = fileListToDownload[index];
+			currentDownload = fileListToDownload[index];			
+
 			if (!currentDownload.isDir)
 			{
 				fileListToDownload.removeAt(index);
+
+				if (FileManager::checkFileExists(directoryToSave, currentDownload.fileName))
+				{
+					if (overwriteBehaviour == RequestManager::FileOverwrite::NoneSelected)
+					{
+						emit fileAlreadyExistsSignal(currentDownload.fileName);
+						return;
+					}
+					else if (overwriteBehaviour == RequestManager::FileOverwrite::SkipFile)
+					{
+						emit writeTextSignal("File: " + currentDownload.fileName + " has been skipped.", Qt::darkRed);
+						currentDownload = File();
+
+						continue;
+					}
+				}
+				else
+					overwriteBehaviour = RequestManager::FileOverwrite::NoneSelected;
+
 				break;
 			}
+			else {
+				++index;
+			}
+
+			
 		}
 
-		if (currentDownload.isDir)
+		if (currentDownload.isEmpty())
+		{
+			uploadCompleteSignal();
+			directoryToSave.clear();
+			return;
+		}
+		else if (currentDownload.isDir)
 		{
 			//QStringList array = currentDownload.filePath.split(currentServerDirectory).last().split('/');
 			directoryToSave = currentLocalDirectory + currentDownload.filePath.split(currentServerDirectory).last();
 			fileListToDownload.removeLast();
 		}
-
-		createDownloadRequest(currentDownload);
+		
+		downloadFileRequest(currentDownload, overwriteBehaviour);
 
 	}
 	else {
-		directoryToSave = "";
+		directoryToSave.clear();
 		emit uploadCompleteSignal();
 	}
 }
@@ -193,7 +247,10 @@ void ClientModel::checkRemainingUploads()
 	if (!fileListToUpload.isEmpty())
 	{
 		bool isDir = true;
-		
+
+		RequestManager::FileOverwrite overwriteBehaviour = (currentSessionFileBehavior != RequestManager::FileOverwrite::NoneSelected) ? 
+															currentSessionFileBehavior : settingsManager.getOverwriteExistingFileBehavior();
+
 		for (int index = 0; index < fileListToUpload.count(); ++index)
 		{
 			currentUpload.setFile(fileListToUpload[index]);
@@ -201,6 +258,7 @@ void ClientModel::checkRemainingUploads()
 			{
 				isDir = false;
 				fileListToUpload.removeAt(index);
+
 				break;
 			}
 		}
@@ -216,12 +274,11 @@ void ClientModel::checkRemainingUploads()
 			for (const QFileInfo& file : fileInfoList)
 			{
 				fileListToUpload.prepend(file.absoluteFilePath());
-
 			}
 
 		}
 
-		uploadFileRequest(currentUpload, isDir);
+		uploadFileRequest(currentUpload, isDir, overwriteBehaviour);
 	}
 	else {
 		directoryToUpload = "";
@@ -236,7 +293,7 @@ void ClientModel::uploadFileData()
 	socket.write(dataToSend);
 }
 
-void ClientModel::uploadFileRequest(const QFileInfo& currentUpload, bool isDir)
+void ClientModel::uploadFileRequest(const QFileInfo& currentUpload, bool isDir, const RequestManager::FileOverwrite& overwriteOptionSelected)
 {
 	if (isDir) //*** Check if its a directory;
 	{
@@ -252,6 +309,8 @@ void ClientModel::uploadFileRequest(const QFileInfo& currentUpload, bool isDir)
 		}
 
 		QString fileSize = QString::number(qfile.size());
+		RequestManager::FileOverwrite overwriteExisting = (overwriteOptionSelected == RequestManager::FileOverwrite::NoneSelected) ? 
+															settingsManager.getOverwriteExistingFileBehavior() : overwriteOptionSelected;
 		emit writeTextSignal("Sending File: " + currentUpload.fileName() + " File Size: " + fileSize + " Directory to upload: " + directoryToUpload);
 		emit setProgressBarSignal(qfile.size());
 
@@ -260,7 +319,7 @@ void ClientModel::uploadFileRequest(const QFileInfo& currentUpload, bool isDir)
 			{"uploadFileName",  currentUpload.fileName() },
 			{"uploadFilePath", directoryToUpload},
 			{"uploadFileSize", fileSize},
-			{"uploadOverwriteExisting", QString::number(true)},
+			{"uploadOverwriteExisting", QString::number(static_cast<int>(overwriteExisting )) },
 		};
 
 		QJsonObject request = RequestManager::createServerRequest(RequestManager::RequestType::UploadFile, requestVariables);
@@ -272,6 +331,7 @@ void ClientModel::uploadFileRequest(const QFileInfo& currentUpload, bool isDir)
 		QByteArray fileData = qfile.readAll();
 		if (fileData.isEmpty())
 			fileData = " ";
+
 		dataToSend = fileData;
 	}
 }
@@ -311,14 +371,14 @@ void ClientModel::queueFilesToDownload(const QModelIndexList& indices, bool appe
 	for (const QModelIndex& index : indices)
 	{
 		File file = serverFileList[index.row()];
-		if (file.fileName == ".")
+		if (file.fileName == "." || file.fileName.contains(".lnk"))
 			continue;
 
 		fileListToDownload.append(file);
 	}
 
-	writeTextSignal("Appended " + QString::number(fileListToDownload.count()) + " files to download.");
 
+	writeTextSignal("Appended " + QString::number(fileListToDownload.count()) + " files to download.");
 	if (!appendMorefiles)
 	{
 		directoryToSave = currentLocalDirectory;
@@ -329,6 +389,12 @@ void ClientModel::queueFilesToDownload(const QModelIndexList& indices, bool appe
 
 void ClientModel::queueFilesToUpload(const QStringList& fileList, bool appendMorefiles)
 {
+	if (copiedServerFiles)
+	{
+		beepSignal();
+		return;
+	}
+
 	emit writeTextSignal(QString::number(fileList.count()) + " Files added to upload queue.");
 	fileListToUpload += fileList;
 
@@ -347,7 +413,7 @@ void ClientModel::queueFilesToUpload(const QStringList& fileList, bool appendMor
 //}
 
 
-void ClientModel::createDownloadRequest(const File& file)
+void ClientModel::downloadFileRequest(File& file, const RequestManager::FileOverwrite& overwriteOptionSelected)
 {
 	QString fileName = file.fileName;
 	bool isFolder = file.isDir;
@@ -357,6 +423,12 @@ void ClientModel::createDownloadRequest(const File& file)
 		createFolderAction(directoryToSave, false);
 		requestPath = file.filePath;
 	}
+
+	if (overwriteOptionSelected == RequestManager::FileOverwrite::CreateNewFileName)
+		file.fileName = FileManager::changeFileName(fileName, directoryToSave);
+
+
+	emit writeTextSignal("Downloading File: " + file.fileName + " File Size: " + file.fileSize + " Directory to upload: " + directoryToSave, Qt::darkGreen);
 	
 	QMap<QString, QString> requestVariables
 	{
@@ -414,22 +486,22 @@ void ClientModel::onSocketStateChanged(QAbstractSocket::SocketState socketState)
 
 void ClientModel::onDoubleClickLocalBrowser(const QModelIndex& index)
 {	
-	bool result = localBrowserModel->isDir(index);
+	const QModelIndex& selectedIndex = localBrowserModel->index(index.row(), 0, index.parent());
+	bool result = localBrowserModel->isDir(selectedIndex);
 	if (result)
 	{
-		QString fileName = localBrowserModel->fileName(index);
-		QString filePath = localBrowserModel->filePath(index);
+		QString fileName = localBrowserModel->fileName(selectedIndex);
+		QString filePath = localBrowserModel->filePath(selectedIndex);
 
 		if (checkIfSensitiveDirectory(filePath))
 			return;
-
 		else if (fileName == ".")
 			filePath = FileManager::getPreviousFolderPath(filePath);
 		
 		localBrowserModel->setRootPath(filePath);
 		currentLocalDirectory = filePath;
 		settingsManager.setDefaultBrowserDirectory(currentLocalDirectory);
-		emit setFileBrowserSignal(*localBrowserModel);
+		emit setLocalFileBrowserSignal(*localBrowserModel);
 	}
 }
 
@@ -464,7 +536,6 @@ void ClientModel::deleteAction(const QModelIndexList& indices, bool deleteInServ
 
 			if (fileName == "." || checkIfSensitiveDirectory(filePath))
 				continue;
-
 			else {
 				QDir dir(filePath);
 				dir.remove(filePath);
@@ -474,11 +545,14 @@ void ClientModel::deleteAction(const QModelIndexList& indices, bool deleteInServ
 			}
 		}
 	}
-	else if(serverFileList[indices[0].row()].fileName != "." && !serverFileList[indices[0].row()].fileName.endsWith(":/Windows"))
+	else if(!serverFileList[indices[0].row()].fileName.endsWith(":/Windows"))
 	{
 		QStringList deletePaths;
 		//QString pathToRequest = FileManager::getPreviousFolderPath(fileList[indices[0].row()].filePath);
-		for (int i = 0; i < indices.count(); ++i)
+		if (serverFileList[indices[0].row()].fileName != ".")
+			deletePaths.append(serverFileList[indices[0].row()].filePath);
+
+		for (int i = 1; i < indices.count(); ++i)
 		{
 			deletePaths.append(serverFileList[indices[i].row()].filePath);
 		}
@@ -495,7 +569,7 @@ void ClientModel::deleteAction(const QModelIndexList& indices, bool deleteInServ
 }
 
 
-void ClientModel::renameFile(const QModelIndex& index, const QString& newFileName)
+void ClientModel::renameInServer(const QModelIndex& index, const QString& newFileName)
 {
 	int rowSelected = index.row();
 	QString fileName = serverFileList[rowSelected].fileName;
@@ -513,6 +587,17 @@ void ClientModel::renameFile(const QModelIndex& index, const QString& newFileNam
 	QByteArray data = Serializer::JsonObjectToByteArray(response);
 
 	socket.write(data);
+}
+
+void ClientModel::renameInLocal(const QString& oldFileName, QString& newFileName)
+{
+	QDir directory(currentLocalDirectory);
+	QFileInfo file(directory, oldFileName);
+	if (file.isFile() && !newFileName.contains("."))
+	{
+		newFileName += "." + file.suffix();
+	}
+	bool renameResult = directory.rename(oldFileName, newFileName);
 }
 
 void ClientModel::createFolderAction(const QString& newFolderPath, bool createInServer)
@@ -533,7 +618,7 @@ void ClientModel::createFolderAction(const QString& newFolderPath, bool createIn
 	{
 		QDir dir;
 		dir.mkpath(newFolderPath);
-		emit setFileBrowserSignal(*localBrowserModel);
+		emit setLocalFileBrowserSignal(*localBrowserModel);
 	}
 
 
@@ -562,7 +647,7 @@ void ClientModel::searchFolder(const QString& directory, bool searchInServer)
 			currentLocalDirectory = directory;
 			settingsManager.setDefaultBrowserDirectory(currentLocalDirectory);
 			localBrowserModel->setRootPath(currentLocalDirectory);
-			emit setFileBrowserSignal(*localBrowserModel);
+			emit setLocalFileBrowserSignal(*localBrowserModel);
 		}
 	}
 
@@ -590,9 +675,45 @@ void ClientModel::localBrowseHome()
 	currentLocalDirectory = "";
 	settingsManager.setDefaultBrowserDirectory(currentLocalDirectory);
 	localBrowserModel->setRootPath(currentLocalDirectory);
-	emit setFileBrowserSignal(*localBrowserModel);
+	emit setLocalFileBrowserSignal(*localBrowserModel);
 }
 
+
+void ClientModel::copyFilesToClipboardLocal(const QStringList& files)
+{
+	//{ QUrl::fromLocalFile(C: / fileToCopy.txt) }
+	QList<QUrl> urlList;
+	for (const QString& file : files)
+	{
+		urlList.append(QUrl::fromLocalFile(file));
+	}
+
+	QMimeData* mimeData = new QMimeData();
+	mimeData->setUrls(urlList);
+
+	QApplication::clipboard()->setMimeData(mimeData);
+	copiedServerFiles = false; 
+
+	emit writeTextSignal(QString::number(files.count()) + " files has been copied to the clipboard.");
+}
+
+void ClientModel::copyFilesToClipboardServer(const QModelIndexList& indices)
+{
+	QList<QUrl> urlList;
+	for (int i = 0 ;i < indices.count();++i)
+	{
+
+		urlList.append(QUrl::fromLocalFile(serverFileList[indices[i].row()].filePath));
+	}
+
+
+	QMimeData* mimeData = new QMimeData();
+	mimeData->setUrls(urlList);
+
+	QApplication::clipboard()->setMimeData(mimeData);
+	copiedServerFiles = true;
+	emit writeTextSignal(QString::number(indices.count()) + " files has been copied to the clipboard.");
+}
 
 void ClientModel::copyFilesToDirectory(const QStringList& files, bool lastFunction, const QString& directoryTocopy)
 {
@@ -603,15 +724,19 @@ void ClientModel::copyFilesToDirectory(const QStringList& files, bool lastFuncti
 			QDir directory(file);
 			QString newDirectoryTocopy = (directoryTocopy.isEmpty()) ? currentLocalDirectory + "/" + directory.dirName() : directoryTocopy + "/" + directory.dirName();
 			
-			directory.mkdir(newDirectoryTocopy);
+			
 			QStringList extraFiles;
 			QFileInfoList subdirectoryFiles = directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files);
-			if(!subdirectoryFiles.isEmpty())
+			directory.mkdir(newDirectoryTocopy);
+			if (!subdirectoryFiles.isEmpty())
+			{
 				for (int i = 0; i < subdirectoryFiles.count(); ++i)
 				{
 					extraFiles.append(subdirectoryFiles[i].absoluteFilePath());
 				}
-				copyFilesToDirectory(extraFiles, false , newDirectoryTocopy);
+				copyFilesToDirectory(extraFiles, false, newDirectoryTocopy);
+			}
+			
 		}
 		else {
 
@@ -641,8 +766,54 @@ void ClientModel::localReturnToLastFolder()
 	currentLocalDirectory = FileManager::getPreviousFolderPath(currentLocalDirectory);
 	settingsManager.setDefaultBrowserDirectory(currentLocalDirectory);
 	localBrowserModel->setRootPath(currentLocalDirectory);
-	emit setFileBrowserSignal(*localBrowserModel);
+	emit setLocalFileBrowserSignal(*localBrowserModel);
 }
+
+
+void ClientModel::fileAlreadyExistsSelection(const int& selection, const bool& rememberSelectionForever, const bool& rememberTemporary)
+{
+	if (rememberSelectionForever)
+		settingsManager.setOverwriteExistingFileBehavior(selection);
+	else if (rememberTemporary)
+		currentSessionFileBehavior = static_cast<RequestManager::FileOverwrite>(selection);
+
+	auto overwriteFileSelection = static_cast<RequestManager::FileOverwrite>(selection);
+
+	if (!currentDownload.isEmpty())
+	{
+		if (selection == 3)
+		{
+			emit writeTextSignal("File: " + currentDownload.fileName + " has been skipped.", Qt::darkRed);
+			checkRemainingDownloads();
+			return;
+		}
+		downloadFileRequest(currentDownload, overwriteFileSelection);
+	}
+	else if (currentUpload.exists())
+	{
+		if (selection == 3)
+		{
+			emit writeTextSignal("File: " + currentUpload.fileName() + " has been skipped.", Qt::darkRed);
+			checkRemainingUploads();
+			return;
+		}
+		uploadFileRequest(currentUpload, false, overwriteFileSelection);
+	}
+	else
+	{
+		emit writeTextSignal("No file is queued for transfer.", Qt::darkRed);
+		beepSignal();
+	}
+}
+
+
+void ClientModel::resetFileAlreadyExistsBehavior()
+{
+	settingsManager.setOverwriteExistingFileBehavior(0);
+	currentSessionFileBehavior = RequestManager::FileOverwrite::NoneSelected;
+	emit writeTextSignal("Default behavior for file overwrite reset.");
+}
+
 
 
 QList<File> ClientModel::getFilesListFromJson(const QJsonArray& jsonArray)
@@ -665,6 +836,8 @@ QList<File> ClientModel::getFilesListFromJson(const QJsonArray& jsonArray)
 
 	return files;
 }
+
+
 
 
 void ClientModel::returnToLastFolder()

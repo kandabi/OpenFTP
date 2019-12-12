@@ -16,17 +16,22 @@ public:
 	QMenu serverEmptyMouseMenu;
 	QMenu localMouseMenu;
 	QMenu localEmptyMouseMenu;
+	QAction* pasteAction;
 
 signals:
 	void deleteActionSignal(const QModelIndexList& index, bool deleteInServer);
 	void renameActionSignal(const QModelIndex& index, const QString& newFileName);
+	void renameInServerSignal(const QModelIndex& index, const QString& newFileName);
+	void renameInLocalSignal(const QString& file, QString& newFileName);
 	void createNewFolderSignal(const QString& newFolderName, bool createInServer);
-	void queueFilesToUploadSignal(const QStringList& files, bool appendMoreFiles);
 	void searchFolderSignal(const QString& directory, bool searchInServer);
 	void serverEnterKeySignal(const QModelIndex& index);
 	void localEnterKeySignal(const QModelIndex& index);
+	void queueFilesToUploadSignal(const QStringList& files, bool appendMoreFiles);
 	void queueFilesToDownloadSignal(const QModelIndexList& indices, bool appendMorefiles);
 	void copyFilesToDirectorySignal(const QStringList& files, bool lastFunction, const QString& directoryTocopy = {});
+	void copyFilesToClipboardLocalSignal(const QStringList& files);
+	void copyFilesToClipboardServerSignal(const QModelIndexList& indices);
 
 public slots:
 	void writeTextToScreen(QString text, QColor color = Qt::black);
@@ -37,7 +42,8 @@ public slots:
 	void showLocalContextMenu(const QPoint& pos);
 	void deleteAtLocalBrowser();
 	void deleteAtServerBrowser();
-	void renameAction();
+	void renameAtServer();
+	void renameAtLocal();
 	void createServerFolder();
 	void createLocalFolder();
 	void showProgressBar();
@@ -50,7 +56,7 @@ public slots:
 	void uploadFailed(QString error);
 	void mousePressEvent(QMouseEvent* event) override;
 	void keyPressEvent(QKeyEvent* event);
-	void setFileBrowser(QFileSystemModel& model);
+	void setLocalFileBrowser(QFileSystemModel& model);
 	void localSearchBrowser();
 	void serverSearchBrowser();
 	void openFileBrowser();
@@ -59,13 +65,17 @@ public slots:
 	void deletedFiles();
 	void uploadFileButton();
 	void downloadFileButton();
+	void copyFilesToClipboard();
+	void pasteFilesFromClipboard();
 
 private:
 	QStringList getFileListFromMimeData(const QMimeData* data);
 
+	//QPropertyAnimation* animation;
 	bool connectedToServerBool = false;
 	bool transfersInProgress = false;
 	QString currentLocalBrowserPath;
+	QString currentServerBrowserPath;
 	
 
 	Ui::clientGui ui;

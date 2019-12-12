@@ -56,7 +56,7 @@ void serverController::connectModelSignalSlots(QList<bool>& connectionResults)
 
 int serverController::init()
 {
-	data.writeTextSignal("OpenFTP server 0.1.1, written by kandabi" ,Qt::darkGray);
+	data.writeTextSignal("OpenFTP server 0.1.3, written by kandabi" ,Qt::darkGray);
 	view.show();
 	return app.exec();
 }

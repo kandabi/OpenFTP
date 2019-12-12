@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "request_manager.h"
 
 class SettingsManager : QObject
 {
@@ -9,6 +10,8 @@ public:
 
 	QString getDefaultBrowserDirectory();
 	void setDefaultBrowserDirectory(QString directory);
+	RequestManager::FileOverwrite getOverwriteExistingFileBehavior();
+	void setOverwriteExistingFileBehavior(const int& selection);
 
 private:
 	QSettings* settings;

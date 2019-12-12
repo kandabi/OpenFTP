@@ -16,4 +16,7 @@ signals:
 private:
 	Ui::settingsView ui;
 	virtual void reject();
+
+	friend class clientView;
+	friend class clientController;
 };

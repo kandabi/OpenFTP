@@ -75,10 +75,15 @@ bool FtpManager::checkIfBaseDir(const QString& directory, const QString& homeDir
 	return (directory == homeDirectory || directory == "./") ? true : false;
 }
 
-void FtpManager::renameFile(const QString& filePath, const QString& fileToRename, const QString& newFileName)
+bool FtpManager::renameFile(const QString& filePath, const QString& oldFileName,  QString& newFileName)
 {
 	QDir directory(filePath);
-	bool result = directory.rename(fileToRename ,newFileName);
+	QFileInfo file(directory, oldFileName);
+	if (file.isFile() && !newFileName.contains("."))
+	{
+		newFileName += "." + file.suffix();
+	}
+	return directory.rename(oldFileName ,newFileName);
 }
 
 bool FtpManager::createFolder(const QString& newFolderPath)
@@ -159,3 +164,18 @@ void FtpManager::deleteFiles(const QJsonArray& filesToDelete)
 
 	}
 }
+
+QString FtpManager::changeFileName(const QString& fileName, const QString& filePath)
+{
+	int fileNumToAppend = 0;
+	QString newFileName;
+	do
+	{
+		newFileName = fileName;
+		++fileNumToAppend;
+		newFileName = newFileName.insert(newFileName.indexOf("."), "_" + QString::number(fileNumToAppend));
+	} while (checkFileExists(filePath, newFileName));
+
+	return newFileName;
+}
+

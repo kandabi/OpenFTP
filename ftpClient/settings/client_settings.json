@@ -1,3 +1,4 @@
 {
-    "defaultLocalDirectory": "E:/local FTP browser"
+    "defaultLocalDirectory": "E:/local FTP browser",
+    "overwriteExistingFileBehavior": 3
 }

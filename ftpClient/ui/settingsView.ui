@@ -13,6 +13,32 @@
   <property name="windowTitle">
    <string>settings</string>
   </property>
+  <widget class="QPushButton" name="resetFileExistsBehaviorButton">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>40</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>20</y>
+     <width>331</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Reset tp default behavior in case file already exists.</string>
+   </property>
+  </widget>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>

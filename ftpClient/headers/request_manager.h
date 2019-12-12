@@ -25,6 +25,8 @@ public:
 		FolderCreated,
 		FolderAlreadyExists,
 		Browse,
+		Rename,
+		RenameError,
 		DeletedFiles,
 		FileAlreadyExists,
 		BeginFileUpload,
@@ -35,6 +37,14 @@ public:
 		DownloadFolder,
 		DownloadFileError,
 		UnknownResponse,
+	};
+
+	enum class FileOverwrite
+	{
+		NoneSelected,
+		OverwriteExisting,
+		CreateNewFileName,
+		SkipFile,
 	};
 
 	static QJsonObject createServerRequest(RequestManager::RequestType action, const QMap<QString, QString>& requestVariables, const QStringList& deleteFiles = {});

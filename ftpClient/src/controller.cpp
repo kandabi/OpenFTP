@@ -36,13 +36,22 @@ void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
 	connectionResults.append(connect(view.ui.localBrowser, &QTableView::customContextMenuRequested, &view, &clientView::showLocalContextMenu));
 	connectionResults.append(connect(&view, &clientView::deleteActionSignal, &data, &ClientModel::deleteAction));
 	connectionResults.append(connect(view.ui.deleteButton, &QPushButton::clicked, &view, &clientView::deleteAtServerBrowser));
-	connectionResults.append(connect(&view, &clientView::renameActionSignal, &data, &ClientModel::renameFile));
+	connectionResults.append(connect(&view, &clientView::renameInServerSignal, &data, &ClientModel::renameInServer));
+	connectionResults.append(connect(&view, &clientView::renameInLocalSignal, &data, &ClientModel::renameInLocal));
 	connectionResults.append(connect(&view, &clientView::createNewFolderSignal, &data, &ClientModel::createFolderAction));
 	connectionResults.append(connect(&view, &clientView::queueFilesToUploadSignal, &data, &ClientModel::queueFilesToUpload));
 	connectionResults.append(connect(view.ui.uploadButton, &QPushButton::clicked, &view, &clientView::uploadFileButton));
 	connectionResults.append(connect(view.ui.downloadButton, &QPushButton::clicked, &view, &clientView::downloadFileButton));
 	connectionResults.append(connect(&view, &clientView::queueFilesToDownloadSignal, &data, &ClientModel::queueFilesToDownload));
 	connectionResults.append(connect(&view, &clientView::copyFilesToDirectorySignal, &data, &ClientModel::copyFilesToDirectory));
+	connectionResults.append(connect(&view, &clientView::copyFilesToClipboardLocalSignal, &data, &ClientModel::copyFilesToClipboardLocal));
+	connectionResults.append(connect(&view, &clientView::copyFilesToClipboardServerSignal, &data, &ClientModel::copyFilesToClipboardServer));
+
+	connectionResults.append(connect(view.fileExistsWindow.ui.okButton, &QPushButton::clicked , &view.fileExistsWindow, &fileExistsView::performSelection));
+	connectionResults.append(connect(&view.fileExistsWindow, &fileExistsView::performSelectionSignal, &data, &ClientModel::fileAlreadyExistsSelection));
+	connectionResults.append(connect(view.fileExistsWindow.ui.permanentCheckbox, &QCheckBox::clicked, &view.fileExistsWindow, &fileExistsView::togglePermanentCheckbox));
+	connectionResults.append(connect(view.fileExistsWindow.ui.temporaryCheckbox, &QCheckBox::clicked, &view.fileExistsWindow, &fileExistsView::toggleTemporaryCheckbox));
+	connectionResults.append(connect(view.settingsWindow.ui.resetFileExistsBehaviorButton, &QPushButton::clicked, &data, &ClientModel::resetFileAlreadyExistsBehavior));
 }
 
 void clientController::connectModelSignalSlots(QList<bool>& connectionResults)
@@ -59,7 +68,7 @@ void clientController::connectModelSignalSlots(QList<bool>& connectionResults)
 	connectionResults.append(connect(&data, &ClientModel::setProgressBarSignal, &view, &clientView::setProgressBar));
 	connectionResults.append(connect(&data, &ClientModel::uploadCompleteSignal, &view, &clientView::uploadComplete));
 	connectionResults.append(connect(&data, &ClientModel::uploadFailedSignal, &view, &clientView::uploadFailed));
-	connectionResults.append(connect(&data, &ClientModel::setFileBrowserSignal, &view, &clientView::setFileBrowser));
+	connectionResults.append(connect(&data, &ClientModel::setLocalFileBrowserSignal, &view, &clientView::setLocalFileBrowser));
 	//connectionResults << connect(&data, &ClientModel::hideProgressBarSignal, &view, &clientView::hideProgressBar);
 
 	connectionResults << connect(&data, &ClientModel::fileAlreadyExistsSignal, &view, &clientView::fileAlreadyExists);
