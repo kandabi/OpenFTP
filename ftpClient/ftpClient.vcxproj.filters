@@ -29,6 +29,9 @@
     <ClCompile Include="src\request_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\network_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\file.h" />
@@ -56,6 +59,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="headers\fileExists_view.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="headers\network_manager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="headers\timer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

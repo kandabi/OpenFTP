@@ -120,6 +120,7 @@
     <ClCompile Include="src\list_model.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\model.cpp" />
+    <ClCompile Include="src\network_manager.cpp" />
     <ClCompile Include="src\request_manager.cpp" />
     <ClCompile Include="src\serialization_manager.cpp" />
     <ClCompile Include="src\settings_manager.cpp" />
@@ -139,9 +140,11 @@
     <QtMoc Include="headers\model.h" />
     <QtMoc Include="headers\fileExists_view.h" />
     <ClInclude Include="headers\file_manager.h" />
+    <QtMoc Include="headers\network_manager.h" />
     <ClInclude Include="headers\request_manager.h" />
     <ClInclude Include="headers\serialization_manager.h" />
     <QtMoc Include="headers\settings_manager.h" />
+    <QtMoc Include="headers\timer.h" />
     <ClInclude Include="headers\user.h" />
     <QtMoc Include="headers\client_view.h" />
     <QtMoc Include="headers\settings_view.h" />

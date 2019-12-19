@@ -1,4 +1,9 @@
 {
     "defaultLocalDirectory": "E:/local FTP browser",
-    "overwriteExistingFileBehavior": 3
+    "overwriteExistingFileBehavior": 2,
+    "saveCredentials": true,
+    "serverAddress": "192.168.1.15",
+    "serverPort": "20",
+    "userName": "paolita",
+    "userPassword": "1234"
 }

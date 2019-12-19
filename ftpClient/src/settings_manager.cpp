@@ -17,6 +17,23 @@ RequestManager::FileOverwrite SettingsManager::getOverwriteExistingFileBehavior(
 	return static_cast<RequestManager::FileOverwrite>(settings->value("overwriteExistingFileBehavior").toInt());
 }
 
+
+void SettingsManager::setConnectionCredentials(const bool& checkboxChecked ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword)
+{
+	settings->setValue("saveCredentials", checkboxChecked);
+	settings->setValue("serverAddress", serverAddress);
+	settings->setValue("serverPort", serverPort);
+	settings->setValue("userName", userName);
+	settings->setValue("userPassword", userPassword);
+}
+
+
+connectionCredentials SettingsManager::getConnectionCredentials()
+{
+	return connectionCredentials(settings->value("saveCredentials").toBool() ,settings->value("serverAddress").toString(), settings->value("serverPort").toString(), settings->value("userName").toString(), settings->value("userPassword").toString());
+}
+
+
 void SettingsManager::setOverwriteExistingFileBehavior(const int& selection)
 {
 	settings->setValue("overwriteExistingFileBehavior", selection);

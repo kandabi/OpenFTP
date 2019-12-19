@@ -9,7 +9,6 @@ class ServerModel : public QObject
 {   
 	Q_OBJECT 
     friend class serverController;
-
 public:
 	ServerModel(QWidget* parent = Q_NULLPTR);
 

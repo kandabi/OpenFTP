@@ -32,8 +32,13 @@ signals:
 	void copyFilesToDirectorySignal(const QStringList& files, bool lastFunction, const QString& directoryTocopy = {});
 	void copyFilesToClipboardLocalSignal(const QStringList& files);
 	void copyFilesToClipboardServerSignal(const QModelIndexList& indices);
+	void connectToServerSignal(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword, const bool& saveInformation);
+	void saveConnectionCredentialsSignal(const bool& isChecked ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
+	
 
 public slots:
+	void onSaveConnectionCredentials();
+	void connectToServer();
 	void writeTextToScreen(QString text, QColor color = Qt::black);
 	void openOptionMenu();
 	void connectedToServer(FileListServerModel* model,const QString& currentDirectory);
@@ -67,17 +72,16 @@ public slots:
 	void downloadFileButton();
 	void copyFilesToClipboard();
 	void pasteFilesFromClipboard();
+	void init(const bool& isChecked ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
 
 private:
 	QStringList getFileListFromMimeData(const QMimeData* data);
 
-	//QPropertyAnimation* animation;
 	bool connectedToServerBool = false;
 	bool transfersInProgress = false;
 	QString currentLocalBrowserPath;
 	QString currentServerBrowserPath;
 	
-
 	Ui::clientGui ui;
 
 	fileExistsView fileExistsWindow;

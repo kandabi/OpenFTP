@@ -14,6 +14,7 @@ public:
 signals:
 	void saveSettingsSignal();
 	void disconnectUserSignal(QString userName);
+	void deleteUserSignal(QString username);
 
 public slots:
 	void writeTextToScreen(QString text, QColor color);

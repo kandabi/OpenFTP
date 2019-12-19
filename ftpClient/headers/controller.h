@@ -17,6 +17,6 @@ private:
 	Q_OBJECT
 	QApplication app;
 	clientView view;
-	ClientModel data;
+	clientModel data;
 };	
 
