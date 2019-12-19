@@ -2,7 +2,7 @@
 #include "./headers/model.h"
 
 
-ClientModel::ClientModel(QWidget* parent) : QObject(parent), settingsManager(parent)
+clientModel::clientModel(QWidget* parent) : QObject(parent), settingsManager(parent)
 {
 	QCoreApplication::setOrganizationName("kandabi");
 	QCoreApplication::setOrganizationDomain("kandabi.com");
@@ -16,54 +16,59 @@ ClientModel::ClientModel(QWidget* parent) : QObject(parent), settingsManager(par
 }
 
 
-void ClientModel::init()
+void clientModel::init()
 {
-	emit writeTextSignal("OpenFTP client 0.1.3, written by kandabi", Qt::darkGray);
+	connectionCredentials credentials = settingsManager.getConnectionCredentials();
+	emit initClient(credentials.checkboxChecked, credentials.serverAddress, credentials.serverPort, credentials.userName, credentials.userPassword);
+
 	emit setLocalFileBrowserSignal(*localBrowserModel);
+	emit writeTextSignal("OpenFTP client 0.1.3, written by kandabi", Qt::darkGray);
 }
 
 
-void ClientModel::connectToServer()
+void clientModel::connectToServer(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword,const bool& storeInformation)
 {
-	emit writeTextSignal("Attempting connection to Ftp server...");
-
-	socket.close();
-	socket.connectToHost(QHostAddress("127.0.0.1"), 20);
-}
-
-
-void ClientModel::disconnectFromServer()
-{
-	socket.close();
-	copiedServerFiles = false;
-	downloadInProgress = false;
-}
-
-
-void ClientModel::onReadyRead()
-{	
-	QByteArray data = (downloadInProgress) ? socket.readAll() : parseByteData();
-	
-	if (data.isEmpty())
-		return;
-
-	if (downloadInProgress)
+	QHostAddress address(serverAddress);
+	if (address.isNull())
 	{
-		parseDownload(data);
+		emit writeTextSignal("Please enter a valid server IP address.", Qt::darkRed);
+		return;
 	}
-	else {
-		parseJson(data);
+	else if (serverPort.isEmpty())
+	{
+		emit writeTextSignal("Please enter a valid server port.", Qt::darkRed);
+		return;
 	}
+	else if (userName.isEmpty())
+	{
+		emit writeTextSignal("Please enter your username assigned by the server admin.", Qt::darkRed);
+		return;
+	}
+	else if (userPassword.isEmpty())
+	{
+		emit writeTextSignal("Please enter your password assigned by the server admin.", Qt::darkRed);
+		return;
+	}
+
+	if (storeInformation)
+		settingsManager.setConnectionCredentials(storeInformation ,serverAddress, serverPort, userName, userPassword);
+
+	networkManager.connectToServer(serverAddress, serverPort, userName, userPassword);
 }
 
-void ClientModel::parseJson(const QByteArray& data)
-{
-	//emit writeTextSignal("Packet size: " + QString::number(data.size()));
 
+void clientModel::saveConnectionCredentials(const bool& checkboxChecked, const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword)
+{
+	settingsManager.setConnectionCredentials(checkboxChecked ,serverAddress, serverPort, userName, userPassword);
+}
+
+
+
+void clientModel::parseJson(const QByteArray& data)
+{
 	bool isJson = RequestManager::checkIfDataIsJson(data);
 	if (!isJson)
 		return;
-	//Q_ASSERT(isJson);
 
 	QJsonParseError jsonError;
 	QJsonArray jsonArray = QJsonDocument::fromJson(data, &jsonError).array();
@@ -77,7 +82,7 @@ void ClientModel::parseJson(const QByteArray& data)
 	switch (responseType)
 	{
 	case RequestManager::ResponseType::Connected:
-		emit writeTextSignal("Succesfully connected to the FTP server, Address: " + socket.peerAddress().toString() +  "::" + QString::number(socket.peerPort()), Qt::darkGreen);
+		emit writeTextSignal("Succesfully connected to the FTP server, Address: " + networkManager.getSocketAddress() + "::" + networkManager.getSocketPort(), Qt::darkGreen);
 		break;
 	case RequestManager::ResponseType::FolderCreated:
 		emit writeTextSignal("New folder created in: " + currentServerDirectory);
@@ -85,8 +90,6 @@ void ClientModel::parseJson(const QByteArray& data)
 		break;
 	case RequestManager::ResponseType::FolderAlreadyExists:
 		checkRemainingUploads();
-		//emit writeTextSignal("Folder already exists in: " + currentServerDirectory, Qt::darkRed);
-		//emit beepSignal();
 		break;
 	case RequestManager::ResponseType::DeletedFiles:
 		emit deletedFilesSignal();
@@ -115,7 +118,7 @@ void ClientModel::parseJson(const QByteArray& data)
 		break;
 	}
 	case RequestManager::ResponseType::BeginFileUpload:
-		uploadFileData();
+		networkManager.uploadFileData();
 		break;
 	case RequestManager::ResponseType::UploadCompleted:
 		emit updateProgressBarSignal(serverDetails.value("bytesWritten").toInt());
@@ -123,21 +126,18 @@ void ClientModel::parseJson(const QByteArray& data)
 		checkRemainingUploads();
 		break;
 	case RequestManager::ResponseType::BeginFileDownload:
-		beginPendingDownload(currentDownload);
+		beginPendingDownload(currentDownload, directoryToSave);
 		break;
-	case RequestManager::ResponseType::DownloadFolder:
-	{
-		auto fileArray = getFilesListFromJson(jsonArray);
+	case RequestManager::ResponseType::DownloadFolder: {
+		QList<File> fileArray = FileManager::getFileListFromJson(jsonArray);
+
 		writeTextSignal("Appended " + QString::number(fileArray.count()) + " extra files to download from directory: " + currentDownload.fileName);
 		for (const File& file : fileArray)
 		{
 			fileListToDownload.prepend(file);
 		}
-
-		checkRemainingDownloads();					
-		break;
-	}
-	//case RequestManager::ResponseType::DownloadComplete:
+		checkRemainingDownloads();
+		break; }
 	case RequestManager::ResponseType::Unauthorized:
 		emit writeTextSignal("Unauthorized server access.", Qt::darkRed);
 		return;
@@ -148,13 +148,12 @@ void ClientModel::parseJson(const QByteArray& data)
 		emit writeTextSignal("Unknown server response.", Qt::darkRed);
 		return;
 	}
-	
 
-	if (responseType != RequestManager::ResponseType::FileUploading && responseType != RequestManager::ResponseType::DownloadFolder && 
+	if (responseType != RequestManager::ResponseType::FileUploading && responseType != RequestManager::ResponseType::DownloadFolder &&
 		responseType != RequestManager::ResponseType::BeginFileDownload && responseType != RequestManager::ResponseType::DownloadComplete)
 	{
 		serverFileList.clear();
-		serverFileList = getFilesListFromJson(jsonArray);
+		serverFileList = FileManager::getFileListFromJson(jsonArray);
 
 		serverBrowserModel = new FileListServerModel(serverFileList, this);
 		emit connectedToServerSignal(serverBrowserModel, currentServerDirectory);
@@ -162,31 +161,63 @@ void ClientModel::parseJson(const QByteArray& data)
 }
 
 
-void ClientModel::parseDownload(const QByteArray& data)
-{
-	writtenBytes += qSaveFile.write(data);
-	int fileSize = currentDownload.fileSize;
-	emit updateProgressBarSignal(writtenBytes);
 
-	if (writtenBytes >= fileSize)
+void clientModel::checkRemainingUploads()
+{
+	if (!fileListToUpload.isEmpty())
 	{
-		writtenBytes = 0;
-		qSaveFile.commit();
-		checkRemainingDownloads();
+		bool isDir = true;
+
+		RequestManager::FileOverwrite overwriteBehaviour = (currentSessionFileBehavior != RequestManager::FileOverwrite::NoneSelected) ?
+			currentSessionFileBehavior : settingsManager.getOverwriteExistingFileBehavior();
+
+		for (int index = 0; index < fileListToUpload.count(); ++index)
+		{
+			currentUpload.setFile(fileListToUpload[index]);
+			if (!currentUpload.isDir())
+			{
+				isDir = false;
+				fileListToUpload.removeAt(index);
+				break;
+			}
+		}
+
+		if (isDir)
+		{
+			directoryToUpload = currentServerDirectory + currentUpload.filePath().split(currentLocalDirectory).last();
+			fileListToUpload.removeLast();
+
+			QDir directory(currentUpload.absoluteFilePath());
+			QFileInfoList fileInfoList = directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files);
+
+			for (const QFileInfo& file : fileInfoList)
+			{
+				fileListToUpload.prepend(file.absoluteFilePath());
+			}
+
+		}
+
+		createUploadFileRequest(currentUpload, isDir, overwriteBehaviour);
+	}
+	else {
+		directoryToUpload = "";
+		emit uploadCompleteSignal();
 	}
 }
 
-void ClientModel::checkRemainingDownloads()
+
+
+void clientModel::checkRemainingDownloads()
 {
-	downloadInProgress = false;
+	networkManager.setdownloadInProgress(false);
 	if (!fileListToDownload.isEmpty())
 	{
 		RequestManager::FileOverwrite overwriteBehaviour = (currentSessionFileBehavior != RequestManager::FileOverwrite::NoneSelected) ?
-															currentSessionFileBehavior : settingsManager.getOverwriteExistingFileBehavior();
+			currentSessionFileBehavior : settingsManager.getOverwriteExistingFileBehavior();
 
 		for (int index = 0; index < fileListToDownload.count();)
 		{
-			currentDownload = fileListToDownload[index];			
+			currentDownload = fileListToDownload[index];
 
 			if (!currentDownload.isDir)
 			{
@@ -215,8 +246,6 @@ void ClientModel::checkRemainingDownloads()
 			else {
 				++index;
 			}
-
-			
 		}
 
 		if (currentDownload.isEmpty())
@@ -227,12 +256,11 @@ void ClientModel::checkRemainingDownloads()
 		}
 		else if (currentDownload.isDir)
 		{
-			//QStringList array = currentDownload.filePath.split(currentServerDirectory).last().split('/');
 			directoryToSave = currentLocalDirectory + currentDownload.filePath.split(currentServerDirectory).last();
 			fileListToDownload.removeLast();
 		}
-		
-		downloadFileRequest(currentDownload, overwriteBehaviour);
+
+		createDownloadFileRequest(currentDownload, overwriteBehaviour);
 
 	}
 	else {
@@ -242,131 +270,30 @@ void ClientModel::checkRemainingDownloads()
 }
 
 
-void ClientModel::checkRemainingUploads()
+void clientModel::createFolderAction(const QString& newFolderPath, bool createInServer)
 {
-	if (!fileListToUpload.isEmpty())
+	if (createInServer)
 	{
-		bool isDir = true;
-
-		RequestManager::FileOverwrite overwriteBehaviour = (currentSessionFileBehavior != RequestManager::FileOverwrite::NoneSelected) ? 
-															currentSessionFileBehavior : settingsManager.getOverwriteExistingFileBehavior();
-
-		for (int index = 0; index < fileListToUpload.count(); ++index)
-		{
-			currentUpload.setFile(fileListToUpload[index]);
-			if (!currentUpload.isDir())
-			{
-				isDir = false;
-				fileListToUpload.removeAt(index);
-
-				break;
-			}
-		}
-
-		if (isDir)
-		{
-			directoryToUpload = currentServerDirectory + currentUpload.filePath().split(currentLocalDirectory).last();
-			fileListToUpload.removeLast();
-
-			QDir directory(currentUpload.absoluteFilePath());
-			QFileInfoList fileInfoList = directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files);
-
-			for (const QFileInfo& file : fileInfoList)
-			{
-				fileListToUpload.prepend(file.absoluteFilePath());
-			}
-
-		}
-
-		uploadFileRequest(currentUpload, isDir, overwriteBehaviour);
-	}
-	else {
-		directoryToUpload = "";
-		emit uploadCompleteSignal();
-	}
-}
-
-
-
-void ClientModel::uploadFileData()
-{
-	socket.write(dataToSend);
-}
-
-void ClientModel::uploadFileRequest(const QFileInfo& currentUpload, bool isDir, const RequestManager::FileOverwrite& overwriteOptionSelected)
-{
-	if (isDir) //*** Check if its a directory;
-	{
-		createFolderAction(directoryToUpload, true);
-	}
-	else {
-
-		QFile qfile(currentUpload.absoluteFilePath());
-		if (!qfile.open(QIODevice::ReadOnly))
-		{
-			emit uploadFailedSignal("Unable to load file, transfer failed. " + qfile.errorString());
-			return;
-		}
-
-		QString fileSize = QString::number(qfile.size());
-		RequestManager::FileOverwrite overwriteExisting = (overwriteOptionSelected == RequestManager::FileOverwrite::NoneSelected) ? 
-															settingsManager.getOverwriteExistingFileBehavior() : overwriteOptionSelected;
-		emit writeTextSignal("Sending File: " + currentUpload.fileName() + " File Size: " + fileSize + " Directory to upload: " + directoryToUpload);
-		emit setProgressBarSignal(qfile.size());
-
 		QMap<QString, QString> requestVariables{
 			{"requestPath", currentServerDirectory},
-			{"uploadFileName",  currentUpload.fileName() },
-			{"uploadFilePath", directoryToUpload},
-			{"uploadFileSize", fileSize},
-			{"uploadOverwriteExisting", QString::number(static_cast<int>(overwriteExisting )) },
+			{"createFolderPath" , newFolderPath}
 		};
 
-		QJsonObject request = RequestManager::createServerRequest(RequestManager::RequestType::UploadFile, requestVariables);
-		QByteArray data = Serializer::JsonObjectToByteArray(request);
+		QJsonObject response = RequestManager::createServerRequest(RequestManager::RequestType::CreateFolder, requestVariables);
+		QByteArray data = Serializer::JsonObjectToByteArray(response);
 
-		socket.write(data);
-		socket.flush();
-
-		QByteArray fileData = qfile.readAll();
-		if (fileData.isEmpty())
-			fileData = " ";
-
-		dataToSend = fileData;
+		networkManager.writeData(data);
+	}
+	else
+	{
+		QDir dir;
+		dir.mkpath(newFolderPath);
+		emit setLocalFileBrowserSignal(*localBrowserModel);
 	}
 }
 
 
-QByteArray ClientModel::parseByteData()
-{
-	QByteArray data = previousReadyReadData;
-	data += socket.readAll();
-
-	bool isJson = RequestManager::checkIfDataIsJson(data);
-	if (isJson)
-	{
-		previousReadyReadData.clear();
-	
-	}
-	else if (data.contains('[') && data.contains(']'))
-	{
-		QByteArrayList splitDataArray = data.split(']');
-		data = splitDataArray.at(splitDataArray.count() - 2);
-		data.append(']');
-
-		bool isJson = RequestManager::checkIfDataIsJson(data);
-		//Q_ASSERT(isJson);
-	}
-	else {
-		previousReadyReadData = data;
-		data = QByteArray();
-	}
-	
-	return data;
-}
-
-
-void ClientModel::queueFilesToDownload(const QModelIndexList& indices, bool appendMorefiles)
+void clientModel::queueFilesToDownload(const QModelIndexList& indices, bool appendMorefiles)
 {
 	for (const QModelIndex& index : indices)
 	{
@@ -387,7 +314,7 @@ void ClientModel::queueFilesToDownload(const QModelIndexList& indices, bool appe
 }
 
 
-void ClientModel::queueFilesToUpload(const QStringList& fileList, bool appendMorefiles)
+void clientModel::queueFilesToUpload(const QStringList& fileList, bool appendMorefiles)
 {
 	if (copiedServerFiles)
 	{
@@ -407,13 +334,51 @@ void ClientModel::queueFilesToUpload(const QStringList& fileList, bool appendMor
 }
 
 
-//void ClientModel::parseFolderFiles()
-//{
-//	
-//}
+void clientModel::createUploadFileRequest(const QFileInfo& currentUpload, bool isDir, const RequestManager::FileOverwrite& overwriteOptionSelected)
+{
+	if (isDir) 
+	{
+		createFolderAction(directoryToUpload, true);
+	}
+	else {
 
+		QFile qfile(currentUpload.absoluteFilePath());
+		if (!qfile.open(QIODevice::ReadOnly))
+		{
+			emit uploadFailedSignal("Unable to load file, transfer failed. " + qfile.errorString());
+			return;
+		}
 
-void ClientModel::downloadFileRequest(File& file, const RequestManager::FileOverwrite& overwriteOptionSelected)
+		QString fileSize = QString::number(qfile.size());
+		RequestManager::FileOverwrite overwriteExisting = (overwriteOptionSelected == RequestManager::FileOverwrite::NoneSelected) ?
+			settingsManager.getOverwriteExistingFileBehavior() : overwriteOptionSelected;
+		emit writeTextSignal("Sending File: " + currentUpload.fileName() + " File Size: " + fileSize + " Directory to upload: " + directoryToUpload);
+		emit networkManager.setProgressBarSignal(qfile.size());
+
+		QMap<QString, QString> requestVariables{
+			{"requestPath", currentServerDirectory},
+			{"uploadFileName",  currentUpload.fileName() },
+			{"uploadFilePath", directoryToUpload},
+			{"uploadFileSize", fileSize},
+			{"uploadOverwriteExisting", QString::number(static_cast<int>(overwriteExisting)) },
+		};
+
+		QJsonObject request = RequestManager::createServerRequest(RequestManager::RequestType::UploadFile, requestVariables);
+		QByteArray data = Serializer::JsonObjectToByteArray(request);
+
+		networkManager.writeData(data);
+		networkManager.flushSocket();
+	
+
+		QByteArray fileData = qfile.readAll();
+		if (fileData.isEmpty())
+			fileData = " ";
+
+		networkManager.setUploadDataToSend(fileData);
+	}
+}
+
+void clientModel::createDownloadFileRequest(File& file, const RequestManager::FileOverwrite& overwriteOptionSelected)
 {
 	QString fileName = file.fileName;
 	bool isFolder = file.isDir;
@@ -429,63 +394,112 @@ void ClientModel::downloadFileRequest(File& file, const RequestManager::FileOver
 
 
 	emit writeTextSignal("Downloading File: " + file.fileName + " File Size: " + file.fileSize + " Directory to upload: " + directoryToSave, Qt::darkGreen);
-	
+
 	QMap<QString, QString> requestVariables
 	{
 		{"requestPath", requestPath },
 		{"downloadFileName", fileName},
-		//{"isFolder", QString::number(isFolder)}
 	};
 
 	RequestManager::RequestType requestType = (isFolder) ? RequestManager::RequestType::DownloadFolder : RequestManager::RequestType::DownloadFile;
 	QJsonObject response = RequestManager::createServerRequest(requestType, requestVariables);
 	QByteArray data = Serializer::JsonObjectToByteArray(response);
 
-	socket.write(data);
+	networkManager.writeData(data);
 }
 
 
-void ClientModel::beginPendingDownload(const File& currentDownload)
+void clientModel::renameInServer(const QModelIndex& index, const QString& newFileName)
 {
+	int rowSelected = index.row();
+	QString fileName = serverFileList[rowSelected].fileName;
+
+	if (fileName == ".")
+		return;
+	else if (FileManager::checkIfSensitiveDirectory(fileName))
+	{
+		emit beepSignal();
+		writeTextSignal("Please stay away from sensitive directories :)", Qt::darkRed);
+		return;
+	}
+
 	QMap<QString, QString> requestVariables{
-		{"requestPath", currentDownload.filePath}
+		{"requestPath", currentServerDirectory},
+		{"renameFile", fileName},
+		{"changedFileName",  newFileName},
 	};
 
-	QJsonObject request = RequestManager::createServerRequest(RequestManager::RequestType::NextPendingDownload, requestVariables);
-	QByteArray data = Serializer::JsonObjectToByteArray(request);
+	QJsonObject response = RequestManager::createServerRequest(RequestManager::RequestType::Rename, requestVariables);
+	QByteArray data = Serializer::JsonObjectToByteArray(response);
 
-	downloadInProgress = true;
-	emit setProgressBarSignal(currentDownload.fileSize);
-	qSaveFile.setFileName(directoryToSave + "/" + currentDownload.fileName);
-	bool open = qSaveFile.open(QIODevice::WriteOnly);
-
-	socket.write(data);
+	networkManager.writeData(data);
 }
 
 
-void ClientModel::onSocketStateChanged(QAbstractSocket::SocketState socketState)
+void clientModel::renameInLocal(const QString& oldFileName, QString& newFileName)
 {
-	if (socketState == QAbstractSocket::ClosingState)
+	QDir directory(currentLocalDirectory);
+	QFileInfo file(directory, oldFileName);
+	if (file.isFile() && !newFileName.contains("."))
 	{
-		emit writeTextSignal("Disconnected from the server.", Qt::darkRed);
-		socket.close();
-		serverFileList.clear();
-		emit disconnectedFromServerSignal();
+		newFileName += "." + file.suffix();
 	}
-	else if (socketState == QAbstractSocket::ConnectedState)
+	bool renameResult = directory.rename(oldFileName, newFileName);
+}
+
+
+
+void clientModel::browseHomeLocal()
+{
+	currentLocalDirectory = "";
+	settingsManager.setDefaultBrowserDirectory(currentLocalDirectory);
+	localBrowserModel->setRootPath(currentLocalDirectory);
+	emit setLocalFileBrowserSignal(*localBrowserModel);
+}
+
+
+void clientModel::returnToLastFolderInLocal()
+{
+	currentLocalDirectory = FileManager::getPreviousFolderPath(currentLocalDirectory);
+	settingsManager.setDefaultBrowserDirectory(currentLocalDirectory);
+	localBrowserModel->setRootPath(currentLocalDirectory);
+	emit setLocalFileBrowserSignal(*localBrowserModel);
+}
+
+
+void clientModel::returnToLastFolderInServer()
+{
+	if (!serverFileList.isEmpty())
 	{
-		QJsonObject request
-		{
-			{ "username", "aviv" },
-			{ "password", "1234"},
+
+		QMap<QString, QString> requestVariables{
+			{"requestPath", FileManager::getPreviousFolderPath(serverFileList[0].filePath) }
 		};
 
-		socket.write(Serializer::JsonObjectToByteArray(request));
+		QJsonObject response = RequestManager::createServerRequest(RequestManager::RequestType::Browse, requestVariables);
+		QByteArray data = Serializer::JsonObjectToByteArray(response);
+
+		networkManager.writeData(data);
 	}
 }
 
-void ClientModel::onDoubleClickLocalBrowser(const QModelIndex& index)
-{	
+void clientModel::browseHomeServer()
+{
+	QMap<QString, QString> requestVariables{
+		{"requestPath", "./"}
+	};
+
+	QJsonObject response = RequestManager::createServerRequest(RequestManager::RequestType::Browse, requestVariables);
+	QByteArray data = Serializer::JsonObjectToByteArray(response);
+
+	networkManager.writeData(data);
+}
+
+
+
+
+void clientModel::onDoubleClickLocalBrowser(const QModelIndex& index)
+{
 	const QModelIndex& selectedIndex = localBrowserModel->index(index.row(), 0, index.parent());
 	bool result = localBrowserModel->isDir(selectedIndex);
 	if (result)
@@ -493,8 +507,14 @@ void ClientModel::onDoubleClickLocalBrowser(const QModelIndex& index)
 		QString fileName = localBrowserModel->fileName(selectedIndex);
 		QString filePath = localBrowserModel->filePath(selectedIndex);
 
-		if (checkIfSensitiveDirectory(filePath))
-			return;
+	if (FileManager::checkIfSensitiveDirectory(filePath))
+	{
+		emit beepSignal();
+		writeTextSignal("Please stay away from sensitive directories :)", Qt::darkRed);
+		return;
+	}
+			
+			
 		else if (fileName == ".")
 			filePath = FileManager::getPreviousFolderPath(filePath);
 		
@@ -506,7 +526,7 @@ void ClientModel::onDoubleClickLocalBrowser(const QModelIndex& index)
 }
 
 
-void ClientModel::onDoubleClickServerBrowser(const QModelIndex& index)
+void clientModel::onDoubleClickServerBrowser(const QModelIndex& index)
 {
 	int rowSelected = index.row();
 	if (!serverFileList[rowSelected].isDir)
@@ -521,11 +541,11 @@ void ClientModel::onDoubleClickServerBrowser(const QModelIndex& index)
 	QJsonObject request = RequestManager::createServerRequest(RequestManager::RequestType::Browse, requestVariables);
 	QByteArray data = Serializer::JsonObjectToByteArray(request);
 
-	socket.write(data);
+	networkManager.writeData(data);
 }
 
 
-void ClientModel::deleteAction(const QModelIndexList& indices, bool deleteInServer)
+void clientModel::deleteAction(const QModelIndexList& indices, bool deleteInServer)
 {
 	if (!deleteInServer)
 	{
@@ -534,16 +554,22 @@ void ClientModel::deleteAction(const QModelIndexList& indices, bool deleteInServ
 			QString fileName = localBrowserModel->fileName(indices[i]);
 			QString filePath = localBrowserModel->filePath(indices[i]);
 
-			if (fileName == "." || checkIfSensitiveDirectory(filePath))
+			if (fileName == ".")
 				continue;
+			else if (FileManager::checkIfSensitiveDirectory(filePath))
+			{
+				emit beepSignal();
+				writeTextSignal("Please stay away from sensitive directories :)", Qt::darkRed);
+				continue;
+			}
 			else {
 				QDir dir(filePath);
 				dir.remove(filePath);
 				dir.removeRecursively();
-
-				emit deletedFilesSignal();
 			}
 		}
+
+		emit deletedFilesSignal();
 	}
 	else if(!serverFileList[indices[0].row()].fileName.endsWith(":/Windows"))
 	{
@@ -564,124 +590,13 @@ void ClientModel::deleteAction(const QModelIndexList& indices, bool deleteInServ
 		QJsonObject request = RequestManager::createServerRequest(RequestManager::RequestType::Remove, requestVariables, deletePaths);
 		QByteArray data = Serializer::JsonObjectToByteArray(request);
 
-		socket.write(data);
+		networkManager.writeData(data);
 	}
 }
 
 
-void ClientModel::renameInServer(const QModelIndex& index, const QString& newFileName)
+void clientModel::copyFilesToClipboardLocal(const QStringList& files)
 {
-	int rowSelected = index.row();
-	QString fileName = serverFileList[rowSelected].fileName;
-
-	if (fileName == "." || checkIfSensitiveDirectory(fileName))
-		return;
-
-	QMap<QString, QString> requestVariables{
-		{"requestPath", currentServerDirectory},
-		{"renameFile", fileName},
-		{"changedFileName",  newFileName},
-	};
-
-	QJsonObject response = RequestManager::createServerRequest(RequestManager::RequestType::Rename, requestVariables);
-	QByteArray data = Serializer::JsonObjectToByteArray(response);
-
-	socket.write(data);
-}
-
-void ClientModel::renameInLocal(const QString& oldFileName, QString& newFileName)
-{
-	QDir directory(currentLocalDirectory);
-	QFileInfo file(directory, oldFileName);
-	if (file.isFile() && !newFileName.contains("."))
-	{
-		newFileName += "." + file.suffix();
-	}
-	bool renameResult = directory.rename(oldFileName, newFileName);
-}
-
-void ClientModel::createFolderAction(const QString& newFolderPath, bool createInServer)
-{
-	if (createInServer)
-	{
-		QMap<QString, QString> requestVariables{
-			{"requestPath", currentServerDirectory},
-			{"createFolderPath" , newFolderPath}
-		};
-
-		QJsonObject response = RequestManager::createServerRequest(RequestManager::RequestType::CreateFolder, requestVariables);
-		QByteArray data = Serializer::JsonObjectToByteArray(response);
-
-		socket.write(data);
-	}
-	else 
-	{
-		QDir dir;
-		dir.mkpath(newFolderPath);
-		emit setLocalFileBrowserSignal(*localBrowserModel);
-	}
-
-
-}
-
-void ClientModel::searchFolder(const QString& directory, bool searchInServer)
-{
-	if (searchInServer)
-	{
-		QMap<QString, QString> requestVariables{
-			{"requestPath", directory}
-		};
-
-		QJsonObject response = RequestManager::createServerRequest(RequestManager::RequestType::Browse, requestVariables);
-		QByteArray data = Serializer::JsonObjectToByteArray(response);
-
-		socket.write(data);
-	}
-	else {
-		QDir pathDir(directory);
-		if (pathDir.exists())
-		{
-			if (checkIfSensitiveDirectory(directory))
-				return;
-
-			currentLocalDirectory = directory;
-			settingsManager.setDefaultBrowserDirectory(currentLocalDirectory);
-			localBrowserModel->setRootPath(currentLocalDirectory);
-			emit setLocalFileBrowserSignal(*localBrowserModel);
-		}
-	}
-
-	//emit writeTextSignal("searching: " + directory + " in server: " + QString::number(searchInServer));
-}
-
-bool ClientModel::checkIfSensitiveDirectory(const QString& directory)
-{
-	QDir pathDir(directory);
-	if (pathDir.path().contains(":/Windows"))
-	{
-		emit beepSignal();
-		writeTextSignal("Please stay away from sensitive directories :)", Qt::darkRed);
-		return true;
-	}
-	else
-		return false;
-
-}
-
-
-
-void ClientModel::localBrowseHome()
-{
-	currentLocalDirectory = "";
-	settingsManager.setDefaultBrowserDirectory(currentLocalDirectory);
-	localBrowserModel->setRootPath(currentLocalDirectory);
-	emit setLocalFileBrowserSignal(*localBrowserModel);
-}
-
-
-void ClientModel::copyFilesToClipboardLocal(const QStringList& files)
-{
-	//{ QUrl::fromLocalFile(C: / fileToCopy.txt) }
 	QList<QUrl> urlList;
 	for (const QString& file : files)
 	{
@@ -697,7 +612,8 @@ void ClientModel::copyFilesToClipboardLocal(const QStringList& files)
 	emit writeTextSignal(QString::number(files.count()) + " files has been copied to the clipboard.");
 }
 
-void ClientModel::copyFilesToClipboardServer(const QModelIndexList& indices)
+
+void clientModel::copyFilesToClipboardServer(const QModelIndexList& indices)
 {
 	QList<QUrl> urlList;
 	for (int i = 0 ;i < indices.count();++i)
@@ -715,10 +631,11 @@ void ClientModel::copyFilesToClipboardServer(const QModelIndexList& indices)
 	emit writeTextSignal(QString::number(indices.count()) + " files has been copied to the clipboard.");
 }
 
-void ClientModel::copyFilesToDirectory(const QStringList& files, bool lastFunction, const QString& directoryTocopy)
+
+void clientModel::copyFilesToDirectory(const QStringList& files, bool lastFunction, const QString& directoryTocopy)
 {
 	for (const QString& file : files)
-	{ //*** Check if directory
+	{ 
 		if (QFileInfo(file).isDir())
 		{
 			QDir directory(file);
@@ -749,28 +666,8 @@ void ClientModel::copyFilesToDirectory(const QStringList& files, bool lastFuncti
 		emit uploadCompleteSignal();
 }
 
-void ClientModel::browseHome()
-{
-	QMap<QString, QString> requestVariables{ 
-		{"requestPath", "./"} 
-	};
 
-	QJsonObject response = RequestManager::createServerRequest(RequestManager::RequestType::Browse, requestVariables);
-	QByteArray data = Serializer::JsonObjectToByteArray(response);
-
-	socket.write(data);
-}
-
-void ClientModel::localReturnToLastFolder()
-{
-	currentLocalDirectory = FileManager::getPreviousFolderPath(currentLocalDirectory);
-	settingsManager.setDefaultBrowserDirectory(currentLocalDirectory);
-	localBrowserModel->setRootPath(currentLocalDirectory);
-	emit setLocalFileBrowserSignal(*localBrowserModel);
-}
-
-
-void ClientModel::fileAlreadyExistsSelection(const int& selection, const bool& rememberSelectionForever, const bool& rememberTemporary)
+void clientModel::fileAlreadyExistsSelection(const int& selection, const bool& rememberSelectionForever, const bool& rememberTemporary)
 {
 	if (rememberSelectionForever)
 		settingsManager.setOverwriteExistingFileBehavior(selection);
@@ -787,7 +684,7 @@ void ClientModel::fileAlreadyExistsSelection(const int& selection, const bool& r
 			checkRemainingDownloads();
 			return;
 		}
-		downloadFileRequest(currentDownload, overwriteFileSelection);
+		createDownloadFileRequest(currentDownload, overwriteFileSelection);
 	}
 	else if (currentUpload.exists())
 	{
@@ -797,7 +694,7 @@ void ClientModel::fileAlreadyExistsSelection(const int& selection, const bool& r
 			checkRemainingUploads();
 			return;
 		}
-		uploadFileRequest(currentUpload, false, overwriteFileSelection);
+		createUploadFileRequest(currentUpload, false, overwriteFileSelection);
 	}
 	else
 	{
@@ -807,52 +704,92 @@ void ClientModel::fileAlreadyExistsSelection(const int& selection, const bool& r
 }
 
 
-void ClientModel::resetFileAlreadyExistsBehavior()
+void clientModel::resetFileAlreadyExistsBehavior()
 {
 	settingsManager.setOverwriteExistingFileBehavior(0);
 	currentSessionFileBehavior = RequestManager::FileOverwrite::NoneSelected;
-	emit writeTextSignal("Default behavior for file overwrite reset.");
+	emit writeTextSignal("Succesfully reset to default behavior when transfering file that already exists.");
 }
 
 
-
-QList<File> ClientModel::getFilesListFromJson(const QJsonArray& jsonArray)
+void clientModel::resetConnectionCredentials()
 {
-	QList<File> files;
-	for (int i = 1; i < jsonArray.count(); ++i)
-	{
-		QJsonObject json = jsonArray[i].toObject();
-		files.append(
-			File{
-				json.value("fileName").toString(),
-				json.value("filePath").toString(),
-				json.value("fileSize").toInt(),
-				json.value("isDir").toBool(),
-				json.value("lastModified").toString(),
-				Serializer::decodePixmapFromString(json.value("icon").toString())
-			}
-		);
-	}
-
-	return files;
+	settingsManager.setConnectionCredentials(false ,"",0, "", "");
+	emit writeTextSignal("Succesfully removed saved connection data.");
 }
 
 
-
-
-void ClientModel::returnToLastFolder()
+void clientModel::searchFolder(const QString& directory, bool searchInServer)
 {
-	if (!serverFileList.isEmpty())
+	if (searchInServer)
 	{
-
 		QMap<QString, QString> requestVariables{
-			{"requestPath", FileManager::getPreviousFolderPath(serverFileList[0].filePath) }
+			{"requestPath", directory}
 		};
 
 		QJsonObject response = RequestManager::createServerRequest(RequestManager::RequestType::Browse, requestVariables);
 		QByteArray data = Serializer::JsonObjectToByteArray(response);
 
-		socket.write(data);
+		networkManager.writeData(data);
+	}
+	else {
+		QDir pathDir(directory);
+		if (pathDir.exists())
+		{
+			if (FileManager::checkIfSensitiveDirectory(directory))
+			{
+				emit beepSignal();
+				writeTextSignal("Please stay away from sensitive directories :)", Qt::darkRed);
+				return;
+			}
+
+
+			currentLocalDirectory = directory;
+			settingsManager.setDefaultBrowserDirectory(currentLocalDirectory);
+			localBrowserModel->setRootPath(currentLocalDirectory);
+			emit setLocalFileBrowserSignal(*localBrowserModel);
+		}
 	}
 }
 
+void clientModel::requestServerUpdate()
+{
+	if (!currentServerDirectory.isEmpty() && !networkManager.isDownloading() && currentDownload.isEmpty() && !currentUpload.exists())
+	{
+		emit writeTextSignal("Fetching current server files.");
+
+		QMap<QString, QString> requestVariables{
+			{"requestPath", currentServerDirectory}
+		};
+
+		QJsonObject response = RequestManager::createServerRequest(RequestManager::RequestType::Browse, requestVariables);
+		QByteArray data = Serializer::JsonObjectToByteArray(response);
+
+		networkManager.writeData(data);
+	}
+}
+
+void clientModel::beginPendingDownload(const File& currentDownload, const QString& directoryToSave)
+{
+	QMap<QString, QString> requestVariables{
+		{"requestPath", currentDownload.filePath}
+	};
+
+	QJsonObject request = RequestManager::createServerRequest(RequestManager::RequestType::NextPendingDownload, requestVariables);
+	QByteArray data = Serializer::JsonObjectToByteArray(request);
+	
+	networkManager.beginPendingDownload(currentDownload, directoryToSave);
+	networkManager.setdownloadInProgress(true);
+	networkManager.writeData(data);
+}
+
+void clientModel::disconnectFromServerButton()
+{
+	networkManager.disconnectFromServer();
+	copiedServerFiles = false;
+}
+
+void clientModel::disconnectedFromServer()
+{
+	serverFileList.clear(); 
+}

@@ -19,8 +19,8 @@ void SettingsManager::writeUserToSettings(QString username, QString password, QS
 	settings->setValue("name", username);
 	settings->setValue("password", password);
 	settings->setValue("directory", directoryPermission);
-	settings->setValue("write", true);
-	settings->setValue("delete", true);
+	//settings->setValue("write", true);
+	//settings->setValue("delete", true);
 
 	settings->sync();
 	settings->endArray();

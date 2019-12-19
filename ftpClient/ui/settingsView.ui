@@ -36,7 +36,33 @@
     </rect>
    </property>
    <property name="text">
-    <string>Reset tp default behavior in case file already exists.</string>
+    <string>Reset to default behavior when transfering file that already exists.</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="resetConnectionData">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>100</y>
+     <width>51</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>80</y>
+     <width>331</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Reset all stored connection data.</string>
    </property>
   </widget>
   <action name="actionExit">

@@ -2,7 +2,6 @@
 #include "./headers/model.h"
 
 
-
 ServerModel::ServerModel(QWidget* parent) : QObject(parent), networkManager(registeredUsersList, parent), settingsManager(parent)
 {
 	//QCoreApplication::setOrganizationName("kandabi");
@@ -11,8 +10,6 @@ ServerModel::ServerModel(QWidget* parent) : QObject(parent), networkManager(regi
 
 	registeredUsersList = settingsManager.getUsersFromSettings();
 }
-
-
 
 
 void ServerModel::initServer()
@@ -34,7 +31,6 @@ void ServerModel::initServer()
 
 	emit startServerSignal();
 	networkManager.initServer();
-	
 }
 
 

@@ -1,5 +1,6 @@
 #include "./headers/stdafx.h"
 #include "./headers/network_manager.h"
+#include <qnetworkinterface.h>
 
 NetworkManager::NetworkManager(QList<User>& _registeredUsersList ,QWidget* parent) : QObject(parent) ,registeredUsersList(_registeredUsersList)
 {
@@ -8,11 +9,23 @@ NetworkManager::NetworkManager(QList<User>& _registeredUsersList ,QWidget* paren
 bool NetworkManager::initServer()
 {
 	//sslServer.startServerEncryption();
-	 bool result = server.listen(QHostAddress::Any, 20);
+	const QHostAddress& localhost = QHostAddress(QHostAddress::LocalHost);
+	QHostAddress serverAddress;
+	for (const QHostAddress& address : QNetworkInterface::allAddresses()) {
+		if (address.protocol() == QAbstractSocket::IPv4Protocol && address != localhost)
+		{
+			serverAddress = address;
+			break;
+		}
+	}
+
+	 bool result = server.listen(serverAddress, 20);
 	 if (result)
-		 emit writeTextSignal("Server listening on all available addresses: " + server.serverAddress().toString() + " , in port: " + QString::number(server.serverPort()));
+	 {
+		 emit writeTextSignal("Server listening on address: " + serverAddress.toString() + " , in port: " + QString::number(server.serverPort()), Qt::darkYellow);
+	 }
 	 else
-		 emit writeTextSignal("Server failed to start.");
+		 emit writeTextSignal("Server failed to start.", Qt::darkRed);
 	 return result;
 }
 

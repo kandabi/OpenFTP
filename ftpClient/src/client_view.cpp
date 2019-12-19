@@ -7,6 +7,7 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent) , serverMouseMenu(
 
 	setAcceptDrops(true);
 
+
 	serverMouseMenu.addAction("Rename", this, &clientView::renameAtServer);
 	//serverMouseMenu.addAction("Copy", this, &clientView::copyFilesToClipboard);
 	serverMouseMenu.addAction("Delete", this, &clientView::deleteAtServerBrowser);
@@ -41,7 +42,12 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent) , serverMouseMenu(
 	ui.downloadButton->setDisabled(true);
 	pasteAction->setEnabled(false);
 
+	QSizePolicy sp_retain = ui.progressBar->sizePolicy();
+	sp_retain.setRetainSizeWhenHidden(true);
+	ui.progressBar->setSizePolicy(sp_retain);
 	ui.progressBar->hide();
+
+	ui.portEdit->setValidator(new QIntValidator(0, 65535, this));
 }
 
 
@@ -406,6 +412,31 @@ void clientView::setLocalFileBrowser(QFileSystemModel& model)
 	ui.localSearchEdit->setText(model.rootPath());
 }
 
+
+void clientView::init(const bool& isChecked ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword)
+{
+	ui.storeInformationCheckbox->setChecked(isChecked);
+	ui.addressEdit->setText(serverAddress);
+	ui.portEdit->setText(serverPort);
+	ui.usernameEdit->setText(userName);
+	ui.passwordEdit->setText(userPassword);
+}
+
+void clientView::connectToServer()
+{
+	emit connectToServerSignal(ui.addressEdit->text(), ui.portEdit->text(), ui.usernameEdit->text(), ui.passwordEdit->text(), ui.storeInformationCheckbox->isChecked());
+}
+
+
+void clientView::onSaveConnectionCredentials()
+{
+	bool checked = ui.storeInformationCheckbox->isChecked();
+	if (checked)
+		emit saveConnectionCredentialsSignal(checked ,ui.addressEdit->text(), ui.portEdit->text(), ui.usernameEdit->text(), ui.passwordEdit->text());
+	else
+		emit saveConnectionCredentialsSignal(checked,"","","","");
+}
+
 void clientView::connectedToServer(FileListServerModel* model,const QString& currentDirectory)
 {
 	if(model != Q_NULLPTR)
@@ -474,7 +505,6 @@ void clientView::pasteFilesFromClipboard()
 	}
 	
 }
-
 
 void clientView::copyFilesToClipboard()
 {
