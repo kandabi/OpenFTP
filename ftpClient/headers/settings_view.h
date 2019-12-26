@@ -8,7 +8,6 @@ class settingsView : public QDialog
 
 public:
 	settingsView(QWidget *parent = Q_NULLPTR);
-	~settingsView();
 
 signals:
 	void onClose();

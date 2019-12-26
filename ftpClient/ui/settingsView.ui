@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>settings</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="resources.qrc">
+    <normaloff>:/alienIcon/images/icon.png</normaloff>:/alienIcon/images/icon.png</iconset>
+  </property>
   <widget class="QPushButton" name="resetFileExistsBehaviorButton">
    <property name="geometry">
     <rect>
@@ -65,6 +69,19 @@
     <string>Reset all stored connection data.</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="minimizeToTray">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>140</y>
+     <width>351</width>
+     <height>17</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Minimize the client to system tray on close.</string>
+   </property>
+  </widget>
   <action name="actionExit">
    <property name="text">
     <string>Exit</string>
@@ -72,6 +89,8 @@
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

@@ -2,7 +2,7 @@
 #include "./headers/model.h"
 
 
-ServerModel::ServerModel(QWidget* parent) : QObject(parent), networkManager(registeredUsersList, parent), settingsManager(parent)
+serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(registeredUsersList, parent), settingsManager(parent)
 {
 	//QCoreApplication::setOrganizationName("kandabi");
 	//QCoreApplication::setOrganizationDomain("kandabi.com");
@@ -12,7 +12,7 @@ ServerModel::ServerModel(QWidget* parent) : QObject(parent), networkManager(regi
 }
 
 
-void ServerModel::initServer()
+void serverModel::initServer()
 {
 	emit writeTextSignal("Setting up FTP Server");
 
@@ -30,34 +30,36 @@ void ServerModel::initServer()
 	}
 
 	emit startServerSignal();
-	networkManager.initServer();
+	int port = settingsManager.getPort();
+
+	networkManager.initServer(port);
 }
 
 
-void ServerModel::stopServer()
+void serverModel::stopServer()
 {
 	emit stopServerSignal();
 	networkManager.stopServer();
 }
 
 
-void ServerModel::saveSettings()
+void serverModel::saveSettings()
 {
 	emit writeTextSignal("Settings have been saved. (Not implemented yet.) ", Qt::red);
 	emit closeSettingsSignal();
 }
 
 
-void ServerModel::saveFtpDirectory(QString directory)
+void serverModel::saveFtpDirectory(QString directory)
 { 
 	settingsManager.setFtpDirectory(directory);
 	emit writeTextSignal("Set up FTP directory in: " + directory);
-	emit initializeSettingsSignal(settingsManager.getFtpDirectory(), getUserNamesFromUserList(registeredUsersList));
+	emit initializeSettingsSignal(settingsManager.getFtpDirectory(), getUserNamesFromUserList(registeredUsersList), settingsManager.getMinimizeToTray());
 }
 
 
 
-void ServerModel::createUser(QString username, QString password, QString directoryPermitted)
+void serverModel::createUser(QString username, QString password, QString directoryPermitted)
 {
 	//**** Needs validation.
 	if (directoryPermitted.isEmpty())
@@ -65,29 +67,35 @@ void ServerModel::createUser(QString username, QString password, QString directo
 
 	settingsManager.writeUserToSettings(username, password, directoryPermitted);
 	registeredUsersList = settingsManager.getUsersFromSettings();
-	emit initializeSettingsSignal(settingsManager.getFtpDirectory() ,getUserNamesFromUserList(registeredUsersList));
+	emit initializeSettingsSignal(settingsManager.getFtpDirectory() ,getUserNamesFromUserList(registeredUsersList), settingsManager.getMinimizeToTray());
 }
 
-void ServerModel::disconnectUser(QString userName)
+void serverModel::disconnectUser(QString userName)
 {
 	networkManager.disconnectUser(userName);
 }
 
 
-void ServerModel::deleteUser(int item)
+void serverModel::deleteUser(int item)
 {
 	//*** Implementation Forthcoming
-	settingsManager.removeUserFromSettings("");
+	settingsManager.removeUserFromSettings(item);
 }
 
 
-void ServerModel::writeUsersToSettingsScreen()
+void serverModel::writeUsersToSettingsScreen()
 {
-	emit initializeSettingsSignal(settingsManager.getFtpDirectory(),getUserNamesFromUserList(registeredUsersList));
+	emit initializeSettingsSignal(settingsManager.getFtpDirectory(),getUserNamesFromUserList(registeredUsersList), settingsManager.getMinimizeToTray());
 }
 
 
-QStringList ServerModel::getUserNamesFromUserList(const QList<User>& userList)
+void serverModel::setMinimizeToTray(bool checked)
+{
+	settingsManager.setMinimizeToTray(checked);
+}
+
+
+QStringList serverModel::getUserNamesFromUserList(const QList<User>& userList)
 {
 	QStringList nameList;
 	for (auto user : userList)

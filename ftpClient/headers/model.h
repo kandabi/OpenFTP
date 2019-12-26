@@ -18,7 +18,7 @@ public:
 	void init();
 
 signals:
-	void writeTextSignal(QString text, QColor color = Qt::black);
+	void writeTextSignal(QString text, QColor color = Qt::white);
 	void beepSignal();
 	
 	void uploadCompleteSignal();
@@ -29,7 +29,7 @@ signals:
 	void fileAlreadyExistsSignal(const QString& filename);
 	void deletedFilesSignal();
 	void connectToServerSignal(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
-	void initClient(const bool& storeCredentials ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
+	void initClient(const bool& storeCredentials ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword, const bool& minimizeToTray);
 
 
 private slots:
@@ -61,6 +61,8 @@ private slots:
 	void saveConnectionCredentials(const bool& checkboxChecked, const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
 	void searchFolder(const QString& directory, bool searchInServer);
 	void requestServerUpdate();
+	void setMinimizeToTray(bool checked);
+	void cancelTransfers();
 
 
 private:

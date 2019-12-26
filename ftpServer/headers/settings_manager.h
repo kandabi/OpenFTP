@@ -8,9 +8,14 @@ class SettingsManager : QObject
 public:
 	 QList<User> getUsersFromSettings();
 	 void writeUserToSettings(QString username, QString password, QString directoryPermission);
-	 void removeUserFromSettings(QString username);
+	 void removeUserFromSettings(int index);
 	 QString getFtpDirectory();
 	 void setFtpDirectory(QString directory);
+	 int getPort();
+	 bool getFirstTimeTrayMessage();
+	 void setFirstTimeTrayMessage();
+	 bool getMinimizeToTray();
+	 void setMinimizeToTray(const bool& minimize);
 
 	SettingsManager(QObject* parent);
 	//~SettingsManager();

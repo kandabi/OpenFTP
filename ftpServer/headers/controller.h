@@ -16,6 +16,6 @@ private:
 
 	QApplication app;
 	serverView view;
-	ServerModel data;
+	serverModel data;
 };
 

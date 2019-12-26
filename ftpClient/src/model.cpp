@@ -6,7 +6,7 @@ clientModel::clientModel(QWidget* parent) : QObject(parent), settingsManager(par
 {
 	QCoreApplication::setOrganizationName("kandabi");
 	QCoreApplication::setOrganizationDomain("kandabi.com");
-	QCoreApplication::setApplicationName("qtFtpServer");
+	QCoreApplication::setApplicationName("OpenFTP");
 
 	currentLocalDirectory = settingsManager.getDefaultBrowserDirectory();
 
@@ -19,10 +19,10 @@ clientModel::clientModel(QWidget* parent) : QObject(parent), settingsManager(par
 void clientModel::init()
 {
 	connectionCredentials credentials = settingsManager.getConnectionCredentials();
-	emit initClient(credentials.checkboxChecked, credentials.serverAddress, credentials.serverPort, credentials.userName, credentials.userPassword);
+	emit initClient(credentials.checkboxChecked, credentials.serverAddress, credentials.serverPort, credentials.userName, credentials.userPassword, settingsManager.getMinimizeToTray());
 
 	emit setLocalFileBrowserSignal(*localBrowserModel);
-	emit writeTextSignal("OpenFTP client 0.1.3, written by kandabi", Qt::darkGray);
+	emit writeTextSignal("OpenFTP client 0.1.6, written by kandabi", Qt::darkGray);
 }
 
 
@@ -31,22 +31,22 @@ void clientModel::connectToServer(const QString& serverAddress, const QString& s
 	QHostAddress address(serverAddress);
 	if (address.isNull())
 	{
-		emit writeTextSignal("Please enter a valid server IP address.", Qt::darkRed);
+		emit writeTextSignal("Please enter a valid server IP address.", Qt::red);
 		return;
 	}
 	else if (serverPort.isEmpty())
 	{
-		emit writeTextSignal("Please enter a valid server port.", Qt::darkRed);
+		emit writeTextSignal("Please enter a valid server port.", Qt::red);
 		return;
 	}
 	else if (userName.isEmpty())
 	{
-		emit writeTextSignal("Please enter your username assigned by the server admin.", Qt::darkRed);
+		emit writeTextSignal("Please enter your username assigned by the server admin.", Qt::red);
 		return;
 	}
 	else if (userPassword.isEmpty())
 	{
-		emit writeTextSignal("Please enter your password assigned by the server admin.", Qt::darkRed);
+		emit writeTextSignal("Please enter your password assigned by the server admin.", Qt::red);
 		return;
 	}
 
@@ -109,7 +109,7 @@ void clientModel::parseJson(const QByteArray& data)
 
 		if (overwriteBehaviour == RequestManager::FileOverwrite::SkipFile)
 		{
-			emit writeTextSignal("File: " + currentUpload.fileName() + " has been skipped.", Qt::darkRed);
+			emit writeTextSignal("File: " + currentUpload.fileName() + " has been skipped.", Qt::red);
 			checkRemainingUploads();
 		}
 		else
@@ -139,13 +139,13 @@ void clientModel::parseJson(const QByteArray& data)
 		checkRemainingDownloads();
 		break; }
 	case RequestManager::ResponseType::Unauthorized:
-		emit writeTextSignal("Unauthorized server access.", Qt::darkRed);
+		emit writeTextSignal("Unauthorized server access.", Qt::red);
 		return;
 	case RequestManager::ResponseType::Closing:
-		emit writeTextSignal("Server shutting down, disconnecting.", Qt::darkRed);
+		emit writeTextSignal("Server shutting down, disconnecting.", Qt::red);
 		return;
 	case RequestManager::ResponseType::UnknownResponse:
-		emit writeTextSignal("Unknown server response.", Qt::darkRed);
+		emit writeTextSignal("Unknown server response.", Qt::red);
 		return;
 	}
 
@@ -232,7 +232,7 @@ void clientModel::checkRemainingDownloads()
 					}
 					else if (overwriteBehaviour == RequestManager::FileOverwrite::SkipFile)
 					{
-						emit writeTextSignal("File: " + currentDownload.fileName + " has been skipped.", Qt::darkRed);
+						emit writeTextSignal("File: " + currentDownload.fileName + " has been skipped.", Qt::red);
 						currentDownload = File();
 
 						continue;
@@ -268,6 +268,21 @@ void clientModel::checkRemainingDownloads()
 		emit uploadCompleteSignal();
 	}
 }
+
+
+void clientModel::cancelTransfers()
+{
+	fileListToUpload.clear();
+	fileListToDownload.clear();
+	directoryToSave.clear();
+	directoryToUpload.clear();
+	currentDownload = {};
+	currentUpload = {};
+
+	emit uploadFailedSignal("Aborted all remaining transfers.");
+}
+
+
 
 
 void clientModel::createFolderAction(const QString& newFolderPath, bool createInServer)
@@ -346,6 +361,7 @@ void clientModel::createUploadFileRequest(const QFileInfo& currentUpload, bool i
 		if (!qfile.open(QIODevice::ReadOnly))
 		{
 			emit uploadFailedSignal("Unable to load file, transfer failed. " + qfile.errorString());
+			emit beepSignal();
 			return;
 		}
 
@@ -419,7 +435,7 @@ void clientModel::renameInServer(const QModelIndex& index, const QString& newFil
 	else if (FileManager::checkIfSensitiveDirectory(fileName))
 	{
 		emit beepSignal();
-		writeTextSignal("Please stay away from sensitive directories :)", Qt::darkRed);
+		writeTextSignal("Please stay away from sensitive directories :)", Qt::red);
 		return;
 	}
 
@@ -510,7 +526,7 @@ void clientModel::onDoubleClickLocalBrowser(const QModelIndex& index)
 	if (FileManager::checkIfSensitiveDirectory(filePath))
 	{
 		emit beepSignal();
-		writeTextSignal("Please stay away from sensitive directories :)", Qt::darkRed);
+		writeTextSignal("Please stay away from sensitive directories :)", Qt::red);
 		return;
 	}
 			
@@ -559,7 +575,7 @@ void clientModel::deleteAction(const QModelIndexList& indices, bool deleteInServ
 			else if (FileManager::checkIfSensitiveDirectory(filePath))
 			{
 				emit beepSignal();
-				writeTextSignal("Please stay away from sensitive directories :)", Qt::darkRed);
+				writeTextSignal("Please stay away from sensitive directories :)", Qt::red);
 				continue;
 			}
 			else {
@@ -680,7 +696,7 @@ void clientModel::fileAlreadyExistsSelection(const int& selection, const bool& r
 	{
 		if (selection == 3)
 		{
-			emit writeTextSignal("File: " + currentDownload.fileName + " has been skipped.", Qt::darkRed);
+			emit writeTextSignal("File: " + currentDownload.fileName + " has been skipped.", Qt::red);
 			checkRemainingDownloads();
 			return;
 		}
@@ -690,7 +706,7 @@ void clientModel::fileAlreadyExistsSelection(const int& selection, const bool& r
 	{
 		if (selection == 3)
 		{
-			emit writeTextSignal("File: " + currentUpload.fileName() + " has been skipped.", Qt::darkRed);
+			emit writeTextSignal("File: " + currentUpload.fileName() + " has been skipped.", Qt::red);
 			checkRemainingUploads();
 			return;
 		}
@@ -698,7 +714,7 @@ void clientModel::fileAlreadyExistsSelection(const int& selection, const bool& r
 	}
 	else
 	{
-		emit writeTextSignal("No file is queued for transfer.", Qt::darkRed);
+		emit writeTextSignal("No file is queued for transfer.", Qt::red);
 		beepSignal();
 	}
 }
@@ -739,7 +755,7 @@ void clientModel::searchFolder(const QString& directory, bool searchInServer)
 			if (FileManager::checkIfSensitiveDirectory(directory))
 			{
 				emit beepSignal();
-				writeTextSignal("Please stay away from sensitive directories :)", Qt::darkRed);
+				writeTextSignal("Please stay away from sensitive directories :)", Qt::red);
 				return;
 			}
 
@@ -752,11 +768,13 @@ void clientModel::searchFolder(const QString& directory, bool searchInServer)
 	}
 }
 
+
+
 void clientModel::requestServerUpdate()
 {
 	if (!currentServerDirectory.isEmpty() && !networkManager.isDownloading() && currentDownload.isEmpty() && !currentUpload.exists())
 	{
-		emit writeTextSignal("Fetching current server files.");
+		//emit writeTextSignal("Fetching current server files.");
 
 		QMap<QString, QString> requestVariables{
 			{"requestPath", currentServerDirectory}
@@ -787,6 +805,11 @@ void clientModel::disconnectFromServerButton()
 {
 	networkManager.disconnectFromServer();
 	copiedServerFiles = false;
+}
+
+void clientModel::setMinimizeToTray(bool checked)
+{
+	settingsManager.setMinimizeToTray(checked);
 }
 
 void clientModel::disconnectedFromServer()

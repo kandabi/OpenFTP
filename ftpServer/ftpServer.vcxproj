@@ -110,6 +110,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\controller.cpp" />
+    <ClCompile Include="src\SslServer.cpp" />
     <ClCompile Include="src\transfer.cpp" />
     <ClCompile Include="src\ftp_manager.cpp" />
     <ClCompile Include="src\network_manager.cpp" />
@@ -128,6 +129,7 @@
     <ClCompile Include="src\user.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="headers\SslServer.h" />
     <ClInclude Include="headers\transfer.h" />
     <ClInclude Include="headers\ftp_manager.h" />
     <QtMoc Include="headers\network_manager.h" />

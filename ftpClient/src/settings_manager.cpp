@@ -12,6 +12,21 @@ QString SettingsManager::getDefaultBrowserDirectory()
 }
 
 
+bool SettingsManager::getMinimizeToTray()
+{
+	if (!settings->value("minimizeToTray").isValid())
+	{
+		setMinimizeToTray(true);
+		return true;
+	}
+	return settings->value("minimizeToTray").toBool();
+}
+
+void SettingsManager::setMinimizeToTray(const bool& minimize)
+{
+	settings->setValue("minimizeToTray", minimize);
+}
+
 RequestManager::FileOverwrite SettingsManager::getOverwriteExistingFileBehavior()
 {
 	return static_cast<RequestManager::FileOverwrite>(settings->value("overwriteExistingFileBehavior").toInt());
@@ -31,6 +46,17 @@ void SettingsManager::setConnectionCredentials(const bool& checkboxChecked ,cons
 connectionCredentials SettingsManager::getConnectionCredentials()
 {
 	return connectionCredentials(settings->value("saveCredentials").toBool() ,settings->value("serverAddress").toString(), settings->value("serverPort").toString(), settings->value("userName").toString(), settings->value("userPassword").toString());
+}
+
+
+bool SettingsManager::getShowTrayMessage()
+{
+	return settings->value("showTrayMessage").toBool();
+}
+
+void SettingsManager::setShowTrayMessage()
+{
+	settings->setValue("showTrayMessage", true);
 }
 
 

@@ -13,6 +13,7 @@ public:
 signals:
 	void onCloseSignal();
 	void performSelectionSignal(const int& selection, const bool& rememberSelectionForever, const bool& rememberForRemainingDownloads);
+	void cancelTransfersSignal();
 
 public slots:
 	void performSelection();
@@ -20,10 +21,11 @@ public slots:
 	void toggleTemporaryCheckbox();
 
 private:
+	virtual void reject();
+
 	Ui::fileExists ui;
 
 	friend class clientView;
 	friend class clientController;
-	//virtual void reject();
 };
 

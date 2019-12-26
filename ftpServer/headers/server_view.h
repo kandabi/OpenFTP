@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "ui_serverView.h"
 #include "settings_view.h"
+#include "settings_manager.h"
 
 class serverView : public QMainWindow
 {
@@ -11,6 +12,7 @@ public:
 	serverView(QWidget *parent = Q_NULLPTR);
 
 	QMenu menu;
+	QMenu trayIconMenu;
 signals:
 	void saveSettingsSignal();
 	void disconnectUserSignal(QString userName);
@@ -25,12 +27,19 @@ public slots:
 	void disconnectUser();
 	void connectUserToList(QString name);
 	void deleteUserFromList(QString name);
-	void closeEvent(QCloseEvent* event);
 	void showContextMenu(const QPoint& pos);
-
+	void closeEvent(QCloseEvent* event) override;
+	void closeWindow();
+	void activateTrayIcon(QSystemTrayIcon::ActivationReason reason);
 
 private:
+	bool closing = false;
 	bool serverIsRunning = false;
+
+	
+	QSystemTrayIcon systemTrayIcon;
+	QIcon icon;
+	SettingsManager settingsManager;
 
 	Ui::serverGui ui;
 	settingsView settingsView;
