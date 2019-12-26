@@ -19,7 +19,7 @@ signals:
 	//void onClose();
 
 public slots:
-	void initializeSettings(QString directory, QStringList nameList);
+	void initializeSettings(QString directory, QStringList nameList, bool minimizeToTray);
 	void selectMainFtpDirectory();
 	void selectUserFtpDirectory();
 	void showContextMenu(const QPoint&);

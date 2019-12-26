@@ -174,6 +174,9 @@
     <Media Include="ui\delete.wav" />
     <Media Include="ui\headphaze.wav" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ui\client_style.css" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
     <Import Project="$(QtMsBuild)\qt.targets" />

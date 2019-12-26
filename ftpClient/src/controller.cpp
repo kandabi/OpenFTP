@@ -50,6 +50,7 @@ void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
 	connectionResults.append(connect(&view, &clientView::copyFilesToClipboardServerSignal, &data, &clientModel::copyFilesToClipboardServer));
 
 	connectionResults.append(connect(view.fileExistsWindow.ui.okButton, &QPushButton::clicked , &view.fileExistsWindow, &fileExistsView::performSelection));
+	connectionResults.append(connect(&view.fileExistsWindow, &fileExistsView::cancelTransfersSignal, &data, &clientModel::cancelTransfers));
 	connectionResults.append(connect(&view.fileExistsWindow, &fileExistsView::performSelectionSignal, &data, &clientModel::fileAlreadyExistsSelection));
 	connectionResults.append(connect(view.fileExistsWindow.ui.permanentCheckbox, &QCheckBox::clicked, &view.fileExistsWindow, &fileExistsView::togglePermanentCheckbox));
 	connectionResults.append(connect(view.fileExistsWindow.ui.temporaryCheckbox, &QCheckBox::clicked, &view.fileExistsWindow, &fileExistsView::toggleTemporaryCheckbox));
@@ -57,6 +58,15 @@ void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
 	connectionResults.append(connect(view.settingsWindow.ui.resetConnectionData, &QPushButton::clicked, &data, &clientModel::resetConnectionCredentials));
 	connectionResults.append(connect(view.ui.storeInformationCheckbox, &QCheckBox::clicked, &view, &clientView::onSaveConnectionCredentials));
 	connectionResults.append(connect(&view, &clientView::saveConnectionCredentialsSignal, &data, &clientModel::saveConnectionCredentials));
+
+	connectionResults.append(connect(view.ui.actionExit, &QAction::triggered, &view, &clientView::close));
+	//connectionResults.append(connect(view.ui.actionExit_2, &QAction::triggered, &view, &clientView::close));
+	connectionResults.append(connect(view.ui.actionExitIcon, &QAction::triggered, &view, &clientView::close));
+	connectionResults.append(connect(view.ui.actionFullscreen, &QAction::triggered, &view, &clientView::toggleFullscreen));
+	connectionResults.append(connect(view.ui.actionMinimize, &QAction::triggered, &view, &clientView::minimize));
+
+	connectionResults.append(connect(&view.systemTrayIcon, &QSystemTrayIcon::activated, &view, &clientView::activateTrayIcon));
+	connectionResults.append(connect(view.settingsWindow.ui.minimizeToTray, &QCheckBox::clicked, &data, &clientModel::setMinimizeToTray));
 }
 
 void clientController::connectModelSignalSlots(QList<bool>& connectionResults)

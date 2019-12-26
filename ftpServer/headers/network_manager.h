@@ -3,6 +3,8 @@
 #include "serialization_manager.h"
 #include "ftp_manager.h"
 #include "transfer.h"
+#include <qnetworkinterface>
+#include "SslServer.h"
 
 class NetworkManager : public QObject
 {
@@ -10,7 +12,7 @@ class NetworkManager : public QObject
 public:
 	NetworkManager(QList<User>& _registeredUsersList, QWidget* parent = Q_NULLPTR);
 
-	bool initServer();
+	bool initServer(const int& port);
 	bool stopServer();
 	void disconnectUser(QString userName);
 
@@ -38,8 +40,8 @@ private:
 	QList<Transfer> transfersInProgress;
 	//const qint16 port = 21;
 	const qint16 port = 57112;
-	//QSslSocket server;
 	QTcpServer server;
+	//SslServer server;
 	QList<User> connectedUsers;
 
 	friend class serverController;

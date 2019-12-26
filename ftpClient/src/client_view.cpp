@@ -1,17 +1,19 @@
 #include "./headers/stdafx.h"
 #include "./headers/client_view.h"
 
-clientView::clientView(QWidget *parent) : QMainWindow(parent) , serverMouseMenu(parent), serverEmptyMouseMenu(parent), settingsWindow(parent)
+clientView::clientView(QWidget *parent) : QMainWindow(parent, Qt::CustomizeWindowHint) , serverMouseMenu(parent), serverEmptyMouseMenu(parent), settingsWindow(parent), fileExistsWindow(parent), systemTrayIcon(parent), settingsManager(parent)
 {
+	//Qt::Window | Qt::FramelessWindowHint
 	ui.setupUi(this);
 
-	setAcceptDrops(true);
+	setWindowTitle("OpenFTP client");
 
+	setAcceptDrops(true);
+	appIcon.addFile(":/alienIcon/images/icon.png");
 
 	serverMouseMenu.addAction("Rename", this, &clientView::renameAtServer);
 	//serverMouseMenu.addAction("Copy", this, &clientView::copyFilesToClipboard);
 	serverMouseMenu.addAction("Delete", this, &clientView::deleteAtServerBrowser);
-
 
 	pasteAction = serverEmptyMouseMenu.addAction("Paste", this, &clientView::pasteFilesFromClipboard);
 	serverEmptyMouseMenu.addAction("New Folder", this, &clientView::createServerFolder);
@@ -24,7 +26,7 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent) , serverMouseMenu(
 	localEmptyMouseMenu.addAction("New Folder", this, &clientView::createLocalFolder);
 
 	ui.serverBrowser->viewport()->installEventFilter(parent);
-	ui.serverBrowser->setContextMenuPolicy(Qt::CustomContextMenu );
+	ui.serverBrowser->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui.serverBrowser->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.serverBrowser->horizontalHeader()->setHighlightSections(false);
 	ui.serverBrowser->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
@@ -40,6 +42,7 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent) , serverMouseMenu(
 	ui.deleteButton->setDisabled(true);
 	ui.uploadButton->setDisabled(true);
 	ui.downloadButton->setDisabled(true);
+	ui.serverSearchEdit->setDisabled(true);
 	pasteAction->setEnabled(false);
 
 	QSizePolicy sp_retain = ui.progressBar->sizePolicy();
@@ -48,19 +51,33 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent) , serverMouseMenu(
 	ui.progressBar->hide();
 
 	ui.portEdit->setValidator(new QIntValidator(0, 65535, this));
+
+	trayIconMenu.addAction("Exit", this, &clientView::closeWindow);
+	systemTrayIcon.setContextMenu(&trayIconMenu);
+	systemTrayIcon.setIcon(appIcon);
+	systemTrayIcon.show();
+
+	QMenuBar* customHeader = new QMenuBar(menuBar());
+
+	customHeader->addAction(ui.actionMinimize);
+	customHeader->addAction(ui.actionFullscreen);
+	customHeader->addAction(ui.actionExitIcon);
+
+	menuBar()->setCornerWidget(customHeader);
+	menuBar()->installEventFilter(this);
+
+	QFile File(":/styles/client_style.css");
+	File.open(QFile::ReadOnly);
+	QString StyleSheet = QLatin1String(File.readAll());
+
+	qApp->setStyleSheet(StyleSheet);
 }
 
 
 void clientView::fileAlreadyExists(const QString& filename)
 {
-	//QMessageBox msgBox(this);
-	//msgBox.setText(filename + " already exists on the server.\n");
-	//msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-	////msgBox.setDefaultButton(QMessageBox::Save);
-	//int ret = msgBox.exec();
 	fileExistsWindow.setFileName(filename + " already exists on the server.");
 	fileExistsWindow.show();
-
 }
 
 
@@ -177,14 +194,14 @@ void clientView::showServerContextMenu(const QPoint& pos)
 
 void clientView::deleteAtLocalBrowser()
 {
-	QMessageBox::StandardButton reply = QMessageBox::question(this, "ftpClient", "Are you sure you wish to delete the selected files?",
-										QMessageBox::Yes | QMessageBox::No);
-
-	if (reply != QMessageBox::Yes)
+	QModelIndexList selected = ui.localBrowser->selectionModel()->selectedRows();
+	if (selected.isEmpty())
 		return;
 
-	QModelIndexList selected = ui.localBrowser->selectionModel()->selectedRows();
-	if (!selected.isEmpty() && !transfersInProgress)
+	QMessageBox::StandardButton reply = QMessageBox::question(this, "openFTP", "Are you sure you wish to delete the selected files?",
+										QMessageBox::Yes | QMessageBox::No);
+
+	if (reply == QMessageBox::Yes && !transfersInProgress)
 		emit deleteActionSignal(selected, false);
 }
 
@@ -192,14 +209,11 @@ void clientView::deleteAtLocalBrowser()
 
 void clientView::deleteAtServerBrowser()
 {
-	QMessageBox::StandardButton reply = QMessageBox::question(this, "ftpClient", "Are you sure you wish to delete the selected files?",
+	QModelIndexList selected = ui.serverBrowser->selectionModel()->selectedRows();
+	QMessageBox::StandardButton reply = QMessageBox::question(this, "openFTP", "Are you sure you wish to delete the selected files?",
 		QMessageBox::Yes | QMessageBox::No);
 
-	if (reply != QMessageBox::Yes)
-		return;
-
-	QModelIndexList selected = ui.serverBrowser->selectionModel()->selectedRows();
-	if(!selected.isEmpty() && !transfersInProgress)
+	if (reply == QMessageBox::Yes && !transfersInProgress)
 		emit deleteActionSignal(selected, true);
 }
 
@@ -356,9 +370,9 @@ void clientView::uploadComplete()
 
 void clientView::uploadFailed(QString error)
 {
-	beep();
+	//beep();
 	hideProgressBar();
-	writeTextToScreen(error, Qt::darkRed);
+	writeTextToScreen(error, Qt::red);
 	transfersInProgress = false;
 }
 
@@ -396,8 +410,6 @@ void clientView::openFileBrowser()
 }
 
 
-
-
 void clientView::setLocalFileBrowser(QFileSystemModel& model)
 {
 
@@ -413,13 +425,15 @@ void clientView::setLocalFileBrowser(QFileSystemModel& model)
 }
 
 
-void clientView::init(const bool& isChecked ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword)
+void clientView::init(const bool& isChecked ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword, const bool& minimizeToTray)
 {
 	ui.storeInformationCheckbox->setChecked(isChecked);
 	ui.addressEdit->setText(serverAddress);
 	ui.portEdit->setText(serverPort);
 	ui.usernameEdit->setText(userName);
 	ui.passwordEdit->setText(userPassword);
+
+	settingsWindow.ui.minimizeToTray->setChecked(minimizeToTray);
 }
 
 void clientView::connectToServer()
@@ -439,13 +453,19 @@ void clientView::onSaveConnectionCredentials()
 
 void clientView::connectedToServer(FileListServerModel* model,const QString& currentDirectory)
 {
-	if(model != Q_NULLPTR)
+	if (model != Q_NULLPTR)
 		ui.serverBrowser->setModel(model);
 
-	ui.serverBrowser->setColumnWidth(0, 5);
-	ui.serverBrowser->setColumnWidth(1, 200);
-	ui.serverBrowser->setColumnWidth(3, 120);
-	ui.serverBrowser->setColumnWidth(4, 200);
+	
+	if (!connectedToServerBool) {
+		ui.serverBrowser->setColumnWidth(0, 5);
+		ui.serverBrowser->setColumnWidth(1, 200);
+		ui.serverBrowser->setColumnWidth(2, 60);
+		ui.serverBrowser->setColumnWidth(3, 90);
+		ui.serverBrowser->setColumnWidth(4, 190);
+	}
+
+
 	
 	currentServerBrowserPath = currentDirectory;
 	ui.serverSearchEdit->setText(currentDirectory);
@@ -458,6 +478,7 @@ void clientView::connectedToServer(FileListServerModel* model,const QString& cur
 	ui.deleteButton->setDisabled(false);
 	ui.uploadButton->setDisabled(false);
 	ui.downloadButton->setDisabled(false);
+	ui.serverSearchEdit->setDisabled(false);
 	connectedToServerBool = true;
 
 
@@ -474,6 +495,7 @@ void clientView::disconnectedFromServer()
 	ui.deleteButton->setDisabled(true);
 	ui.uploadButton->setDisabled(true);
 	ui.downloadButton->setDisabled(true);
+	ui.serverSearchEdit->setDisabled(true);
 	ui.serverSearchEdit->clear();
 	connectedToServerBool = false;
 	pasteAction->setEnabled(false);
@@ -496,7 +518,7 @@ void clientView::pasteFilesFromClipboard()
 		{
 			if (!pasteAction->isEnabled())
 			{
-				beep(); //*** Implement blinking on download button.
+				beep(); 
 			}
 			else {
 				emit copyFilesToDirectorySignal(filesSelected, true, currentLocalBrowserPath);
@@ -528,6 +550,113 @@ void clientView::copyFilesToClipboard()
 		pasteAction->setEnabled(false);
 	}
 }
+
+void clientView::activateTrayIcon(QSystemTrayIcon::ActivationReason reason)
+{
+	if (reason == QSystemTrayIcon::Trigger)
+	{
+		if (isVisible())
+		{
+			hide();
+		}
+		else
+		{
+			show();
+			activateWindow();
+		}
+	}
+}
+
+
+void clientView::closeEvent(QCloseEvent* event)
+{
+	if (closing || !settingsManager.getMinimizeToTray())
+	{
+		ui.disconnectButton->click();
+		event->accept();
+	}
+	else
+	{
+		this->hide();
+		event->ignore();
+
+		if (!settingsManager.getShowTrayMessage())
+		{
+			systemTrayIcon.showMessage("OpenFTP client minimized to tray", "Program is still running, you can change this in the settings.", appIcon);
+			settingsManager.setShowTrayMessage();
+		}
+
+	}
+}
+
+
+void clientView::closeWindow()
+{
+	closing = true;
+	close();
+}
+
+
+void clientView::toggleFullscreen()
+{
+	if (isFullScreen())
+	{
+		showNormal();
+	}
+	else {
+		showFullScreen();
+	}
+}
+
+void clientView::minimize()
+{
+	setWindowState(Qt::WindowMinimized);;
+}
+
+
+bool clientView::eventFilter(QObject* watched, QEvent* event)
+{
+	if (watched == menuBar())
+	{
+		auto eventType = event->type();
+		if (eventType == QEvent::MouseButtonPress)
+		{
+			QMouseEvent* mouse_event = dynamic_cast<QMouseEvent*>(event);
+			if (mouse_event->button() == Qt::LeftButton)
+			{
+				dragPosition = mouse_event->globalPos() - frameGeometry().topLeft();
+				performMoveEvent = true;
+				return false;
+			}
+		}
+		else if (eventType == QEvent::MouseButtonDblClick)
+		{
+			if (isMaximized)
+			{
+				this->setWindowState(Qt::WindowNoState);
+			}
+			else {
+				this->setWindowState(Qt::WindowFullScreen);
+			}
+
+			performMoveEvent = false;
+			isMaximized = !isMaximized;
+
+			return true;
+		}
+		else if (eventType == QEvent::MouseMove)
+		{
+			QMouseEvent* mouse_event = dynamic_cast<QMouseEvent*>(event);
+			if (mouse_event->buttons() & Qt::LeftButton && performMoveEvent)
+			{
+				move(mouse_event->globalPos() - dragPosition);
+				return false;
+			}
+		}
+	}
+	return false;
+}
+
 
 QStringList clientView::getFileListFromMimeData(const QMimeData* data)
 {

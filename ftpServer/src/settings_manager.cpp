@@ -37,6 +37,36 @@ void SettingsManager::setFtpDirectory(QString directory)
 }
 
 
+int SettingsManager::getPort()
+{
+	return 20;
+}
+
+
+bool SettingsManager::getFirstTimeTrayMessage()
+{
+	return settings->value("firstTimeTrayMessage").toBool();
+}
+
+void SettingsManager::setFirstTimeTrayMessage()
+{
+	settings->setValue("firstTimeTrayMessage", true);
+}
+
+bool SettingsManager::getMinimizeToTray()
+{
+	if (!settings->value("minimizeToTray").isValid())
+	{
+		setMinimizeToTray(true);
+		return true;
+	}
+	return settings->value("minimizeToTray").toBool();
+}
+
+void SettingsManager::setMinimizeToTray(const bool& minimize)
+{
+	settings->setValue("minimizeToTray", minimize);
+}
 
 
 QList<User> SettingsManager::getUsersFromSettings()
@@ -46,10 +76,16 @@ QList<User> SettingsManager::getUsersFromSettings()
 
 	for (int i = 0; i < arraySize; ++i) {
 		settings->setArrayIndex(i);
-		userList.append(User{ settings->value("name").toString(), settings->value("password").toString() , settings->value("directory").toString() });
+		userList.append(
+			User{ 
+				settings->value("name").toString(), 
+				settings->value("password").toString() , 
+				settings->value("directory").toString() 
+			}
+		);
 	}
-	settings->endArray();
 
+	settings->endArray();
 	return userList;
 }
 
@@ -67,7 +103,37 @@ bool SettingsManager::writeJsonFile(QIODevice& device, const QSettings::Settings
 	return true;
 }
 
-void SettingsManager::removeUserFromSettings(QString username)
+void SettingsManager::removeUserFromSettings(int index)
 {
-	//*** Implementation Forthcoming
+	QList<User> userList;
+	int arraySize = settings->beginReadArray("user");
+
+	for (int i = 0; i < arraySize; ++i) 
+	{
+		settings->setArrayIndex(i);
+
+		if (i != index)
+		{
+			userList.append(
+				User{
+					settings->value("name").toString(),
+					settings->value("password").toString() ,
+					settings->value("directory").toString()
+				}
+			);
+		}
+
+		settings->remove("name");
+		settings->remove("password");
+		settings->remove("directory");
+	}
+
+	settings->endArray();
+	settings->remove("user/size");
+
+	settings->sync();
+
+	for (const User& user : userList)
+		writeUserToSettings(user.username, user.password, user.homeDirectory);
+
 }

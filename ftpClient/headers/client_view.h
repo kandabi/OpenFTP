@@ -5,6 +5,7 @@
 #include "fileExists_view.h"
 #include "list_model.h"
 #include "file_manager.h"
+#include "settings_manager.h"
 
 class clientView : public QMainWindow
 {
@@ -16,7 +17,9 @@ public:
 	QMenu serverEmptyMouseMenu;
 	QMenu localMouseMenu;
 	QMenu localEmptyMouseMenu;
+	QMenu trayIconMenu;
 	QAction* pasteAction;
+	QAction* fullscreenAction;
 
 signals:
 	void deleteActionSignal(const QModelIndexList& index, bool deleteInServer);
@@ -39,7 +42,7 @@ signals:
 public slots:
 	void onSaveConnectionCredentials();
 	void connectToServer();
-	void writeTextToScreen(QString text, QColor color = Qt::black);
+	void writeTextToScreen(QString text, QColor color = Qt::white);
 	void openOptionMenu();
 	void connectedToServer(FileListServerModel* model,const QString& currentDirectory);
 	void disconnectedFromServer();
@@ -72,18 +75,36 @@ public slots:
 	void downloadFileButton();
 	void copyFilesToClipboard();
 	void pasteFilesFromClipboard();
-	void init(const bool& isChecked ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
+	void init(const bool& isChecked ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword, const bool& minimizeToTray);
+	void closeEvent(QCloseEvent* event) override;
+	void closeWindow();
+	void activateTrayIcon(QSystemTrayIcon::ActivationReason reason);
+	bool eventFilter(QObject* watched, QEvent* event);
+	void toggleFullscreen();
+	void minimize();
 
 private:
 	QStringList getFileListFromMimeData(const QMimeData* data);
 
+	bool isMaximized = false;
+	bool performMoveEvent = false;
+	QPoint dragPosition;
+	bool closing = false;
 	bool connectedToServerBool = false;
 	bool transfersInProgress = false;
 	QString currentLocalBrowserPath;
 	QString currentServerBrowserPath;
 	
+	QSystemTrayIcon systemTrayIcon;
+	QIcon appIcon;
+	QIcon exitIcon;
+	QIcon fullscreenIcon;
+	QPushButton* exitAction;
+
+
 	Ui::clientGui ui;
 
+	SettingsManager settingsManager;
 	fileExistsView fileExistsWindow;
 	settingsView settingsWindow;
 	friend class clientController;

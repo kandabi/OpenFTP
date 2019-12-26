@@ -4,6 +4,7 @@
 fileExistsView::fileExistsView(QWidget* parent) : QDialog(parent)
 {
 	ui.setupUi(this);
+
 	setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
 	this->setModal(true);
 }
@@ -25,6 +26,13 @@ void fileExistsView::toggleTemporaryCheckbox()
 }
 
 
+void fileExistsView::reject()
+{
+	emit cancelTransfersSignal();
+	QDialog::reject();
+}
+
+
 void fileExistsView::performSelection()
 {
 	int selection = 0;
@@ -34,8 +42,6 @@ void fileExistsView::performSelection()
 		selection = 2;
 	else if (ui.skipFileRadioButton->isChecked())
 		selection = 3;
-
-
 
 	emit performSelectionSignal(selection, ui.permanentCheckbox->isChecked(), ui.temporaryCheckbox->isChecked());
 }

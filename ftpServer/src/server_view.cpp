@@ -1,36 +1,19 @@
 #include "./headers/stdafx.h"
 #include "./headers/server_view.h"
 
-serverView::serverView(QWidget *parent)
-	: QMainWindow(parent)
+serverView::serverView(QWidget *parent) : QMainWindow(parent), settingsManager(parent), systemTrayIcon(parent)
 {
 	ui.setupUi(this);
 	ui.stopServerButton->setDisabled(true);
-
-	menu.addAction("Disconnect User", this, &serverView::disconnectUser);
+	
 	ui.connectedUsersList->setContextMenuPolicy(Qt::CustomContextMenu);
-}
 
-void serverView::closeEvent(QCloseEvent* event)
-{
-	ui.stopServerButton->click();
-	event->accept();
-	//if (serverIsRunning)
-	//{
-	//	QMessageBox::StandardButton resBtn = QMessageBox::question(this, QFileInfo(QCoreApplication::applicationFilePath()).fileName(),
-	//		tr("Are you sure you wish to close the server?\n"),
-	//		QMessageBox::Cancel | QMessageBox::Yes,
-	//		QMessageBox::Yes);
-	//	if (resBtn == QMessageBox::Yes) {
-	//		ui.stopServerButton->click();
-	//		event->accept();
-	//	}
-	//	else {
-	//		event->ignore();
-	//	}
-	//}
-}
+	icon.addFile(":/alienIcon/images/icon.png");
 
+	systemTrayIcon.setContextMenu(&trayIconMenu);
+	systemTrayIcon.setIcon(icon);
+	systemTrayIcon.show();
+}
 
 void serverView::disconnectUser()
 {
@@ -39,7 +22,6 @@ void serverView::disconnectUser()
 	{
 		emit disconnectUserSignal(index.data().toString());
 	}
-
 }
 
 
@@ -83,7 +65,6 @@ void serverView::deleteUserFromList(QString name)
 }
 
 
-
 void serverView::startServer()
 {
 	ui.startServerButton->setDisabled(true);
@@ -102,4 +83,49 @@ void serverView::stopServer()
 	ui.connectedUsersList->clear();
 
 	serverIsRunning = false;
+}
+
+
+void serverView::activateTrayIcon(QSystemTrayIcon::ActivationReason reason)
+{
+	if (reason == QSystemTrayIcon::Trigger)
+	{
+		if (isVisible())
+		{
+			hide();
+		}
+		else
+		{
+			show();
+			activateWindow();
+		}
+	}
+}
+
+
+void serverView::closeEvent(QCloseEvent* event)
+{
+	if (closing || !settingsManager.getMinimizeToTray())
+	{
+		ui.stopServerButton->click();
+		event->accept();
+	}
+	else
+	{
+		this->hide();
+		event->ignore();
+
+		if (!settingsManager.getFirstTimeTrayMessage())
+		{
+			systemTrayIcon.showMessage("OpenFTP server minimized to tray", "Program is still running, you can change this in the settings.", icon);
+			settingsManager.setFirstTimeTrayMessage();
+		}
+
+	}
+}
+
+void serverView::closeWindow()
+{
+	closing = true;
+	close();
 }

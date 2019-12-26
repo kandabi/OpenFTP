@@ -33,7 +33,7 @@ public:
 	QString getSocketPort();
 
 signals:
-	void writeTextSignal(QString text, QColor color = Qt::black);
+	void writeTextSignal(QString text, QColor color = Qt::white);
 	void disconnectedFromServerSignal();
 	void parseJsonSignal(const QByteArray& jsonArray);
 	void updateProgressBarSignal(qint64 bytesReceived);
@@ -46,6 +46,8 @@ public slots:
 
 private:
 	QTcpSocket socket;
+	//QSslSocket socket;
+
 	QSaveFile qSaveFile;
 
 	bool downloadInProgress = false;

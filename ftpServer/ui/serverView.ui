@@ -79,7 +79,7 @@
      <rect>
       <x>10</x>
       <y>460</y>
-      <width>171</width>
+      <width>231</width>
       <height>131</height>
      </rect>
     </property>
@@ -116,6 +116,35 @@
      </property>
      <property name="text">
       <string>Stop Server</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>36</y>
+       <width>101</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="placeholderText">
+      <string>Default 20</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>20</y>
+       <width>71</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Port to listen</string>
      </property>
     </widget>
    </widget>

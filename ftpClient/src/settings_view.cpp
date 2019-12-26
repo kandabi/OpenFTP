@@ -4,9 +4,10 @@
 settingsView::settingsView(QWidget *parent) : QDialog(parent)
 {
 	ui.setupUi(this);
-}
 
-settingsView::~settingsView() {}
+	setWindowFlags(Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
+	this->setModal(true);
+}
 
 void settingsView::reject()
 {

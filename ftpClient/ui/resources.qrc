@@ -2,11 +2,11 @@
   <qresource prefix="/alienIcon">
     <file>../images/icon.png</file>
   </qresource>
-  <qresource prefix="arrow">
+  <qresource prefix="/arrow">
     <file>../images/right.png</file>
     <file>../images/left.png</file>
   </qresource>
-  <qresource prefix="folderIcon">
+  <qresource prefix="/folderIcon">
     <file>../images/folder.png</file>
   </qresource>
   <qresource prefix="/audio">
@@ -24,5 +24,13 @@
   </qresource>
   <qresource prefix="/searchIcon">
     <file>../images/search_button.png</file>
+  </qresource>
+  <qresource prefix="/styles">
+    <file>client_style.css</file>
+  </qresource>
+  <qresource prefix="/headers">
+    <file>../images/minimize.png</file>
+    <file>../images/exit.png</file>
+    <file>../images/fullscreen.png</file>
   </qresource>
 </RCC>

@@ -74,6 +74,19 @@
       </property>
      </widget>
     </widget>
+    <widget class="QCheckBox" name="minimizeToTray">
+     <property name="geometry">
+      <rect>
+       <x>40</x>
+       <y>120</y>
+       <width>351</width>
+       <height>17</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Minimize the server to system tray on close.</string>
+     </property>
+    </widget>
    </widget>
    <widget class="QWidget" name="usersTab">
     <attribute name="title">

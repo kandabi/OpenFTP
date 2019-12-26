@@ -1,7 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\file.cpp" />
     <ClCompile Include="src\list_model.cpp" />
     <ClCompile Include="src\serialization_manager.cpp" />
@@ -30,6 +29,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\network_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -117,5 +119,8 @@
     <Media Include="ui\headphaze.wav" />
     <Media Include="ui\complete.wav" />
     <Media Include="ui\delete.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ui\client_style.css" />
   </ItemGroup>
 </Project>

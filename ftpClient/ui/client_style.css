@@ -1,0 +1,210 @@
+QLabel, QCheckBox, QPushButton, QGroupBox, QRadioButton {
+    color: #F0FEFE;
+}
+
+
+
+QMainWindow {
+    background-color: #2D2D30;
+    /*border: 0.5px solid #CA5100;*/
+}
+
+
+QMenuBar {
+    background-color: #252526;
+    color: #F0FEFE;
+    padding-top: 10px;
+    border-bottom: 0.5px solid #007ACC;
+    /*border-top: 0.5px solid #CA5100;
+    border-right: 0.5px solid #CA5100;
+    border-left: 0.5px solid #CA5100;*/
+}
+
+    QMenuBar::item:selected, QMenu::item:selected {
+        background-color: #3F3F46;
+    }
+
+    QMenuBar QMenuBar {
+        border: 0px;
+        padding-top: 0px;
+        background-color: #252526;
+        padding-left: 8px;
+    }
+
+        QMenuBar QMenuBar::item {
+            width: 25px;
+            height: 45px;
+            /*background-color: red;*/
+            padding-top: 3px;
+            padding-left: 12px;
+            padding-right: 12px;
+            padding-bottom: 7px;
+        }
+
+
+
+QMenu {
+    background-color: #1E1E1E;
+    color: #F0FEFE;
+}
+
+QLineEdit {
+    background-color: #1E1E1E;
+    border: 0.5px solid #007ACC;
+    border-radius: 3px 3px;
+    color: #F0FEFE;
+    padding: 2px;
+}
+
+    QLineEdit:hover {
+        background-color: #37373D;
+        /*border: 0.5px solid #1E1E1E;*/
+    }
+
+#mainTextWindow {
+    background-color: #1E1E1E;
+    border: 1px solid #007ACC;
+    /*border: 0.5px solid #007ACC;*/
+}
+
+QTableView {
+    background-color: #1E1E1E;
+    color: #F0FEFE;
+}
+
+    QTableView QHeaderView::section {
+        background-color: #2D2D30;
+        color: #F0FEFE;
+    }
+    QTableView QHeaderView {
+        background-color: #2D2D30;
+    }
+
+    QTableView::item:selected {
+        background-color: #37373D;
+        
+    }
+
+
+QSplitter::handle {
+    background-color: #2D2D30;
+    border: 3px solid #2D2D30;
+}
+
+    QSplitter::handle:horizontal:hover {
+        border: 6px solid #3F3F46;
+        background-color: #3F3F46;
+    }
+
+
+
+QScrollBar:vertical {
+    border: 2px solid #2D2D30;
+    background: #2D2D30;
+    width: 15px;
+    margin: 22px 0 22px 0;
+}
+
+QScrollBar::handle:vertical {
+    background: #686868;
+    min-height: 20px;
+}
+
+QScrollBar::add-line:vertical {
+    background: #2D2D30;
+    height: 20px;
+    subcontrol-position: bottom;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:vertical {
+    background: #2D2D30;
+    height: 20px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical {
+    width: 4px;
+    height: 4px;
+    background: #F0FEFE;
+}
+
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+
+
+
+QScrollBar:horizontal {
+    border: 2px solid #2D2D30;
+    background: #2D2D30;
+    height: 15px;
+    margin: 0px 20px 0 20px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #686868;
+    min-width: 20px;
+}
+
+QScrollBar::add-line:horizontal {
+    background: #2D2D30;
+    width: 20px;
+    subcontrol-position: right;
+    subcontrol-origin: margin;
+}
+
+QScrollBar::sub-line:horizontal {
+    background: #2D2D30;
+    width: 20px;
+    subcontrol-position: left;
+    subcontrol-origin: margin;
+}
+
+QScrollBar:left-arrow:horizontal, QScrollBar::right-arrow:horizontal {
+    width: 4px;
+    height: 4px;
+    background: #F0FEFE;
+}
+    
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
+
+QMessageBox, QInputDialog {
+    background-color: #252526;
+}
+
+QPushButton {
+    background-color: #1E1E1E;
+    border-width: 2px;
+    border-radius: 4px;
+    border: none;
+    width: 60px;
+    height: 20px;
+    /*border: 1px solid #007ACC;*/
+}
+
+    QPushButton:disabled {
+        background-color: #242426;
+    }
+
+    QPushButton:hover {
+        background-color: #37373D;
+    }
+
+
+#settingsView, #fileExists {
+    background-color: #1E1E1E;
+}
+
+    #connectButton, #disconnectButton, #settingsView QPushButton, #fileExists QPushButton, QInputDialog QPushButton, QMessageBox QPushButton {
+        border: 0.5px solid #007ACC;
+    }
+
+        #connectButton:disabled, #disconnectButton:disabled, QLineEdit:disabled {
+            border: none;
+        }
+

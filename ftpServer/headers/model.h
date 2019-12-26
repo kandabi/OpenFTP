@@ -5,16 +5,16 @@
 
 
 
-class ServerModel : public QObject 
+class serverModel : public QObject 
 {   
 	Q_OBJECT 
     friend class serverController;
 public:
-	ServerModel(QWidget* parent = Q_NULLPTR);
+	serverModel(QWidget* parent = Q_NULLPTR);
 
 signals:
 	void writeTextSignal(QString text, QColor color = Qt::black);
-	void initializeSettingsSignal(QString directory, QStringList nameList);
+	void initializeSettingsSignal(QString directory, QStringList nameList, bool minimizeToTray);
 	void closeSettingsSignal();
 	void startServerSignal();
 	void stopServerSignal();
@@ -31,6 +31,7 @@ public slots:
 	void saveFtpDirectory(QString directory);
 	void createUser(QString username, QString password, QString directoryPermitted);
 	void disconnectUser(QString userName);
+	void setMinimizeToTray(bool checked);
 
 private:
 	SettingsManager settingsManager;

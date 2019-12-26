@@ -3,7 +3,7 @@
 
 NetworkManager::NetworkManager(QWidget* parent) : QObject(parent)
 {
-
+	//bool result = socket.addCaCertificates("sslserver.pem");
 }
 
 
@@ -22,6 +22,7 @@ void NetworkManager::connectToServer(const QString& serverAddress, const QString
 	password = userPassword;
 
 	socket.close();
+	//socket.connectToHostEncrypted(serverAddress, serverPort.toInt());
 	socket.connectToHost(QHostAddress(serverAddress), serverPort.toInt());
 }
 
@@ -65,7 +66,7 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 {
 	if (socketState == QAbstractSocket::ClosingState)
 	{
-		emit writeTextSignal("Disconnected from the server.", Qt::darkRed);
+		emit writeTextSignal("Disconnected from the server.", Qt::red);
 		socket.close();
 		emit disconnectedFromServerSignal();
 	}
@@ -77,7 +78,13 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 			{ "password", password },
 		};
 
-		socket.write(Serializer::JsonObjectToByteArray(request));
+		//if(socket.waitForEncrypted(-1))
+		{
+			socket.write(Serializer::JsonObjectToByteArray(request));
+		}
+		//else {
+		//	emit writeTextSignal("Error establishing secure connection: " + socket.errorString(), Qt::red);
+		//}
 	}
 }
 

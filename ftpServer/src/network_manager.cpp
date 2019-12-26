@@ -1,12 +1,12 @@
 #include "./headers/stdafx.h"
 #include "./headers/network_manager.h"
-#include <qnetworkinterface.h>
+
 
 NetworkManager::NetworkManager(QList<User>& _registeredUsersList ,QWidget* parent) : QObject(parent) ,registeredUsersList(_registeredUsersList)
 {
 }
 
-bool NetworkManager::initServer()
+bool NetworkManager::initServer(const int& port)
 {
 	//sslServer.startServerEncryption();
 	const QHostAddress& localhost = QHostAddress(QHostAddress::LocalHost);
@@ -19,14 +19,23 @@ bool NetworkManager::initServer()
 		}
 	}
 
-	 bool result = server.listen(serverAddress, 20);
-	 if (result)
+	//serverAddress = QHostAddress::LocalHost;
+	//bool certLoaded = server.setSslLocalCertificate("sslserver.pem");
+	//bool keyLoaded = server.setSslPrivateKey("sslserver.key");
+	//server.setSslProtocol(QSsl::TlsV1_2);
+
+	 bool isListening = server.listen(serverAddress, port);
+	 //if (isListening && certLoaded && keyLoaded)
+	 if(isListening)
 	 {
-		 emit writeTextSignal("Server listening on address: " + serverAddress.toString() + " , in port: " + QString::number(server.serverPort()), Qt::darkYellow);
+		 emit writeTextSignal("Server listening on address: " + serverAddress.toString() + " , port: " + QString::number(server.serverPort()), Qt::darkGreen);
+		 return true;
 	 }
 	 else
+	 {
 		 emit writeTextSignal("Server failed to start.", Qt::darkRed);
-	 return result;
+		 return true;
+	 }
 }
 
 bool NetworkManager::stopServer()
@@ -241,7 +250,6 @@ void NetworkManager::onReadyRead()
 
 void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketState)
 {
-	
 	if (socketState == QAbstractSocket::UnconnectedState)
 	{
 		QTcpSocket* socket = NetworkManager::getCurrentSocket();
@@ -272,17 +280,25 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 
 void NetworkManager::newConnectionAttempt()
 {
-
 	emit writeTextSignal("New Connection Attempted", QColor(255, 153, 0));
 
 	QTcpSocket* socket = server.nextPendingConnection();
 
-	if (!socket->waitForReadyRead(100))
+	//QSslSocket* socket = dynamic_cast<QSslSocket*>(server.nextPendingConnection());
+
+	//if(!socket->waitForEncrypted(1000))
+	//{
+	//	socket->disconnectFromHost();;
+	//}
+
+	if (!socket->waitForReadyRead(1000))
 	{
 		socket->disconnectFromHost();
 	}
 
-	QJsonObject userJson = QJsonDocument::fromJson(socket->readAll()).object();
+	auto data = socket->readAll();
+
+	QJsonObject userJson = QJsonDocument::fromJson(data).object();
 	User connectedUser(userJson.value("username").toString(), userJson.value("password").toString());
 	int userIndex = validateUser(registeredUsersList, connectedUser.username, connectedUser.password);
 

@@ -9,7 +9,7 @@ settingsView::settingsView(QWidget *parent)
 	this->setModal(true);
 
 	ui.applyButton->setEnabled(false);
-
+	
 	ui.userValidationLabel->setText("");
 	ui.userValidationLabel->setAlignment(Qt::AlignRight);
 	/*ui.groupBox.userValidationLabel->setColor(Qt::darkRed);*/
@@ -18,9 +18,11 @@ settingsView::settingsView(QWidget *parent)
 
 settingsView::~settingsView() {}
 
-void settingsView::initializeSettings(QString directory ,QStringList nameList)
+void settingsView::initializeSettings(QString directory ,QStringList nameList, bool minimizeToTray)
 {
 	applyButtonClicked = false;
+
+	ui.minimizeToTray->setChecked(minimizeToTray);
 
 	if (directory.isEmpty())
 	{
@@ -78,7 +80,9 @@ void settingsView::selectMainFtpDirectory()
 	if (!dir.isEmpty())
 	{
 		ui.directoryInput->setText(dir);
-		ui.applyButton->setEnabled(true);
+		emit setFtpDirectorySignal(dir);
+
+		//ui.applyButton->setEnabled(true);
 	}
 }
 
@@ -89,19 +93,17 @@ void settingsView::selectUserFtpDirectory()
 	if (!dir.isEmpty())
 	{
 		ui.directoryPermittedInput->setText(dir);
-
 	}
 }
 
 void settingsView::deleteUser()
 {
-	for (int i = 0; i < ui.userListWidget->selectedItems().size(); ++i) {
-		// Get curent item on selected row
+	for (int i = 0; i < ui.userListWidget->selectedItems().size(); ++i)
+	{
 		int row = ui.userListWidget->currentRow();
 		QListWidgetItem* item = ui.userListWidget->takeItem(row);
 		delete item;
 		emit deleteUserSignal(row);
-
 	}
 }
 
@@ -109,10 +111,10 @@ void settingsView::deleteUser()
 void settingsView::saveSettings()
 {
 	QString dir = ui.directoryInput->text();
-	if (!dir.isEmpty() && !applyButtonClicked)
-	{
-		emit setFtpDirectorySignal(dir);
-	}
+	//if (!dir.isEmpty() && !applyButtonClicked)
+	//{
+	//	emit setFtpDirectorySignal(dir);
+	//}
 
 	applyButtonClicked = false;
 	QDialog::close();
