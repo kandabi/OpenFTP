@@ -22,7 +22,7 @@ signals:
 	void deleteUserFromListSignal(QString text);
 
 public slots:
-	void initServer();
+	void initServer(int port);
 	void stopServer();
 
 	void saveSettings();

@@ -3,25 +3,18 @@
 
 clientView::clientView(QWidget *parent) : QMainWindow(parent, Qt::CustomizeWindowHint) , serverMouseMenu(parent), serverEmptyMouseMenu(parent), settingsWindow(parent), fileExistsWindow(parent), systemTrayIcon(parent), settingsManager(parent)
 {
-	//Qt::Window | Qt::FramelessWindowHint
 	ui.setupUi(this);
-
-	setWindowTitle("OpenFTP client");
-
+	setWindowOpacity(0.0);
+	fadeInAnimation();
 	setAcceptDrops(true);
-	appIcon.addFile(":/alienIcon/images/icon.png");
 
 	serverMouseMenu.addAction("Rename", this, &clientView::renameAtServer);
-	//serverMouseMenu.addAction("Copy", this, &clientView::copyFilesToClipboard);
 	serverMouseMenu.addAction("Delete", this, &clientView::deleteAtServerBrowser);
-
 	pasteAction = serverEmptyMouseMenu.addAction("Paste", this, &clientView::pasteFilesFromClipboard);
 	serverEmptyMouseMenu.addAction("New Folder", this, &clientView::createServerFolder);
-
 	localMouseMenu.addAction("Rename", this, &clientView::renameAtLocal);
 	localMouseMenu.addAction("Copy", this, &clientView::copyFilesToClipboard);
 	localMouseMenu.addAction("Delete", this, &clientView::deleteAtLocalBrowser);
-
 	localEmptyMouseMenu.addAction("Paste", this, &clientView::pasteFilesFromClipboard);
 	localEmptyMouseMenu.addAction("New Folder", this, &clientView::createLocalFolder);
 
@@ -30,10 +23,8 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent, Qt::CustomizeWindo
 	ui.serverBrowser->setSelectionBehavior(QAbstractItemView::SelectRows);
 	ui.serverBrowser->horizontalHeader()->setHighlightSections(false);
 	ui.serverBrowser->horizontalHeader()->setDefaultAlignment(Qt::AlignLeft);
-
 	ui.localBrowser->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui.localBrowser->horizontalHeader()->setHighlightSections(false);
-	//ui.localBrowser->setDragEnabled(true);
 
 	ui.disconnectButton->setDisabled(true);
 	ui.homeButton->setDisabled(true);
@@ -45,32 +36,32 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent, Qt::CustomizeWindo
 	ui.serverSearchEdit->setDisabled(true);
 	pasteAction->setEnabled(false);
 
-	QSizePolicy sp_retain = ui.progressBar->sizePolicy();
-	sp_retain.setRetainSizeWhenHidden(true);
-	ui.progressBar->setSizePolicy(sp_retain);
+	QSizePolicy retainSize = ui.progressBar->sizePolicy();
+	retainSize.setRetainSizeWhenHidden(true);
+	ui.progressBar->setSizePolicy(retainSize);
 	ui.progressBar->hide();
 
 	ui.portEdit->setValidator(new QIntValidator(0, 65535, this));
+	appIcon.addFile(":/alienIcon/images/icon.png");
 
 	trayIconMenu.addAction("Exit", this, &clientView::closeWindow);
 	systemTrayIcon.setContextMenu(&trayIconMenu);
 	systemTrayIcon.setIcon(appIcon);
 	systemTrayIcon.show();
-
-	QMenuBar* customHeader = new QMenuBar(menuBar());
-
-	customHeader->addAction(ui.actionMinimize);
-	customHeader->addAction(ui.actionFullscreen);
-	customHeader->addAction(ui.actionExitIcon);
-
-	menuBar()->setCornerWidget(customHeader);
+	statusBar()->addWidget(&statusBarLabel);
+	innerHeader = new QMenuBar(menuBar());
+	innerHeader->addAction(ui.actionMinimize);
+	innerHeader->addAction(ui.actionFullscreen);
+	innerHeader->addAction(ui.actionExitIcon);
+	menuBar()->setCornerWidget(innerHeader);
 	menuBar()->installEventFilter(this);
 
 	QFile File(":/styles/client_style.css");
 	File.open(QFile::ReadOnly);
 	QString StyleSheet = QLatin1String(File.readAll());
-
 	qApp->setStyleSheet(StyleSheet);
+
+	setWindowTitle("OpenFTP client");
 }
 
 
@@ -84,7 +75,7 @@ void clientView::fileAlreadyExists(const QString& filename)
 void clientView::uploadFileButton()
 {
 	if (connectedToServerBool && !transfersInProgress && !ui.localBrowser->selectionModel()->selectedRows().isEmpty())
-	{   //!transfersInProgress
+	{   
 		QStringList filesToUpload;
 		for (const QModelIndex& selected : ui.localBrowser->selectionModel()->selectedRows())
 		{
@@ -126,7 +117,6 @@ void clientView::dropEvent(QDropEvent* e)
 	{
 		emit copyFilesToDirectorySignal(filesSelected, true);
 	}
-
 }
 
 void clientView::dragEnterEvent(QDragEnterEvent* e)
@@ -135,24 +125,6 @@ void clientView::dragEnterEvent(QDragEnterEvent* e)
 		e->acceptProposedAction();
 	}
 }
-
-//void MainWindow::mousePressEvent(QMouseEvent* event)
-//{
-//	if (event->button() == Qt::LeftButton
-//		&& iconLabel->geometry().contains(event->pos())) {
-//
-//		QDrag* drag = new QDrag(this);
-//		QMimeData* mimeData = new QMimeData;
-//
-//		mimeData->setText(commentEdit->toPlainText());
-//		drag->setMimeData(mimeData);
-//		drag->setPixmap(iconPixmap);
-//
-//		Qt::DropAction dropAction = drag->exec();
-//		...
-//	}
-//}
-
 
 void clientView::writeTextToScreen(QString text, QColor color)
 {
@@ -176,7 +148,6 @@ void clientView::showLocalContextMenu(const QPoint& pos)
 			localEmptyMouseMenu.exec(QCursor::pos());
 		}
 	}
-		
 }
 
 
@@ -269,27 +240,7 @@ void clientView::keyPressEvent(QKeyEvent* event)
 	}
 	else if ((event->key() == Qt::Key_V) && QApplication::keyboardModifiers() && Qt::ControlModifier)
 	{
-
 		pasteFilesFromClipboard();
-		//}
-		//else if(!pasteAction->isEnabled())
-		//{
-		//	beep();
-		//}
-
-		//QStringList filesSelected = getFileListFromMimeData(QApplication::clipboard()->mimeData());
-		//if (!filesSelected.isEmpty()) 
-		//{
-		//	if (connectedToServerBool && !transfersInProgress && ui.serverBrowser->hasFocus())
-		//	{
-		//		emit queueFilesToUploadSignal(filesSelected, transfersInProgress);
-		//		transfersInProgress = true;
-		//	}
-		//	else if (ui.localBrowser->hasFocus())
-		//	{
-		//		emit copyFilesToDirectorySignal(filesSelected, true);
-		//	}
-		//}
 	}
 }
 
@@ -334,8 +285,6 @@ void clientView::createLocalFolder()
 		emit createNewFolderSignal(currentLocalBrowserPath + "/" + text, false);
 }
 
-
-
 void clientView::showProgressBar()
 {
 	ui.progressBar->show();
@@ -352,6 +301,8 @@ void clientView::setProgressBar(qint64 bytesTotal)
 	showProgressBar();
 	ui.progressBar->setValue(0);
 	ui.progressBar->setMaximum(bytesTotal);
+
+	statusBarLabel.setText("Begin Transfer");
 }
 
 void clientView::updateProgressBar(qint64 bytesReceived)
@@ -365,6 +316,7 @@ void clientView::uploadComplete()
 	QSound::play(":/audio/complete.wav");
 	hideProgressBar();
 	transfersInProgress = false;
+	statusBarLabel.setText("Transfer Complete");
 }
 
 
@@ -374,6 +326,7 @@ void clientView::uploadFailed(QString error)
 	hideProgressBar();
 	writeTextToScreen(error, Qt::red);
 	transfersInProgress = false;
+	statusBarLabel.setText("Transfer Failed");
 }
 
 void clientView::deletedFiles()
@@ -405,8 +358,6 @@ void clientView::openFileBrowser()
 	{
 		emit searchFolderSignal(dir, false);
 	}
-
-	//emit searchFolderSignal(ui.serverSearchEdit->text(), true);
 }
 
 
@@ -418,7 +369,6 @@ void clientView::setLocalFileBrowser(QFileSystemModel& model)
 	currentLocalBrowserPath = model.rootPath();
 	ui.localBrowser->setRootIndex(model.index(currentLocalBrowserPath));
 
-	//ui.localBrowser->hideColumn(2);
 	ui.localBrowser->setColumnWidth(0, 260);
 	ui.localBrowser->setColumnWidth(3, 120);
 	ui.localSearchEdit->setText(model.rootPath());
@@ -432,6 +382,7 @@ void clientView::init(const bool& isChecked ,const QString& serverAddress, const
 	ui.portEdit->setText(serverPort);
 	ui.usernameEdit->setText(userName);
 	ui.passwordEdit->setText(userPassword);
+	statusBarLabel.setText("Ready");
 
 	settingsWindow.ui.minimizeToTray->setChecked(minimizeToTray);
 }
@@ -446,16 +397,15 @@ void clientView::onSaveConnectionCredentials()
 {
 	bool checked = ui.storeInformationCheckbox->isChecked();
 	if (checked)
-		emit saveConnectionCredentialsSignal(checked ,ui.addressEdit->text(), ui.portEdit->text(), ui.usernameEdit->text(), ui.passwordEdit->text());
+		emit saveConnectionCredentialsSignal(checked, ui.addressEdit->text(), ui.portEdit->text(), ui.usernameEdit->text(), ui.passwordEdit->text());
 	else
-		emit saveConnectionCredentialsSignal(checked,"","","","");
+		emit saveConnectionCredentialsSignal(checked, "", "", "", "");
 }
 
 void clientView::connectedToServer(FileListServerModel* model,const QString& currentDirectory)
 {
 	if (model != Q_NULLPTR)
 		ui.serverBrowser->setModel(model);
-
 	
 	if (!connectedToServerBool) {
 		ui.serverBrowser->setColumnWidth(0, 5);
@@ -463,13 +413,12 @@ void clientView::connectedToServer(FileListServerModel* model,const QString& cur
 		ui.serverBrowser->setColumnWidth(2, 60);
 		ui.serverBrowser->setColumnWidth(3, 90);
 		ui.serverBrowser->setColumnWidth(4, 190);
+
+		statusBarLabel.setText("Connected");
 	}
-
-
 	
 	currentServerBrowserPath = currentDirectory;
 	ui.serverSearchEdit->setText(currentDirectory);
-
 	ui.disconnectButton->setDisabled(false);
 	ui.connectButton->setDisabled(true);
 	ui.homeButton->setDisabled(false);
@@ -479,9 +428,8 @@ void clientView::connectedToServer(FileListServerModel* model,const QString& cur
 	ui.uploadButton->setDisabled(false);
 	ui.downloadButton->setDisabled(false);
 	ui.serverSearchEdit->setDisabled(false);
+
 	connectedToServerBool = true;
-
-
 }
 
 void clientView::disconnectedFromServer()
@@ -501,6 +449,7 @@ void clientView::disconnectedFromServer()
 	pasteAction->setEnabled(false);
 	setProgressBar(0);
 	hideProgressBar();
+	statusBarLabel.setText("Disconnected");
 }
 
 
@@ -525,7 +474,6 @@ void clientView::pasteFilesFromClipboard()
 			}
 		}
 	}
-	
 }
 
 void clientView::copyFilesToClipboard()
@@ -657,6 +605,16 @@ bool clientView::eventFilter(QObject* watched, QEvent* event)
 	return false;
 }
 
+
+void clientView::fadeInAnimation()
+{
+	QPropertyAnimation* a1 = new QPropertyAnimation(this, "windowOpacity");
+	a1->setDuration(350);
+	a1->setStartValue(0.0);
+	a1->setEndValue(1.0);
+	a1->setEasingCurve(QEasingCurve::Linear);
+	a1->start(QPropertyAnimation::DeleteWhenStopped);
+}
 
 QStringList clientView::getFileListFromMimeData(const QMimeData* data)
 {

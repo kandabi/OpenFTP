@@ -17,6 +17,7 @@ signals:
 	void saveSettingsSignal();
 	void disconnectUserSignal(QString userName);
 	void deleteUserSignal(QString username);
+	void initServerSignal(int port);
 
 public slots:
 	void writeTextToScreen(QString text, QColor color);
@@ -30,6 +31,7 @@ public slots:
 	void showContextMenu(const QPoint& pos);
 	void closeEvent(QCloseEvent* event) override;
 	void closeWindow();
+	void initServer();
 	void activateTrayIcon(QSystemTrayIcon::ActivationReason reason);
 
 private:

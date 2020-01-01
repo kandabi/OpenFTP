@@ -4,10 +4,6 @@
 #include "settings_manager.h"
 #include "list_model.h"
 
-//#include "file.h"
-//#include "file_manager.h"
-//#include "timer.h"
-
 
 class clientModel : public QObject
 {

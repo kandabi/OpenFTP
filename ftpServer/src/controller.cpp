@@ -14,7 +14,8 @@ serverController::serverController(int argc, char* argv[], QWidget* parent) : QO
 
 void serverController::connectViewSignalSlots(QList<bool>& connectionResults)
 {
-	connectionResults.append(connect(view.ui.startServerButton, &QPushButton::clicked, &data, &serverModel::initServer));
+	connectionResults.append(connect(view.ui.startServerButton, &QPushButton::clicked, &view, &serverView::initServer));
+	connectionResults.append(connect(&view, &serverView::initServerSignal, &data, &serverModel::initServer));
 	connectionResults.append(connect(view.ui.stopServerButton, &QPushButton::clicked, &data, &serverModel::stopServer));
 
 	connectionResults.append(connect(view.ui.actionExit, &QAction::triggered, &view, &serverView::closeWindow));
@@ -58,13 +59,12 @@ void serverController::connectModelSignalSlots(QList<bool>& connectionResults)
 	connectionResults.append(connect(&data, &serverModel::initializeSettingsSignal, &view.settingsView, &settingsView::initializeSettings));
 
 	connectionResults.append(connect(&data.networkManager.server, &QTcpServer::newConnection, &data.networkManager, &NetworkManager::newConnectionAttempt));
-	//connectionResults << connect(&data.networkManager.server, &QTcpServer::newConnection, &data.networkManager, &NetworkManager::newConnectionAttempt);
 }
 
 
 int serverController::init()
 {
-	data.writeTextSignal("OpenFTP server 0.1.3, written by kandabi" ,Qt::darkGray);
+	data.writeTextSignal("OpenFTP server 0.1.8, written by kandabi" ,Qt::darkGray);
 	view.show();
 	return app.exec();
 }

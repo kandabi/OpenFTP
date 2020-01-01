@@ -110,7 +110,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\controller.cpp" />
-    <ClCompile Include="src\SslServer.cpp" />
+    <ClCompile Include="src\simplecrypt.cpp" />
     <ClCompile Include="src\transfer.cpp" />
     <ClCompile Include="src\ftp_manager.cpp" />
     <ClCompile Include="src\network_manager.cpp" />
@@ -126,10 +126,9 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">./headers/stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">./headers/stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="src\user.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="headers\SslServer.h" />
+    <ClInclude Include="headers\simplecrypt.h" />
     <ClInclude Include="headers\transfer.h" />
     <ClInclude Include="headers\ftp_manager.h" />
     <QtMoc Include="headers\network_manager.h" />

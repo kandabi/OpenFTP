@@ -114,7 +114,6 @@
   <ItemGroup>
     <ClCompile Include="src\client_view.cpp" />
     <ClCompile Include="src\controller.cpp" />
-    <ClCompile Include="src\file.cpp" />
     <ClCompile Include="src\fileExists_view.cpp" />
     <ClCompile Include="src\file_manager.cpp" />
     <ClCompile Include="src\list_model.cpp" />
@@ -125,13 +124,13 @@
     <ClCompile Include="src\serialization_manager.cpp" />
     <ClCompile Include="src\settings_manager.cpp" />
     <ClCompile Include="src\settings_view.cpp" />
+    <ClCompile Include="src\simplecrypt.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">./headers/stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">./headers/stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="src\user.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="headers\list_model.h" />
@@ -144,7 +143,7 @@
     <ClInclude Include="headers\request_manager.h" />
     <ClInclude Include="headers\serialization_manager.h" />
     <QtMoc Include="headers\settings_manager.h" />
-    <QtMoc Include="headers\timer.h" />
+    <ClInclude Include="headers\simplecrypt.h" />
     <ClInclude Include="headers\user.h" />
     <QtMoc Include="headers\client_view.h" />
     <QtMoc Include="headers\settings_view.h" />
@@ -157,11 +156,14 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="images\delete.png" />
+    <Image Include="images\exit.png" />
     <Image Include="images\folder.png" />
     <Image Include="images\ftpProject.ico" />
+    <Image Include="images\fullscreen.png" />
     <Image Include="images\home_button.png" />
     <Image Include="images\icon.png" />
     <Image Include="images\left.png" />
+    <Image Include="images\minimize.png" />
     <Image Include="images\return_button.png" />
     <Image Include="images\right.png" />
     <Image Include="images\search_button.png" />
@@ -175,6 +177,7 @@
     <Media Include="ui\headphaze.wav" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="images\toolbarIcon.png" />
     <None Include="ui\client_style.css" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

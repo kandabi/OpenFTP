@@ -46,7 +46,6 @@ void settingsView::initializeSettings(QString directory ,QStringList nameList, b
 
 void settingsView::registerUser()
 {
-	//QString dir = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "/home", QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 	QString username = ui.nameInput->text();
 	QString password = ui.passwordInput->text();
 	if (username.isEmpty() || password.isEmpty())
@@ -81,8 +80,6 @@ void settingsView::selectMainFtpDirectory()
 	{
 		ui.directoryInput->setText(dir);
 		emit setFtpDirectorySignal(dir);
-
-		//ui.applyButton->setEnabled(true);
 	}
 }
 
@@ -111,11 +108,6 @@ void settingsView::deleteUser()
 void settingsView::saveSettings()
 {
 	QString dir = ui.directoryInput->text();
-	//if (!dir.isEmpty() && !applyButtonClicked)
-	//{
-	//	emit setFtpDirectorySignal(dir);
-	//}
-
 	applyButtonClicked = false;
 	QDialog::close();
 }

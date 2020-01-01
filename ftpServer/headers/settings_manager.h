@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "user.h"
+#include "simplecrypt.h"
 
 class SettingsManager : QObject
 {
@@ -11,16 +12,16 @@ public:
 	 void removeUserFromSettings(int index);
 	 QString getFtpDirectory();
 	 void setFtpDirectory(QString directory);
-	 int getPort();
 	 bool getFirstTimeTrayMessage();
 	 void setFirstTimeTrayMessage();
 	 bool getMinimizeToTray();
 	 void setMinimizeToTray(const bool& minimize);
 
 	SettingsManager(QObject* parent);
-	//~SettingsManager();
 
 private:
+	User getUser();
+	SimpleCrypt crypto;
 	QSettings* settings;
 	const QString settingsDirectory = "./settings/server_settings.json";
 	QSettings::Format jsonFormat = QSettings::registerFormat("json", SettingsManager::readJsonFile, SettingsManager::writeJsonFile);

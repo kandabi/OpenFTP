@@ -78,10 +78,8 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 			{ "password", password },
 		};
 
+		socket.write(Serializer::JsonObjectToByteArray(request));
 		//if(socket.waitForEncrypted(-1))
-		{
-			socket.write(Serializer::JsonObjectToByteArray(request));
-		}
 		//else {
 		//	emit writeTextSignal("Error establishing secure connection: " + socket.errorString(), Qt::red);
 		//}
@@ -126,7 +124,6 @@ QByteArray NetworkManager::parseByteData()
 		data.append(']');
 
 		bool isJson = RequestManager::checkIfDataIsJson(data);
-		//Q_ASSERT(isJson);
 	}
 	else {
 		previousReadyReadData = data;

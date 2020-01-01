@@ -181,7 +181,6 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 			QString fileName = json.value("fileName").toString();
 			writeTextSignal("Download folder request: " + fileName);
 			responseCode = FtpManager::ResponseType::DownloadFolder;
-			//directory += "/" + fileName;
 			baseDir = true;
 			break;
 		}
@@ -197,7 +196,6 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 
 void NetworkManager::parseUpload(const QByteArray& data, QTcpSocket* socket, int userIndex)
 {
-	//emit writeTextSignal("File Size: " + QString::number(data.size()), Qt::darkRed);
 	int transferIndex = getTransferByUserIndex(userIndex);
 	Q_ASSERT(transferIndex != -1);
 
@@ -236,7 +234,6 @@ void NetworkManager::onReadyRead()
 	int userIndex = getUserIndexBySocket(socket);
 	Q_ASSERT(userIndex != -1);
 	QByteArray data = socket->readAll();
-	//emit writeTextSignal("Packets recieved: " + QString::number(data.size()), Qt::darkRed);
 
 	if (!connectedUsers[userIndex].transferInProgress)
 	{
@@ -285,7 +282,6 @@ void NetworkManager::newConnectionAttempt()
 	QTcpSocket* socket = server.nextPendingConnection();
 
 	//QSslSocket* socket = dynamic_cast<QSslSocket*>(server.nextPendingConnection());
-
 	//if(!socket->waitForEncrypted(1000))
 	//{
 	//	socket->disconnectFromHost();;
@@ -356,7 +352,6 @@ int NetworkManager::validateUser(const QList<User>& userList, QString name, QStr
 
 bool NetworkManager::writeToClient(QTcpSocket* socketToWrite, const QByteArray& data)
 {
-	//QByteArray::number(data.size()) +
 	return socketToWrite->write(data);
 }
 

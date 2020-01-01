@@ -4,6 +4,7 @@
 SettingsManager::SettingsManager(QObject* parent) : QObject(parent)
 {
 	settings = new QSettings(settingsDirectory, jsonFormat);
+	crypto.setKey(0x0530ecd6499b61986);
 }
 
 QString SettingsManager::getDefaultBrowserDirectory()
@@ -38,14 +39,14 @@ void SettingsManager::setConnectionCredentials(const bool& checkboxChecked ,cons
 	settings->setValue("saveCredentials", checkboxChecked);
 	settings->setValue("serverAddress", serverAddress);
 	settings->setValue("serverPort", serverPort);
-	settings->setValue("userName", userName);
-	settings->setValue("userPassword", userPassword);
+	settings->setValue("userName", crypto.encryptToString(userName));
+	settings->setValue("userPassword", crypto.encryptToString(userPassword));
 }
 
 
 connectionCredentials SettingsManager::getConnectionCredentials()
 {
-	return connectionCredentials(settings->value("saveCredentials").toBool() ,settings->value("serverAddress").toString(), settings->value("serverPort").toString(), settings->value("userName").toString(), settings->value("userPassword").toString());
+	return connectionCredentials(settings->value("saveCredentials").toBool() ,settings->value("serverAddress").toString(), settings->value("serverPort").toString(), crypto.decryptToString(settings->value("userName").toString()), crypto.decryptToString(settings->value("userPassword").toString()));
 }
 
 
