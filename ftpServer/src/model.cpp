@@ -12,7 +12,7 @@ serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(regi
 }
 
 
-void serverModel::initServer()
+void serverModel::initServer(int port)
 {
 	emit writeTextSignal("Setting up FTP Server");
 
@@ -30,8 +30,6 @@ void serverModel::initServer()
 	}
 
 	emit startServerSignal();
-	int port = settingsManager.getPort();
-
 	networkManager.initServer(port);
 }
 
@@ -61,7 +59,6 @@ void serverModel::saveFtpDirectory(QString directory)
 
 void serverModel::createUser(QString username, QString password, QString directoryPermitted)
 {
-	//**** Needs validation.
 	if (directoryPermitted.isEmpty())
 		directoryPermitted = settingsManager.getFtpDirectory();
 
@@ -78,7 +75,6 @@ void serverModel::disconnectUser(QString userName)
 
 void serverModel::deleteUser(int item)
 {
-	//*** Implementation Forthcoming
 	settingsManager.removeUserFromSettings(item);
 }
 

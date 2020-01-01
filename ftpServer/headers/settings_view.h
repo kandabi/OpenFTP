@@ -16,7 +16,6 @@ signals:
 	void registerUserSignal(QString username, QString password, QString directoryPermitted = "");
 	void deleteUserSignal(int row);
 	void setFtpDirectorySignal(QString directory);
-	//void onClose();
 
 public slots:
 	void initializeSettings(QString directory, QStringList nameList, bool minimizeToTray);

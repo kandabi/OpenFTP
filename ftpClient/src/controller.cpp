@@ -60,7 +60,6 @@ void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
 	connectionResults.append(connect(&view, &clientView::saveConnectionCredentialsSignal, &data, &clientModel::saveConnectionCredentials));
 
 	connectionResults.append(connect(view.ui.actionExit, &QAction::triggered, &view, &clientView::close));
-	//connectionResults.append(connect(view.ui.actionExit_2, &QAction::triggered, &view, &clientView::close));
 	connectionResults.append(connect(view.ui.actionExitIcon, &QAction::triggered, &view, &clientView::close));
 	connectionResults.append(connect(view.ui.actionFullscreen, &QAction::triggered, &view, &clientView::toggleFullscreen));
 	connectionResults.append(connect(view.ui.actionMinimize, &QAction::triggered, &view, &clientView::minimize));

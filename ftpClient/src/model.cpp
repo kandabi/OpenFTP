@@ -22,7 +22,7 @@ void clientModel::init()
 	emit initClient(credentials.checkboxChecked, credentials.serverAddress, credentials.serverPort, credentials.userName, credentials.userPassword, settingsManager.getMinimizeToTray());
 
 	emit setLocalFileBrowserSignal(*localBrowserModel);
-	emit writeTextSignal("OpenFTP client 0.1.6, written by kandabi", Qt::darkGray);
+	emit writeTextSignal("OpenFTP client 0.1.8, written by kandabi", Qt::darkGray);
 }
 
 
@@ -590,7 +590,6 @@ void clientModel::deleteAction(const QModelIndexList& indices, bool deleteInServ
 	else if(!serverFileList[indices[0].row()].fileName.endsWith(":/Windows"))
 	{
 		QStringList deletePaths;
-		//QString pathToRequest = FileManager::getPreviousFolderPath(fileList[indices[0].row()].filePath);
 		if (serverFileList[indices[0].row()].fileName != ".")
 			deletePaths.append(serverFileList[indices[0].row()].filePath);
 

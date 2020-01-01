@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "request_manager.h"
+#include "simplecrypt.h"
 
 struct connectionCredentials
 {
@@ -35,6 +36,7 @@ public:
 
 private:
 	QSettings* settings;
+	SimpleCrypt crypto;
 	const QString settingsDirectory = "./settings/client_settings.json";
 	QSettings::Format jsonFormat = QSettings::registerFormat("json", SettingsManager::readJsonFile, SettingsManager::writeJsonFile);
 

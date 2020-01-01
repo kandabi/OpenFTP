@@ -38,9 +38,8 @@ QMenuBar {
             padding-top: 3px;
             padding-left: 12px;
             padding-right: 12px;
-            padding-bottom: 7px;
+            padding-bottom: 4px;
         }
-
 
 
 QMenu {
@@ -63,8 +62,7 @@ QLineEdit {
 
 #mainTextWindow {
     background-color: #1E1E1E;
-    border: 1px solid #007ACC;
-    /*border: 0.5px solid #007ACC;*/
+    border: 0.5px solid #1E1E1E;
 }
 
 QTableView {
@@ -208,3 +206,49 @@ QPushButton {
             border: none;
         }
 
+
+QStatusBar {
+    background-color: #007ACC;
+    max-height:23px;
+}
+
+    QStatusBar::item {
+        border: none;
+    }
+
+QStatusBar QLabel{
+    font-size:13px;
+    padding:2px;
+    padding-left:10px;
+    padding-top:0;
+}
+
+
+
+
+/*QProgressBar:horizontal {
+    border: 1px solid gray;
+    border-radius: 3px;
+    background: white;
+    padding: 1px;
+}
+
+QProgressBar::chunk:horizontal {
+    background: qlineargradient(x1: 0, y1: 0.5, x2: 1, y2: 0.5, stop: 0 green, stop: 1 white);
+}*/
+
+
+QProgressBar:horizontal {
+    border: 1px solid gray;
+    border-radius: 3px;
+    background: white;
+    padding: 1px;
+    text-align: right;
+    margin-right: 4ex;
+}
+
+QProgressBar::chunk:horizontal {
+    background: qlineargradient(x1: 0, y1: 0.5, x2: 1, y2: 0.5, stop: 0 green, stop: 1 white);
+    margin-right: 2px; /* space */
+    width: 10px;
+}

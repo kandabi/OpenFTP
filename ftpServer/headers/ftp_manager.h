@@ -68,7 +68,6 @@ private:
 	static QJsonValue encodePixmapForJson(const QPixmap& p);
 	static QPixmap getIconFromFileInfo(const QFileInfo& file);
 	static QFileInfoList getFilesFromDirectory(const QString& dir, bool isBaseDir);
-	//static QFileIconProvider::IconType getIconTypeFromString(const QString& type);
 
 	FtpManager();
 };

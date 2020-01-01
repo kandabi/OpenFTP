@@ -12,8 +12,10 @@ public:
 	QString homeDirectory;
 	bool transferInProgress = false;
 
-	User();
-	User(QString _username, QString _password, QString directory = "");
+	User() {};
+
+	User(QString _username, QString _password, QString _directory = "") :
+		username(_username), password(_password), homeDirectory(_directory) {};
 
 	inline void setSocket(QTcpSocket* _socket)
 	{ 

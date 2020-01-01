@@ -85,6 +85,7 @@ public slots:
 
 private:
 	QStringList getFileListFromMimeData(const QMimeData* data);
+	void fadeInAnimation();
 
 	bool isMaximized = false;
 	bool performMoveEvent = false;
@@ -97,10 +98,9 @@ private:
 	
 	QSystemTrayIcon systemTrayIcon;
 	QIcon appIcon;
-	QIcon exitIcon;
-	QIcon fullscreenIcon;
+	QLabel statusBarLabel;
 	QPushButton* exitAction;
-
+	QMenuBar* innerHeader;
 
 	Ui::clientGui ui;
 

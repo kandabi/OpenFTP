@@ -118,12 +118,12 @@
       <string>Stop Server</string>
      </property>
     </widget>
-    <widget class="QLineEdit" name="lineEdit">
+    <widget class="QLineEdit" name="portEdit">
      <property name="geometry">
       <rect>
        <x>110</x>
-       <y>36</y>
-       <width>101</width>
+       <y>40</y>
+       <width>81</width>
        <height>20</height>
       </rect>
      </property>
@@ -131,7 +131,7 @@
       <string/>
      </property>
      <property name="placeholderText">
-      <string>Default 20</string>
+      <string>Port </string>
      </property>
     </widget>
     <widget class="QLabel" name="label">
@@ -139,8 +139,8 @@
       <rect>
        <x>110</x>
        <y>20</y>
-       <width>71</width>
-       <height>16</height>
+       <width>81</width>
+       <height>18</height>
       </rect>
      </property>
      <property name="text">

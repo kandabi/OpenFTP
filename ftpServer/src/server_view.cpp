@@ -7,6 +7,7 @@ serverView::serverView(QWidget *parent) : QMainWindow(parent), settingsManager(p
 	ui.stopServerButton->setDisabled(true);
 	
 	ui.connectedUsersList->setContextMenuPolicy(Qt::CustomContextMenu);
+	ui.portEdit->setValidator(new QIntValidator(0, 65535, this));
 
 	icon.addFile(":/alienIcon/images/icon.png");
 
@@ -14,6 +15,13 @@ serverView::serverView(QWidget *parent) : QMainWindow(parent), settingsManager(p
 	systemTrayIcon.setIcon(icon);
 	systemTrayIcon.show();
 }
+
+
+void serverView::initServer()
+{
+	emit initServerSignal(ui.portEdit->text().toInt());
+}
+
 
 void serverView::disconnectUser()
 {

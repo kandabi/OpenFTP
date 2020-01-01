@@ -4,23 +4,20 @@
 SettingsManager::SettingsManager(QObject* parent) : QObject(parent)
 {
 	settings = new QSettings(settingsDirectory, jsonFormat);
-	//settings = new QSettings(jsonFormat, QSettings::SystemScope, QCoreApplication::organizationName(), QCoreApplication::applicationName(), parent);
+	crypto.setKey(0x062aa8eb52e07a3a2);
 }
 
 void SettingsManager::writeUserToSettings(QString username, QString password, QString directoryPermission)
 {
-	//**** Needs validation.
-
 	int initialArraySize = settings->value("user/size").toInt();
 
 	settings->beginWriteArray("user");
 
 	settings->setArrayIndex(initialArraySize);
-	settings->setValue("name", username);
-	settings->setValue("password", password);
+
+	settings->setValue("name", crypto.encryptToString(username));
+	settings->setValue("password", crypto.encryptToString(password));
 	settings->setValue("directory", directoryPermission);
-	//settings->setValue("write", true);
-	//settings->setValue("delete", true);
 
 	settings->sync();
 	settings->endArray();
@@ -35,13 +32,6 @@ void SettingsManager::setFtpDirectory(QString directory)
 {
 	 settings->setValue("mainDirectory", directory);
 }
-
-
-int SettingsManager::getPort()
-{
-	return 20;
-}
-
 
 bool SettingsManager::getFirstTimeTrayMessage()
 {
@@ -76,13 +66,7 @@ QList<User> SettingsManager::getUsersFromSettings()
 
 	for (int i = 0; i < arraySize; ++i) {
 		settings->setArrayIndex(i);
-		userList.append(
-			User{ 
-				settings->value("name").toString(), 
-				settings->value("password").toString() , 
-				settings->value("directory").toString() 
-			}
-		);
+		userList.append(getUser());
 	}
 
 	settings->endArray();
@@ -114,13 +98,7 @@ void SettingsManager::removeUserFromSettings(int index)
 
 		if (i != index)
 		{
-			userList.append(
-				User{
-					settings->value("name").toString(),
-					settings->value("password").toString() ,
-					settings->value("directory").toString()
-				}
-			);
+			userList.append(getUser());
 		}
 
 		settings->remove("name");
@@ -136,4 +114,14 @@ void SettingsManager::removeUserFromSettings(int index)
 	for (const User& user : userList)
 		writeUserToSettings(user.username, user.password, user.homeDirectory);
 
+}
+
+
+User SettingsManager::getUser()
+{
+	return User {
+		crypto.decryptToString(settings->value("name").toString()),
+		crypto.decryptToString(settings->value("password").toString()),
+		settings->value("directory").toString()
+	};
 }
