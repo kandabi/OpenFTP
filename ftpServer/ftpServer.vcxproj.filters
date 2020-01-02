@@ -116,7 +116,10 @@
     </QtRcc>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="images\icon.png" />
     <Image Include="images\return_button.png" />
+    <Image Include="images\icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ui\icon.rc" />
   </ItemGroup>
 </Project>
