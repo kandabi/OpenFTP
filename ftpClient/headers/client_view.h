@@ -86,6 +86,7 @@ public slots:
 private:
 	QStringList getFileListFromMimeData(const QMimeData* data);
 	void fadeInAnimation();
+	void disableButtons(const bool disable);
 
 	bool isMaximized = false;
 	bool performMoveEvent = false;

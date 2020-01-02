@@ -42,7 +42,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-    <normaloff>:/alienIcon/images/icon.png</normaloff>:/alienIcon/images/icon.png</iconset>
+    <normaloff>:/alienIcon/images/icon.ico</normaloff>:/alienIcon/images/icon.ico</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QGroupBox" name="groupBox">

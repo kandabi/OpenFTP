@@ -17,7 +17,7 @@
     <ProjectGuid>{B12702AD-ABFB-343A-A199-8E24837244A3}</ProjectGuid>
     <Keyword>QtVS_v301</Keyword>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>ftpClient</ProjectName>
+    <ProjectName>OpenFTP</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -162,6 +162,7 @@
     <Image Include="images\fullscreen.png" />
     <Image Include="images\home_button.png" />
     <Image Include="images\icon.png" />
+    <Image Include="images\icon_black.ico" />
     <Image Include="images\left.png" />
     <Image Include="images\minimize.png" />
     <Image Include="images\return_button.png" />
@@ -177,8 +178,10 @@
     <Media Include="ui\headphaze.wav" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="images\toolbarIcon.png" />
     <None Include="ui\client_style.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ui\icon.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

@@ -9,7 +9,7 @@ serverView::serverView(QWidget *parent) : QMainWindow(parent), settingsManager(p
 	ui.connectedUsersList->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui.portEdit->setValidator(new QIntValidator(0, 65535, this));
 
-	icon.addFile(":/alienIcon/images/icon.png");
+	icon.addFile(":/alienIcon/images/icon.ico");
 
 	systemTrayIcon.setContextMenu(&trayIconMenu);
 	systemTrayIcon.setIcon(icon);

@@ -10,13 +10,14 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent, Qt::CustomizeWindo
 
 	serverMouseMenu.addAction("Rename", this, &clientView::renameAtServer);
 	serverMouseMenu.addAction("Delete", this, &clientView::deleteAtServerBrowser);
-	pasteAction = serverEmptyMouseMenu.addAction("Paste", this, &clientView::pasteFilesFromClipboard);
 	serverEmptyMouseMenu.addAction("New Folder", this, &clientView::createServerFolder);
 	localMouseMenu.addAction("Rename", this, &clientView::renameAtLocal);
 	localMouseMenu.addAction("Copy", this, &clientView::copyFilesToClipboard);
 	localMouseMenu.addAction("Delete", this, &clientView::deleteAtLocalBrowser);
 	localEmptyMouseMenu.addAction("Paste", this, &clientView::pasteFilesFromClipboard);
 	localEmptyMouseMenu.addAction("New Folder", this, &clientView::createLocalFolder);
+	pasteAction = serverEmptyMouseMenu.addAction("Paste", this, &clientView::pasteFilesFromClipboard);
+	pasteAction->setEnabled(false);
 
 	ui.serverBrowser->viewport()->installEventFilter(parent);
 	ui.serverBrowser->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -26,15 +27,7 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent, Qt::CustomizeWindo
 	ui.localBrowser->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui.localBrowser->horizontalHeader()->setHighlightSections(false);
 
-	ui.disconnectButton->setDisabled(true);
-	ui.homeButton->setDisabled(true);
-	ui.returnButton->setDisabled(true);
-	ui.searchButton->setDisabled(true);
-	ui.deleteButton->setDisabled(true);
-	ui.uploadButton->setDisabled(true);
-	ui.downloadButton->setDisabled(true);
-	ui.serverSearchEdit->setDisabled(true);
-	pasteAction->setEnabled(false);
+	disableButtons(true);
 
 	QSizePolicy retainSize = ui.progressBar->sizePolicy();
 	retainSize.setRetainSizeWhenHidden(true);
@@ -42,7 +35,7 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent, Qt::CustomizeWindo
 	ui.progressBar->hide();
 
 	ui.portEdit->setValidator(new QIntValidator(0, 65535, this));
-	appIcon.addFile(":/alienIcon/images/icon.png");
+	appIcon.addFile(":/alienIcon/images/icon_black.ico");
 
 	trayIconMenu.addAction("Exit", this, &clientView::closeWindow);
 	systemTrayIcon.setContextMenu(&trayIconMenu);
@@ -62,6 +55,19 @@ clientView::clientView(QWidget *parent) : QMainWindow(parent, Qt::CustomizeWindo
 	qApp->setStyleSheet(StyleSheet);
 
 	setWindowTitle("OpenFTP client");
+}
+
+
+void clientView::disableButtons(const bool disable)
+{
+	ui.disconnectButton->setDisabled(disable);
+	ui.homeButton->setDisabled(disable);
+	ui.returnButton->setDisabled(disable);
+	ui.searchButton->setDisabled(disable);
+	ui.deleteButton->setDisabled(disable);
+	ui.uploadButton->setDisabled(disable);
+	ui.downloadButton->setDisabled(disable);
+	ui.serverSearchEdit->setDisabled(disable);
 }
 
 
@@ -419,15 +425,8 @@ void clientView::connectedToServer(FileListServerModel* model,const QString& cur
 	
 	currentServerBrowserPath = currentDirectory;
 	ui.serverSearchEdit->setText(currentDirectory);
-	ui.disconnectButton->setDisabled(false);
 	ui.connectButton->setDisabled(true);
-	ui.homeButton->setDisabled(false);
-	ui.returnButton->setDisabled(false);
-	ui.searchButton->setDisabled(false);
-	ui.deleteButton->setDisabled(false);
-	ui.uploadButton->setDisabled(false);
-	ui.downloadButton->setDisabled(false);
-	ui.serverSearchEdit->setDisabled(false);
+	disableButtons(false);
 
 	connectedToServerBool = true;
 }
@@ -435,15 +434,8 @@ void clientView::connectedToServer(FileListServerModel* model,const QString& cur
 void clientView::disconnectedFromServer()
 {
 	ui.serverBrowser->setModel(Q_NULLPTR);
-	ui.disconnectButton->setDisabled(true);
+	disableButtons(true);
 	ui.connectButton->setDisabled(false);
-	ui.homeButton->setDisabled(true);
-	ui.searchButton->setDisabled(true);
-	ui.returnButton->setDisabled(true);
-	ui.deleteButton->setDisabled(true);
-	ui.uploadButton->setDisabled(true);
-	ui.downloadButton->setDisabled(true);
-	ui.serverSearchEdit->setDisabled(true);
 	ui.serverSearchEdit->clear();
 	connectedToServerBool = false;
 	pasteAction->setEnabled(false);
