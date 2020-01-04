@@ -4,9 +4,15 @@
 
 serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(registeredUsersList, parent), settingsManager(parent)
 {
-	//QCoreApplication::setOrganizationName("kandabi");
-	//QCoreApplication::setOrganizationDomain("kandabi.com");
-	//QCoreApplication::setApplicationName("qtFtpServer");
+	QCoreApplication::setOrganizationName("OpenFTP");
+	QCoreApplication::setOrganizationDomain("OpenFTP.com");
+	QCoreApplication::setApplicationName("OpenFTP");
+
+	//auto appPath = QCoreApplication::applicationDirPath();
+	//auto libraryPaths = QCoreApplication::libraryPaths();
+	//libraryPaths.append(appPath + "/plugins");
+	//libraryPaths.append(appPath + "/lib");
+	//QCoreApplication::setLibraryPaths(libraryPaths);
 
 	registeredUsersList = settingsManager.getUsersFromSettings();
 }

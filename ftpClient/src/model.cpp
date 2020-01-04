@@ -4,9 +4,14 @@
 
 clientModel::clientModel(QWidget* parent) : QObject(parent), settingsManager(parent)
 {
-	QCoreApplication::setOrganizationName("kandabi");
-	QCoreApplication::setOrganizationDomain("kandabi.com");
+	QCoreApplication::setOrganizationName("OpenFTP");
+	QCoreApplication::setOrganizationDomain("OpenFTP.com");
 	QCoreApplication::setApplicationName("OpenFTP");
+
+	//auto libraryPaths = QCoreApplication::libraryPaths();
+	//libraryPaths.append(QCoreApplication::applicationDirPath() + "/plugins");
+	//libraryPaths.append(QCoreApplication::applicationDirPath() + "/lib");
+	//QCoreApplication::setLibraryPaths(libraryPaths);
 
 	currentLocalDirectory = settingsManager.getDefaultBrowserDirectory();
 
