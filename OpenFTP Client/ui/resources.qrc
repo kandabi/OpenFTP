@@ -1,0 +1,37 @@
+<RCC>
+  <qresource prefix="/alienIcon">
+    <file>../images/icon_black.ico</file>
+    <file>../images/icon.png</file>
+  </qresource>
+  <qresource prefix="style">
+    <file>client_style.css</file>
+  </qresource>
+  <qresource prefix="/arrow">
+    <file>../images/right.png</file>
+    <file>../images/left.png</file>
+  </qresource>
+  <qresource prefix="/folderIcon">
+    <file>../images/folder.png</file>
+  </qresource>
+  <qresource prefix="/audio">
+    <file>delete.wav</file>
+    <file>complete.wav</file>
+  </qresource>
+  <qresource prefix="/deleteIcon">
+    <file>../images/delete.png</file>
+  </qresource>
+  <qresource prefix="/returnIcon">
+    <file>../images/return_button.png</file>
+  </qresource>
+  <qresource prefix="/homeIcon">
+    <file>../images/home_button.png</file>
+  </qresource>
+  <qresource prefix="/searchIcon">
+    <file>../images/search_button.png</file>
+  </qresource>
+  <qresource prefix="/headers">
+    <file>../images/minimize.png</file>
+    <file>../images/exit.png</file>
+    <file>../images/fullscreen.png</file>
+  </qresource>
+</RCC>
