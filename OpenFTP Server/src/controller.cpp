@@ -15,7 +15,7 @@ serverController::serverController(int argc, char* argv[], QWidget* parent) : QO
 void serverController::connectViewSignalSlots(QList<bool>& connectionResults)
 {
 	connectionResults.append(connect(view.ui.startServerButton, &QPushButton::clicked, &view, &serverView::initServer));
-	connectionResults.append(connect(&view, &serverView::initServerSignal, &data, &serverModel::initServer));
+	connectionResults.append(connect(&view, &serverView::initServerSignal, &data, &serverModel::startServer));
 	connectionResults.append(connect(view.ui.stopServerButton, &QPushButton::clicked, &data, &serverModel::stopServer));
 
 	connectionResults.append(connect(view.ui.actionExit, &QAction::triggered, &view, &serverView::closeWindow));
@@ -47,13 +47,14 @@ void serverController::connectViewSignalSlots(QList<bool>& connectionResults)
 
 void serverController::connectModelSignalSlots(QList<bool>& connectionResults)
 {
+	connectionResults.append(connect(&data, &serverModel::setPortSignal, &view, &serverView::setPort));
 	connectionResults.append(connect(&data, &serverModel::writeTextSignal, &view, &serverView::writeTextToScreen));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::writeTextSignal, &data, &serverModel::writeTextSignal));
 	connectionResults.append(connect(&data, &serverModel::connectUserToListSignal, &view, &serverView::connectUserToList));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::connectUserToListSignal, &data, &serverModel::connectUserToListSignal));
 	connectionResults.append(connect(&data, &serverModel::deleteUserFromListSignal, &view, &serverView::deleteUserFromList));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::deleteUserFromListSignal, &data, &serverModel::deleteUserFromListSignal));
-	connectionResults.append(connect(&data, &serverModel::closeSettingsSignal, &view, &serverView::closeSettingsMenu));
+	//connectionResults.append(connect(&data, &serverModel::closeSettingsSignal, &view, &serverView::closeSettingsMenu)); //*** Unused function.
 	connectionResults.append(connect(&data, &serverModel::startServerSignal, &view, &serverView::startServer));
 	connectionResults.append(connect(&data, &serverModel::stopServerSignal, &view, &serverView::stopServer));
 	connectionResults.append(connect(&data, &serverModel::initializeSettingsSignal, &view.settingsView, &settingsView::initializeSettings));
@@ -64,7 +65,7 @@ void serverController::connectModelSignalSlots(QList<bool>& connectionResults)
 
 int serverController::init()
 {
-	data.writeTextSignal("OpenFTP server 0.1.8, written by kandabi" ,Qt::darkGray);
+	data.init();
 	view.show();
 	return app.exec();
 }

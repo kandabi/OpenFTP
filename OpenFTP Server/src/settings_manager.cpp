@@ -28,6 +28,16 @@ QString SettingsManager::getFtpDirectory()
 	return settings->value("mainDirectory").toString();
 }
 
+int SettingsManager::getPort()
+{
+	return settings->value("serverPort").toInt();
+}
+
+void SettingsManager::setPort(int port)
+{
+	settings->setValue("serverPort", port);
+}
+
 void SettingsManager::setFtpDirectory(QString directory)
 {
 	 settings->setValue("mainDirectory", directory);

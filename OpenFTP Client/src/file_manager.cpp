@@ -53,10 +53,13 @@ QList<File> FileManager::getFileListFromJson(const QJsonArray& jsonArray)
 	for (int i = 1; i < jsonArray.count(); ++i)
 	{
 		QJsonObject json = jsonArray[i].toObject();
+		QString fileName = (QString)QByteArray::fromBase64(json.value("fileName").toString().toUtf8());
+		QString filePath = (QString)QByteArray::fromBase64(json.value("filePath").toString().toUtf8());
+
 		files.append(
 			File{
-				json.value("fileName").toString(),
-				json.value("filePath").toString(),
+				fileName,
+				filePath,
 				json.value("fileSize").toInt(),
 				json.value("isDir").toBool(),
 				json.value("lastModified").toString(),

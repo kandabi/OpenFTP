@@ -33,6 +33,7 @@ public slots:
 	void closeWindow();
 	void initServer();
 	void activateTrayIcon(QSystemTrayIcon::ActivationReason reason);
+	void setPort(int port);
 
 private:
 	bool closing = false;

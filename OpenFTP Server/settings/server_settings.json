@@ -1,4 +1,10 @@
 {
     "firstTimeTrayMessage": true,
-    "minimizeToTray": false
+    "mainDirectory": "E:/server FTP browser",
+    "minimizeToTray": false,
+    "serverPort": 1525,
+    "user/1/directory": "E:/server FTP browser",
+    "user/1/name": "AwLY8IvEB+A8",
+    "user/1/password": "AwJbjGd4/0Lc",
+    "user/size": 1
 }

@@ -206,6 +206,7 @@ void clientModel::checkRemainingUploads()
 	}
 	else {
 		directoryToUpload = "";
+		currentUpload = {};
 		emit uploadCompleteSignal();
 	}
 }
@@ -362,19 +363,19 @@ void clientModel::createUploadFileRequest(const QFileInfo& currentUpload, bool i
 	}
 	else {
 
-		QFile qfile(currentUpload.absoluteFilePath());
-		if (!qfile.open(QIODevice::ReadOnly))
+		QFile qFile(currentUpload.absoluteFilePath());
+		if (!qFile.open(QIODevice::ReadOnly))
 		{
-			emit uploadFailedSignal("Unable to load file, transfer failed. " + qfile.errorString());
+			emit uploadFailedSignal("Unable to load file, transfer failed. " + qFile.errorString());
 			emit beepSignal();
 			return;
 		}
 
-		QString fileSize = QString::number(qfile.size());
+		QString fileSize = QString::number(qFile.size());
 		RequestManager::FileOverwrite overwriteExisting = (overwriteOptionSelected == RequestManager::FileOverwrite::NoneSelected) ?
 			settingsManager.getOverwriteExistingFileBehavior() : overwriteOptionSelected;
-		emit writeTextSignal("Sending File: " + currentUpload.fileName() + " File Size: " + fileSize + " Directory to upload: " + directoryToUpload);
-		emit networkManager.setProgressBarSignal(qfile.size());
+		emit writeTextSignal("Uploading File: " + currentUpload.fileName() + " File Size: " + fileSize + " bytes, Directory to upload: " + directoryToUpload);
+		emit networkManager.setProgressBarSignal(qFile.size());
 
 		QMap<QString, QString> requestVariables{
 			{"requestPath", currentServerDirectory},
@@ -386,16 +387,21 @@ void clientModel::createUploadFileRequest(const QFileInfo& currentUpload, bool i
 
 		QJsonObject request = RequestManager::createServerRequest(RequestManager::RequestType::UploadFile, requestVariables);
 		QByteArray data = Serializer::JsonObjectToByteArray(request);
-
-		networkManager.writeData(data);
-		networkManager.flushSocket();
 	
+		if (qFile.size() > tooLargeFileSize)
+		{
+			workerThread = new WorkerThread(currentUpload.absoluteFilePath(), data);
+			connect(workerThread, &WorkerThread::setUploadDataToSendSignal, &networkManager, &NetworkManager::setUploadDataToSend);
+			connect(workerThread, &WorkerThread::sendRequestData, &networkManager, &NetworkManager::writeData);
+			connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
+			workerThread->start();
+		}
+		else {
+			networkManager.writeData(data);
+			//networkManager.flushSocket();
 
-		QByteArray fileData = qfile.readAll();
-		if (fileData.isEmpty())
-			fileData = " ";
-
-		networkManager.setUploadDataToSend(fileData);
+			networkManager.setUploadDataToSend(qFile.readAll());
+		}
 	}
 }
 
@@ -414,7 +420,7 @@ void clientModel::createDownloadFileRequest(File& file, const RequestManager::Fi
 		file.fileName = FileManager::changeFileName(fileName, directoryToSave);
 
 
-	emit writeTextSignal("Downloading File: " + file.fileName + " File Size: " + file.fileSize + " Directory to upload: " + directoryToSave, Qt::darkGreen);
+	emit writeTextSignal("Downloading File: " + file.fileName + " ,File Size: " + QString::number(file.fileSize) + " bytes, Directory to upload: " + directoryToSave, Qt::darkGreen);
 
 	QMap<QString, QString> requestVariables
 	{

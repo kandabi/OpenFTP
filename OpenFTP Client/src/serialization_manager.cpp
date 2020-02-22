@@ -2,11 +2,13 @@
 #include "serialization_manager.h"
 
 
+
+
+
 QString Serializer::ByteArrayToString(const QByteArray& data)
 {
 	return QString::fromStdString(data.toStdString());
 }
-
 
 QByteArray Serializer::JsonArrayToByteArray(const QJsonArray& json)
 {

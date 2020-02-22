@@ -13,12 +13,11 @@ public:
 	void connectToServer(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
 	void disconnectFromServer();
 	void uploadFileData();
-	void setUploadDataToSend(const QByteArray& data);
+	
 
 	QByteArray parseByteData();
-	void parseDownload(const QByteArray& data);
+	void parseByteDownload(const QByteArray& data);
 	void beginPendingDownload(const File& currentDownload, const QString& directoryToSave);
-
 	void writeData(const QByteArray& data);
 	void flushSocket();
 	QByteArray readAll();
@@ -41,6 +40,7 @@ signals:
 	void checkRemainingDownloadsSignal();
 
 public slots:
+	void setUploadDataToSend(const QByteArray& data);
 	void onReadyRead();
 	void onSocketStateChanged(QAbstractSocket::SocketState socketState);
 

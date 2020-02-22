@@ -11,21 +11,23 @@ class serverModel : public QObject
     friend class serverController;
 public:
 	serverModel(QWidget* parent = Q_NULLPTR);
+	void init();
 
 signals:
 	void writeTextSignal(QString text, QColor color = Qt::black);
 	void initializeSettingsSignal(QString directory, QStringList nameList, bool minimizeToTray);
-	void closeSettingsSignal();
+	//void closeSettingsSignal();
 	void startServerSignal();
 	void stopServerSignal();
 	void connectUserToListSignal(QString text);
 	void deleteUserFromListSignal(QString text);
+	void setPortSignal(int port);
 
 public slots:
-	void initServer(int port);
+	void startServer(int port);
 	void stopServer();
 
-	void saveSettings();
+	//void saveSettings(); //*** Unused function.
 	void writeUsersToSettingsScreen();
 	void deleteUser(int item);
 	void saveFtpDirectory(QString directory);

@@ -136,7 +136,7 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 			}
 
 			responseCode = FtpManager::ResponseType::BeginFileUpload;
-			Transfer fileTransfer = FtpManager::startFileUpload(userIndex, filePath, fileName, json.value("fileSize").toString().toInt(), baseDir, directory);
+			Transfer fileTransfer = FtpManager::startFileUpload(userIndex, filePath, fileName, json.value("fileSize").toString().toLongLong(), baseDir, directory);
 			transfersInProgress.append(fileTransfer);
 			currentUser.transferInProgress = true;
 			

@@ -11,6 +11,8 @@ public:
 	 void writeUserToSettings(QString username, QString password, QString directoryPermission);
 	 void removeUserFromSettings(int index);
 	 QString getFtpDirectory();
+	 int getPort();
+	 void setPort(int port);
 	 void setFtpDirectory(QString directory);
 	 bool getFirstTimeTrayMessage();
 	 void setFirstTimeTrayMessage();

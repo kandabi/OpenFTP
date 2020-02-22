@@ -3,6 +3,7 @@
 #include "network_manager.h"
 #include "settings_manager.h"
 #include "list_model.h"
+#include "worker_manager.h"
 
 
 class clientModel : public QObject
@@ -87,5 +88,8 @@ private:
 	FileListServerModel* serverBrowserModel;
 
 	RequestManager::FileOverwrite currentSessionFileBehavior = RequestManager::FileOverwrite::NoneSelected;
+
+	const int tooLargeFileSize = 200000000;
+	WorkerThread* workerThread;
 };
 

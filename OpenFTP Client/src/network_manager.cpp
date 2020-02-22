@@ -47,14 +47,19 @@ QByteArray NetworkManager::readAll()
 
 void NetworkManager::onReadyRead()
 {
-	QByteArray data = (downloadInProgress) ? socket.readAll() : parseByteData();
+	QByteArray data;
+	if (downloadInProgress)
+		data = socket.readAll();
+	else
+		data = parseByteData();
+	//QByteArray data = (downloadInProgress) ? socket.readAll() : parseByteData();
 
-	if (data.isEmpty())
+ 	if (data.isEmpty())
 		return;
 
 	if (downloadInProgress)
 	{
-		parseDownload(data);
+		parseByteDownload(data);
 	}
 	else {
 		emit parseJsonSignal(data);
@@ -86,7 +91,7 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 	}
 }
 
-void NetworkManager::parseDownload(const QByteArray& data)
+void NetworkManager::parseByteDownload(const QByteArray& data)
 {
 	writtenBytes += qSaveFile.write(data);
 	if (numOfPacketsRecieved % 20 == 0)
@@ -115,7 +120,6 @@ QByteArray NetworkManager::parseByteData()
 	if (isJson)
 	{
 		previousReadyReadData.clear();
-
 	}
 	else if (data.contains('[') && data.contains(']'))
 	{
@@ -146,12 +150,16 @@ void NetworkManager::beginPendingDownload(const File& currentDownload, const QSt
 
 void NetworkManager::setUploadDataToSend(const QByteArray& data)
 {
-	dataToSend = data;
+	if (data.isEmpty())
+		dataToSend = " ";
+	else
+		dataToSend = data;
 }
 
 void NetworkManager::uploadFileData()
 {
-	socket.write(dataToSend);
+	if(!dataToSend.isEmpty())
+		socket.write(dataToSend);
 }
 
 void NetworkManager::setdownloadInProgress(const bool& download)

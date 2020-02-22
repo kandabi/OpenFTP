@@ -133,6 +133,9 @@
      <property name="placeholderText">
       <string>Port </string>
      </property>
+     <property name="clearButtonEnabled">
+      <bool>false</bool>
+     </property>
     </widget>
     <widget class="QLabel" name="label">
      <property name="geometry">
@@ -166,7 +169,7 @@
     <property name="title">
      <string/>
     </property>
-    <widget class="QTextEdit" name="mainTextWindow">
+    <widget class="QTextBrowser" name="mainTextWindow">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -177,21 +180,6 @@
      </property>
      <property name="styleSheet">
       <string notr="true">border: 1px solid darkGrey;</string>
-     </property>
-     <property name="lineWidth">
-      <number>1</number>
-     </property>
-     <property name="undoRedoEnabled">
-      <bool>false</bool>
-     </property>
-     <property name="lineWrapColumnOrWidth">
-      <number>0</number>
-     </property>
-     <property name="textInteractionFlags">
-      <set>Qt::NoTextInteraction</set>
-     </property>
-     <property name="placeholderText">
-      <string/>
      </property>
     </widget>
    </widget>

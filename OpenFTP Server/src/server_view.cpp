@@ -8,6 +8,7 @@ serverView::serverView(QWidget *parent) : QMainWindow(parent), settingsManager(p
 	
 	ui.connectedUsersList->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui.portEdit->setValidator(new QIntValidator(0, 65535, this));
+	ui.mainTextWindow->setOpenExternalLinks(true);
 
 	icon.addFile(":/alienIcon/images/icon.ico");
 
@@ -84,12 +85,9 @@ void serverView::startServer()
 
 void serverView::stopServer()
 {
-	writeTextToScreen("Closing FTP Server", Qt::black);
 	ui.startServerButton->setDisabled(false);
 	ui.stopServerButton->setDisabled(true);
-
 	ui.connectedUsersList->clear();
-
 	serverIsRunning = false;
 }
 
@@ -128,7 +126,6 @@ void serverView::closeEvent(QCloseEvent* event)
 			systemTrayIcon.showMessage("OpenFTP server minimized to tray", "Program is still running, you can change this in the settings.", icon);
 			settingsManager.setFirstTimeTrayMessage();
 		}
-
 	}
 }
 
@@ -136,4 +133,10 @@ void serverView::closeWindow()
 {
 	closing = true;
 	close();
+}
+
+
+void serverView::setPort(int port)
+{
+	ui.portEdit->setText(QString::number(port));
 }

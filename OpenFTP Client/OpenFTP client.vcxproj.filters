@@ -1,0 +1,80 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="src\client_view.cpp" />
+    <ClCompile Include="src\controller.cpp" />
+    <ClCompile Include="src\fileExists_view.cpp" />
+    <ClCompile Include="src\file_manager.cpp" />
+    <ClCompile Include="src\list_model.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\model.cpp" />
+    <ClCompile Include="src\network_manager.cpp" />
+    <ClCompile Include="src\request_manager.cpp" />
+    <ClCompile Include="src\serialization_manager.cpp" />
+    <ClCompile Include="src\settings_manager.cpp" />
+    <ClCompile Include="src\settings_view.cpp" />
+    <ClCompile Include="src\simplecrypt.cpp" />
+    <ClCompile Include="src\stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="headers\user.h" />
+    <ClInclude Include="headers\file.h" />
+    <ClInclude Include="headers\file_manager.h" />
+    <ClInclude Include="headers\request_manager.h" />
+    <ClInclude Include="headers\serialization_manager.h" />
+    <ClInclude Include="headers\simplecrypt.h" />
+    <ClInclude Include="headers\stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="ui\icon.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="ui\complete.wav" />
+    <Media Include="ui\delete.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="images\delete.png" />
+    <Image Include="images\exit.png" />
+    <Image Include="images\folder.png" />
+    <Image Include="images\fullscreen.png" />
+    <Image Include="images\home_button.png" />
+    <Image Include="images\icon.png" />
+    <Image Include="images\icon_black.ico" />
+    <Image Include="images\left.png" />
+    <Image Include="images\minimize.png" />
+    <Image Include="images\return_button.png" />
+    <Image Include="images\right.png" />
+    <Image Include="images\search_button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="headers\client_view.h" />
+    <QtMoc Include="headers\controller.h" />
+    <QtMoc Include="headers\fileExists_view.h" />
+    <QtMoc Include="headers\list_model.h" />
+    <QtMoc Include="headers\model.h" />
+    <QtMoc Include="headers\network_manager.h" />
+    <QtMoc Include="headers\settings_manager.h" />
+    <QtMoc Include="headers\settings_view.h" />
+    <QtMoc Include="headers\worker_manager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="ui\resources.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="ui\clientView.ui" />
+    <QtUic Include="ui\fileExistsView.ui" />
+    <QtUic Include="ui\settingsView.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ui\client_style.css" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+  </ItemGroup>
+</Project>

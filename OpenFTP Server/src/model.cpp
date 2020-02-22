@@ -17,10 +17,19 @@ serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(regi
 	registeredUsersList = settingsManager.getUsersFromSettings();
 }
 
-
-void serverModel::initServer(int port)
+void serverModel::init()
 {
-	emit writeTextSignal("Setting up FTP Server");
+	writeTextSignal("OpenFTP Server 0.2.4, written by kandabi", Qt::darkGray);
+	writeTextSignal("OpenFTP is an open source FTP server and client, check it out on <a href='https://github.com/kandabi/OpenFTP'>Github!</a> ", Qt::darkGray);
+	int serverPort = settingsManager.getPort();
+	if (serverPort)
+		emit setPortSignal(serverPort);
+}
+
+
+void serverModel::startServer(int port)
+{
+	emit writeTextSignal("Setting up OFTP Server.");
 
 	QString ftpDirectory = settingsManager.getFtpDirectory();
 	QDir dir;
@@ -36,21 +45,18 @@ void serverModel::initServer(int port)
 	}
 
 	emit startServerSignal();
-	networkManager.initServer(port);
+	if (networkManager.initServer(port))
+	{
+		settingsManager.setPort(port);
+	}
 }
 
 
 void serverModel::stopServer()
 {
 	emit stopServerSignal();
+	emit writeTextSignal("Closing OFTP Server, disconnecting all users.");
 	networkManager.stopServer();
-}
-
-
-void serverModel::saveSettings()
-{
-	emit writeTextSignal("Settings have been saved. (Not implemented yet.) ", Qt::red);
-	emit closeSettingsSignal();
 }
 
 
@@ -60,7 +66,6 @@ void serverModel::saveFtpDirectory(QString directory)
 	emit writeTextSignal("Set up FTP directory in: " + directory);
 	emit initializeSettingsSignal(settingsManager.getFtpDirectory(), getUserNamesFromUserList(registeredUsersList), settingsManager.getMinimizeToTray());
 }
-
 
 
 void serverModel::createUser(QString username, QString password, QString directoryPermitted)
@@ -106,4 +111,11 @@ QStringList serverModel::getUserNamesFromUserList(const QList<User>& userList)
 	}
 	return nameList;
 }
+
+
+//void serverModel::saveSettings() //*** Unused Function
+//{
+//	emit writeTextSignal("Settings have been saved. (Not implemented yet.) ", Qt::red);
+//	emit closeSettingsSignal();
+//}
 

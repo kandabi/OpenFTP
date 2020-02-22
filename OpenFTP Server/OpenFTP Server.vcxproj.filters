@@ -120,4 +120,7 @@
       <Filter>Resource Files</Filter>
     </QtRcc>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="settings\server_settings.json" />
+  </ItemGroup>
 </Project>

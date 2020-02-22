@@ -317,14 +317,14 @@ void clientView::showProgressBar()
 void clientView::hideProgressBar()
 {
 	ui.progressBar->hide();
-	ui.progressBar->setMaximum(0);
+	//ui.progressBar->setMaximum(0);
 }
 
 void clientView::setProgressBar(qint64 bytesTotal)
 {
-	showProgressBar();
 	ui.progressBar->setValue(0);
 	ui.progressBar->setMaximum(bytesTotal);
+	showProgressBar();
 
 	statusBarLabel.setText("Begin Transfer");
 }

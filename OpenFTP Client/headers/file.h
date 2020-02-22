@@ -18,8 +18,8 @@ public:
 
 	QString fileName;
 	QString filePath;
-	int fileSize;
-	bool isDir;
 	QString lastModified;
+	int fileSize = 0;
+	bool isDir = false;
 	QPixmap icon;
 };
