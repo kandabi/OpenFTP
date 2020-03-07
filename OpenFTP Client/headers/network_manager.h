@@ -35,8 +35,8 @@ signals:
 	void writeTextSignal(QString text, QColor color = Qt::white);
 	void disconnectedFromServerSignal();
 	void parseJsonSignal(const QByteArray& jsonArray);
-	void updateProgressBarSignal(qint64 bytesReceived);
-	void setProgressBarSignal(qint64 bytesTotal);
+	void updateProgressBarSignal(quint64 bytesReceived, quint64 bytesTotal);
+	void setProgressBarSignal();
 	void checkRemainingDownloadsSignal();
 
 public slots:

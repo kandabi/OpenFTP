@@ -90,9 +90,9 @@ void clientController::connectModelSignalSlots(QList<bool>& connectionResults)
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::checkRemainingDownloadsSignal, &data, &clientModel::checkRemainingDownloads));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::parseJsonSignal, &data, &clientModel::parseJson));
 
-	//timer = new QTimer(this);
-	//connectionResults.append(connect(timer, &QTimer::timeout, &data, &clientModel::requestServerUpdate));
-	//timer->start(10000);
+	timer = new QTimer(this);
+	connectionResults.append(connect(timer, &QTimer::timeout, &data, &clientModel::requestServerUpdate));
+	timer->start(10000);
 }
 
 int clientController::init()

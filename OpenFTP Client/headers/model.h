@@ -21,7 +21,7 @@ signals:
 	void uploadCompleteSignal();
 	void uploadFailedSignal(QString errorString);
 	void connectedToServerSignal(FileListServerModel* model, const QString& currentDirectory);
-	void updateProgressBarSignal(qint64 bytesReceived);
+	void updateProgressBarSignal(quint64 bytesReceived, quint64 totalBytes);
 	void setLocalFileBrowserSignal(QFileSystemModel& model);
 	void fileAlreadyExistsSignal(const QString& filename);
 	void deletedFilesSignal();
@@ -65,6 +65,7 @@ private slots:
 private:
 	void beginPendingDownload(const File& currentDownload, const QString& directoryToSave);
 	void parseJson(const QByteArray& jsonArray);
+	void createWorkerThread(const quint64& readFromPosition, const QByteArray& requestData);
 
 	SettingsManager settingsManager;
 	NetworkManager networkManager;
@@ -89,7 +90,7 @@ private:
 
 	RequestManager::FileOverwrite currentSessionFileBehavior = RequestManager::FileOverwrite::NoneSelected;
 
-	const int tooLargeFileSize = 200000000;
 	WorkerThread* workerThread;
+	QByteArray requestDataForMultithreading;
 };
 

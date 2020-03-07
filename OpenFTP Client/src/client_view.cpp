@@ -320,18 +320,18 @@ void clientView::hideProgressBar()
 	//ui.progressBar->setMaximum(0);
 }
 
-void clientView::setProgressBar(qint64 bytesTotal)
+void clientView::setProgressBar()
 {
 	ui.progressBar->setValue(0);
-	ui.progressBar->setMaximum(bytesTotal);
+	ui.progressBar->setMaximum(100);
 	showProgressBar();
 
 	statusBarLabel.setText("Begin Transfer");
 }
 
-void clientView::updateProgressBar(qint64 bytesReceived)
+void clientView::updateProgressBar(const quint64& bytesReceived, const quint64& totalBytes)
 {
-	ui.progressBar->setValue(bytesReceived);
+	ui.progressBar->setValue((quint64)((bytesReceived * 100) / totalBytes));
 }
 
 
@@ -457,7 +457,7 @@ void clientView::disconnectedFromServer()
 	ui.serverSearchEdit->clear();
 	connectedToServerBool = false;
 	pasteAction->setEnabled(false);
-	setProgressBar(0);
+	setProgressBar();
 	hideProgressBar();
 	statusBarLabel.setText("Disconnected");
 }

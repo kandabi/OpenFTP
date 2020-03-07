@@ -60,7 +60,7 @@ QList<File> FileManager::getFileListFromJson(const QJsonArray& jsonArray)
 			File{
 				fileName,
 				filePath,
-				json.value("fileSize").toInt(),
+				json.value("fileSize").toString().toULongLong(),
 				json.value("isDir").toBool(),
 				json.value("lastModified").toString(),
 				Serializer::decodePixmapFromString(json.value("icon").toString())

@@ -119,7 +119,7 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 			QString fileName = json.value("fileName").toString();
 			QString filePath = json.value("filePath").toString();
 			FtpManager::FileOverwrite overwriteExistingFile = (FtpManager::FileOverwrite)json.value("overwrite").toString().toInt();
-			writeTextSignal("Uploading file: " + fileName + ", File size: " + json.value("fileSize").toString());
+			emit writeTextSignal("Uploading file: " + fileName + ", File size: " + json.value("fileSize").toString() + " , by username: " + currentUser.username);
 
 			if (FtpManager::checkFileExists(filePath, fileName))
 			{
@@ -136,7 +136,7 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 			}
 
 			responseCode = FtpManager::ResponseType::BeginFileUpload;
-			Transfer fileTransfer = FtpManager::startFileUpload(userIndex, filePath, fileName, json.value("fileSize").toString().toLongLong(), baseDir, directory);
+			Transfer fileTransfer = FtpManager::startFileUpload(userIndex, filePath, fileName, json.value("fileSize").toString().toULongLong(), baseDir, directory);
 			transfersInProgress.append(fileTransfer);
 			currentUser.transferInProgress = true;
 			
@@ -145,7 +145,6 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 		case FtpManager::RequestType::DownloadFile:
 		{
 			QString fileName = json.value("fileName").toString();
-			writeTextSignal("Download file request: " + fileName);
 
 			int currentTransfer = getTransferByUserIndex(userIndex);
 			if (currentTransfer != -1)
@@ -170,6 +169,7 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 			QString errorString;
 			int transferIndex = getTransferByUserIndex(userIndex);
 			Transfer& download = transfersInProgress[transferIndex];
+			emit writeTextSignal("Download file request: " + download.fileName + ", File size: " + QString::number(download.fileSize) + ", by username: " + currentUser.username);
 			bool result = FtpManager::beginFileDownload(download, socket, errorString);
 			Q_ASSERT(result);
 			transfersInProgress.removeAt(transferIndex);
@@ -200,7 +200,7 @@ void NetworkManager::parseUpload(const QByteArray& data, QTcpSocket* socket, int
 	Q_ASSERT(transferIndex != -1);
 
 	Transfer& currentUpload = transfersInProgress[transferIndex];
-	int writtenBytes = FtpManager::processFileUpload(data, currentUpload);
+	quint64 writtenBytes = FtpManager::processFileUpload(data, currentUpload);
 
 	QJsonArray serverResponse;
 	bool sendResponseData = false;
@@ -225,7 +225,6 @@ void NetworkManager::parseUpload(const QByteArray& data, QTcpSocket* socket, int
 
 	if(!serverResponse.isEmpty() && sendResponseData)
 		writeToClient(socket, Serializer::JsonToByteArray(serverResponse));
-
 }
 
 void NetworkManager::onReadyRead()
