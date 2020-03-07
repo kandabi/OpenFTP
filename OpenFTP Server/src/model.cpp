@@ -19,8 +19,8 @@ serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(regi
 
 void serverModel::init()
 {
-	emit writeTextSignal("OpenFTP Server 0.2.6, written by kandabi", Qt::darkGray);
-	emit writeTextSignal("OpenFTP is an open source file transfer server and client, check it out on <a href='https://github.com/kandabi/OpenFTP'>Github!</a> ", Qt::darkGray);
+	writeTextSignal("OpenFTP Server 0.2.4, written by kandabi", Qt::darkGray);
+	writeTextSignal("OpenFTP is an open source FTP server and client, check it out on <a href='https://github.com/kandabi/OpenFTP'>Github!</a> ", Qt::darkGray);
 	int serverPort = settingsManager.getPort();
 	if (serverPort)
 		emit setPortSignal(serverPort);
@@ -29,7 +29,7 @@ void serverModel::init()
 
 void serverModel::startServer(int port)
 {
-	emit writeTextSignal("Setting up OpenFTP Server.");
+	emit writeTextSignal("Setting up OFTP Server.");
 
 	QString ftpDirectory = settingsManager.getFtpDirectory();
 	QDir dir;
@@ -55,7 +55,7 @@ void serverModel::startServer(int port)
 void serverModel::stopServer()
 {
 	emit stopServerSignal();
-	emit writeTextSignal("Closing OpenFTP Server, disconnecting all users.");
+	emit writeTextSignal("Closing OFTP Server, disconnecting all users.");
 	networkManager.stopServer();
 }
 

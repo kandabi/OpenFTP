@@ -47,7 +47,12 @@ QByteArray NetworkManager::readAll()
 
 void NetworkManager::onReadyRead()
 {
-	QByteArray data = (downloadInProgress) ? socket.readAll() : parseByteData();
+	QByteArray data;
+	if (downloadInProgress)
+		data = socket.readAll();
+	else
+		data = parseByteData();
+	//QByteArray data = (downloadInProgress) ? socket.readAll() : parseByteData();
 
  	if (data.isEmpty())
 		return;
@@ -91,7 +96,7 @@ void NetworkManager::parseByteDownload(const QByteArray& data)
 	writtenBytes += qSaveFile.write(data);
 	if (numOfPacketsRecieved % 20 == 0)
 	{
-		emit updateProgressBarSignal(writtenBytes, currentDownloadFileSize);
+		emit updateProgressBarSignal(writtenBytes);
 	}
 
 	numOfPacketsRecieved++;
@@ -136,9 +141,8 @@ QByteArray NetworkManager::parseByteData()
 void NetworkManager::beginPendingDownload(const File& currentDownload, const QString& directoryToSave)
 {
 	currentDownloadFileSize = currentDownload.fileSize;
-	//currentDownload.fileSize
 
-	emit setProgressBarSignal();
+	emit setProgressBarSignal(currentDownload.fileSize);
 	qSaveFile.setFileName(directoryToSave + "/" + currentDownload.fileName);
 	bool open = qSaveFile.open(QIODevice::WriteOnly);
 }
@@ -154,7 +158,7 @@ void NetworkManager::setUploadDataToSend(const QByteArray& data)
 
 void NetworkManager::uploadFileData()
 {
-	if (!dataToSend.isEmpty())
+	if(!dataToSend.isEmpty())
 		socket.write(dataToSend);
 }
 

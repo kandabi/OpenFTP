@@ -56,8 +56,8 @@ public slots:
 	void createLocalFolder();
 	void showProgressBar();
 	void hideProgressBar();
-	void setProgressBar();
-	void updateProgressBar(const quint64& bytesReceived, const quint64& bytesTotal);
+	void setProgressBar(qint64 bytesTotal);
+	void updateProgressBar(qint64 bytesReceived);
 	void dragEnterEvent(QDragEnterEvent* e);
 	void dropEvent(QDropEvent* e);
 	void uploadComplete();

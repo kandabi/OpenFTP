@@ -27,8 +27,7 @@ void clientModel::init()
 	emit initClient(credentials.checkboxChecked, credentials.serverAddress, credentials.serverPort, credentials.userName, credentials.userPassword, settingsManager.getMinimizeToTray());
 
 	emit setLocalFileBrowserSignal(*localBrowserModel);
-	emit writeTextSignal("OpenFTP Client 0.2.6, written by kandabi", Qt::darkGray);
-	emit writeTextSignal("<span style='color:darkGrey;'>OpenFTP is an open source file transfer server and client, check it out on <a href='https://github.com/kandabi/OpenFTP'>Github!</a> </span>", Qt::darkGray);
+	emit writeTextSignal("OpenFTP client 0.1.8, written by kandabi", Qt::darkGray);
 }
 
 
@@ -83,8 +82,7 @@ void clientModel::parseJson(const QByteArray& data)
 	RequestManager::ResponseType responseType = static_cast<RequestManager::ResponseType>(serverDetails.value("response_status").toInt());
 
 	if (responseType != RequestManager::ResponseType::DownloadFolder && responseType != RequestManager::ResponseType::BeginFileDownload && responseType != RequestManager::ResponseType::DownloadComplete)
-		currentServerDirectory = (QString)QByteArray::fromBase64(serverDetails.value("directory").toString().toUtf8());
-	
+		currentServerDirectory = serverDetails.value("directory").toString();
 
 	switch (responseType)
 	{
@@ -107,7 +105,7 @@ void clientModel::parseJson(const QByteArray& data)
 		beepSignal();
 		break;
 	case RequestManager::ResponseType::FileUploading:
-		emit updateProgressBarSignal(serverDetails.value("bytesWritten").toString().toULongLong(), currentUpload.size());
+		emit updateProgressBarSignal(serverDetails.value("bytesWritten").toInt());
 		break;
 	case RequestManager::ResponseType::FileAlreadyExists:
 	{
@@ -128,19 +126,17 @@ void clientModel::parseJson(const QByteArray& data)
 		networkManager.uploadFileData();
 		break;
 	case RequestManager::ResponseType::UploadCompleted:
-	{
-		emit updateProgressBarSignal(serverDetails.value("bytesWritten").toString().toLongLong(), currentUpload.size());
+		emit updateProgressBarSignal(serverDetails.value("bytesWritten").toInt());
 		emit writeTextSignal("Upload complete: " + currentUpload.fileName(), Qt::darkGreen);
 		checkRemainingUploads();
 		break;
-	}
 	case RequestManager::ResponseType::BeginFileDownload:
 		beginPendingDownload(currentDownload, directoryToSave);
 		break;
 	case RequestManager::ResponseType::DownloadFolder: {
 		QList<File> fileArray = FileManager::getFileListFromJson(jsonArray);
 
-		writeTextSignal("Appended " + QString::number(fileArray.count()) + " files to download from directory: " + currentDownload.fileName);
+		writeTextSignal("Appended " + QString::number(fileArray.count()) + " extra files to download from directory: " + currentDownload.fileName);
 		for (const File& file : fileArray)
 		{
 			fileListToDownload.prepend(file);
@@ -363,7 +359,7 @@ void clientModel::createUploadFileRequest(const QFileInfo& currentUpload, bool i
 {
 	if (isDir) 
 	{
-		createFolderAction(directoryToUpload, true); 
+		createFolderAction(directoryToUpload, true);
 	}
 	else {
 
@@ -378,10 +374,8 @@ void clientModel::createUploadFileRequest(const QFileInfo& currentUpload, bool i
 		QString fileSize = QString::number(qFile.size());
 		RequestManager::FileOverwrite overwriteExisting = (overwriteOptionSelected == RequestManager::FileOverwrite::NoneSelected) ?
 			settingsManager.getOverwriteExistingFileBehavior() : overwriteOptionSelected;
-		emit writeTextSignal("Uploading File: " + currentUpload.fileName() + " File Size: " + fileSize + " bytes, Directory to upload: " + directoryToUpload, QColor(255, 153, 0));
-		emit networkManager.setProgressBarSignal();
-		//qFile.size()
-
+		emit writeTextSignal("Uploading File: " + currentUpload.fileName() + " File Size: " + fileSize + " bytes, Directory to upload: " + directoryToUpload);
+		emit networkManager.setProgressBarSignal(qFile.size());
 
 		QMap<QString, QString> requestVariables{
 			{"requestPath", currentServerDirectory},
@@ -392,15 +386,21 @@ void clientModel::createUploadFileRequest(const QFileInfo& currentUpload, bool i
 		};
 
 		QJsonObject request = RequestManager::createServerRequest(RequestManager::RequestType::UploadFile, requestVariables);
-		QByteArray requestData = Serializer::JsonObjectToByteArray(request);
+		QByteArray data = Serializer::JsonObjectToByteArray(request);
 	
-		if (qFile.size() > WorkerThread::filesizeToSplit)
+		if (qFile.size() > tooLargeFileSize)
 		{
-			createWorkerThread(0, requestData);
+			workerThread = new WorkerThread(currentUpload.absoluteFilePath(), data);
+			connect(workerThread, &WorkerThread::setUploadDataToSendSignal, &networkManager, &NetworkManager::setUploadDataToSend);
+			connect(workerThread, &WorkerThread::sendRequestData, &networkManager, &NetworkManager::writeData);
+			connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
+			workerThread->start();
 		}
 		else {
+			networkManager.writeData(data);
+			//networkManager.flushSocket();
+
 			networkManager.setUploadDataToSend(qFile.readAll());
-			networkManager.writeData(requestData);
 		}
 	}
 }
@@ -420,7 +420,7 @@ void clientModel::createDownloadFileRequest(File& file, const RequestManager::Fi
 		file.fileName = FileManager::changeFileName(fileName, directoryToSave);
 
 
-	emit writeTextSignal("Downloading File: " + file.fileName + " ,File Size: " + QString::number(file.fileSize) + " bytes, Directory to upload: " + directoryToSave, QColor(255, 153, 0));
+	emit writeTextSignal("Downloading File: " + file.fileName + " ,File Size: " + QString::number(file.fileSize) + " bytes, Directory to upload: " + directoryToSave, Qt::darkGreen);
 
 	QMap<QString, QString> requestVariables
 	{
@@ -735,16 +735,6 @@ void clientModel::resetFileAlreadyExistsBehavior()
 	settingsManager.setOverwriteExistingFileBehavior(0);
 	currentSessionFileBehavior = RequestManager::FileOverwrite::NoneSelected;
 	emit writeTextSignal("Succesfully reset to default behavior when transfering file that already exists.");
-}
-
-
-void clientModel::createWorkerThread(const quint64& readFromPosition, const QByteArray& requestData)
-{
-	workerThread = new WorkerThread(currentUpload.absoluteFilePath(), readFromPosition, requestData);
-	connect(workerThread, &WorkerThread::setUploadDataToSendSignal, &networkManager, &NetworkManager::setUploadDataToSend);
-	connect(workerThread, &WorkerThread::sendRequestData, &networkManager, &NetworkManager::writeData);
-	connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
-	workerThread->start();
 }
 
 
