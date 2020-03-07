@@ -5,7 +5,7 @@ class File
 {
 
 public:
-	File(QString _fileName, QString _filePath, int _fileSize, bool _isDir, QString _lastModified ,QPixmap _icon = {})
+	File(QString _fileName, QString _filePath, quint64 _fileSize, bool _isDir, QString _lastModified ,QPixmap _icon = {})
 		: fileName{ _fileName }, filePath{ _filePath }, fileSize{ _fileSize }, isDir{ _isDir }, lastModified{ _lastModified }, icon{ _icon } {};
 
 	File() {};
@@ -19,7 +19,7 @@ public:
 	QString fileName;
 	QString filePath;
 	QString lastModified;
-	int fileSize = 0;
+	quint64 fileSize = 0;
 	bool isDir = false;
 	QPixmap icon;
 };

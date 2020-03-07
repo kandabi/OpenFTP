@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "transfer.h"
 
-Transfer::Transfer(int _userIndex,QString _fileName, QString _filePath, qint64 _fileSize, bool _isBaseDir, QString _directoryToReturn) :
+Transfer::Transfer(int _userIndex,QString _fileName, QString _filePath, quint64 _fileSize, bool _isBaseDir, QString _directoryToReturn) :
    userIndex{ _userIndex } ,fileName {_fileName }, filePath{ _filePath }, fileSize{ _fileSize }, isBaseDir{ _isBaseDir }, directoryToReturn{ _directoryToReturn }
 {
 	file = new QSaveFile(filePath + "/" + fileName);

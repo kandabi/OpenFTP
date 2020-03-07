@@ -25,14 +25,14 @@ QPixmap FtpManager::getIconFromFileInfo(const QFileInfo& file) {
 	return icon.pixmap(icon.actualSize(QSize(16, 16)));
 }
 
-QJsonArray FtpManager::createServerResponse(ResponseType responseStatus ,const QString& path, bool isBaseDir, int bytesWritten)
+QJsonArray FtpManager::createServerResponse(ResponseType responseStatus ,const QString& path, bool isBaseDir, quint64 bytesWritten)
 {
 	QJsonArray serverResponse;
 	
 	serverResponse.append(QJsonObject{
-			{"directory" ,path} ,
+			{"directory" , (QString)path.toUtf8().toBase64()} ,
 			{"response_status", static_cast<int>(responseStatus)} ,
-			{"bytesWritten", bytesWritten} ,
+			{"bytesWritten", QString::number(bytesWritten)} ,
 		});
 
 	for (const QFileInfo& file : getFilesFromDirectory(path, isBaseDir))
@@ -45,7 +45,7 @@ QJsonArray FtpManager::createServerResponse(ResponseType responseStatus ,const Q
 		QJsonObject json
 		{
 			{"fileName", fileName},
-			{"fileSize", file.size()},
+			{"fileSize", QString::number(file.size())},
 			{"filePath", filePath},
 			{"isDir", file.isDir()},
 			{"lastModified", file.lastModified().toString(Qt::DateFormat::SystemLocaleShortDate)},
@@ -58,14 +58,14 @@ QJsonArray FtpManager::createServerResponse(ResponseType responseStatus ,const Q
 }
 
 
-QJsonArray FtpManager::createUploadProgressResponse(ResponseType responseStatus, const QString& path, int bytesWritten)
+QJsonArray FtpManager::createUploadProgressResponse(ResponseType responseStatus, const QString& path, quint64 bytesWritten)
 {
 	QJsonArray serverResponse;
 
 	serverResponse.append(QJsonObject{
-			{"directory" ,path} ,
+			{"directory" , (QString)path.toUtf8().toBase64()} ,
 			{"response_status", static_cast<int>(responseStatus)} ,
-			{"bytesWritten", bytesWritten} ,
+			{"bytesWritten", QString::number(bytesWritten)} ,
 		});
 
 	return serverResponse;
@@ -100,7 +100,7 @@ bool FtpManager::checkFileExists(const QString& filePath, const QString& fileNam
 	return QDir(filePath).exists(fileName);
 }
 
-Transfer FtpManager::startFileUpload(const int& userIndex ,const QString& fileName, const QString& filePath, const qint64& fileSize, const bool& baseDir, const QString& directoryToReturn)
+Transfer FtpManager::startFileUpload(const int& userIndex ,const QString& fileName, const QString& filePath, const quint64& fileSize, const bool& baseDir, const QString& directoryToReturn)
 {
 	return Transfer(userIndex, filePath, fileName, fileSize, baseDir, directoryToReturn);
 }
@@ -131,12 +131,12 @@ bool FtpManager::beginFileDownload(const Transfer& download, QTcpSocket* socket,
 	QByteArray fileData = qfile.readAll();
 	if (fileData.isEmpty())
 		fileData = " ";
-	qint64 result = socket->write(fileData);
+	quint64 result = socket->write(fileData);
 	return true;
 }
 
 
-int FtpManager::processFileUpload(const QByteArray& data, Transfer& upload)
+quint64 FtpManager::processFileUpload(const QByteArray& data, Transfer& upload)
 {
 	upload.writeUpload(data);
 	return upload.writtenBytes;
