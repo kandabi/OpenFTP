@@ -2,7 +2,7 @@
 #include "model.h"
 
 
-serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(registeredUsersList, parent), settingsManager(parent)
+serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(registeredUsersList, parent), settingsManager(parent), logger(parent, "Log.txt")
 {
 	QCoreApplication::setOrganizationName("OpenFTP");
 	QCoreApplication::setOrganizationDomain("OpenFTP.com");
@@ -20,7 +20,7 @@ serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(regi
 void serverModel::init()
 {
 	emit writeTextSignal("OpenFTP Server 0.2.6, written by kandabi", Qt::darkGray);
-	emit writeTextSignal("OpenFTP is an open source file transfer server and client, check it out on <a href='https://github.com/kandabi/OpenFTP'>Github!</a> ", Qt::darkGray);
+	emit writeTextSignal("OpenFTP is an open source file transfer server and client, check it out on <a style='color: red;' href='https://github.com/kandabi/OpenFTP'>Github!</a> ", Qt::darkGray);
 	int serverPort = settingsManager.getPort();
 	if (serverPort)
 		emit setPortSignal(serverPort);

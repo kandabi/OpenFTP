@@ -114,6 +114,7 @@
     <ClCompile Include="src\fileExists_view.cpp" />
     <ClCompile Include="src\file_manager.cpp" />
     <ClCompile Include="src\list_model.cpp" />
+    <ClCompile Include="src\logger_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\model.cpp" />
     <ClCompile Include="src\network_manager.cpp" />
@@ -130,6 +131,7 @@
   <ItemGroup>
     <QtMoc Include="headers\worker_manager.h" />
     <QtMoc Include="headers\client_view.h" />
+    <QtMoc Include="headers\logger_manager.h" />
     <ClInclude Include="headers\user.h" />
     <QtMoc Include="headers\controller.h" />
     <ClInclude Include="headers\file.h" />

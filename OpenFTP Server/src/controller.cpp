@@ -49,6 +49,7 @@ void serverController::connectModelSignalSlots(QList<bool>& connectionResults)
 {
 	connectionResults.append(connect(&data, &serverModel::setPortSignal, &view, &serverView::setPort));
 	connectionResults.append(connect(&data, &serverModel::writeTextSignal, &view, &serverView::writeTextToScreen));
+	connectionResults.append(connect(&data, &serverModel::writeTextSignal, &data.logger, &LoggerManager::logToFile));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::writeTextSignal, &data, &serverModel::writeTextSignal));
 	connectionResults.append(connect(&data, &serverModel::connectUserToListSignal, &view, &serverView::connectUserToList));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::connectUserToListSignal, &data, &serverModel::connectUserToListSignal));

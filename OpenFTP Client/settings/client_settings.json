@@ -1,0 +1,10 @@
+{
+    "defaultLocalDirectory": "E:/local FTP browser",
+    "minimizeToTray": false,
+    "saveCredentials": true,
+    "serverAddress": "192.168.1.15",
+    "serverPort": "1525",
+    "showTrayMessage": true,
+    "userName": "AwL2ZK5WROCY",
+    "userPassword": "AwJFKHLajHJI"
+}

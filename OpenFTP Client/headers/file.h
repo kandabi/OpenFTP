@@ -15,7 +15,6 @@ public:
 		return fileName.isEmpty();
 	}
 
-
 	QString fileName;
 	QString filePath;
 	QString lastModified;

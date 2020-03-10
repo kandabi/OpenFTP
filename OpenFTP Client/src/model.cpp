@@ -2,7 +2,7 @@
 #include "model.h"
 
 
-clientModel::clientModel(QWidget* parent) : QObject(parent), settingsManager(parent)
+clientModel::clientModel(QWidget* parent) : QObject(parent), settingsManager(parent), logger(parent, "Log.txt")
 {
 	QCoreApplication::setOrganizationName("OpenFTP");
 	QCoreApplication::setOrganizationDomain("OpenFTP.com");
@@ -28,7 +28,7 @@ void clientModel::init()
 
 	emit setLocalFileBrowserSignal(*localBrowserModel);
 	emit writeTextSignal("OpenFTP Client 0.2.6, written by kandabi", Qt::darkGray);
-	emit writeTextSignal("<span style='color:darkGrey;'>OpenFTP is an open source file transfer server and client, check it out on <a href='https://github.com/kandabi/OpenFTP'>Github!</a> </span>", Qt::darkGray);
+	emit writeTextSignal("<span style='color:darkGrey;'>OpenFTP is an open source file transfer server and client, check it out on <a style='color: red;' href='https://github.com/kandabi/OpenFTP'>Github!</a> </span>", Qt::darkGray);
 }
 
 
@@ -165,7 +165,8 @@ void clientModel::parseJson(const QByteArray& data)
 		serverFileList = FileManager::getFileListFromJson(jsonArray);
 
 		serverBrowserModel = new FileListServerModel(serverFileList, this);
-		emit connectedToServerSignal(serverBrowserModel, currentServerDirectory);
+		emit connectedToServerSignal(serverBrowserModel, currentServerDirectory, fileIndicesToSelect);
+		fileIndicesToSelect.clear();
 	}
 }
 
@@ -790,11 +791,12 @@ void clientModel::searchFolder(const QString& directory, bool searchInServer)
 
 
 
-void clientModel::requestServerUpdate()
+void clientModel::refreshServerBrowser(const QModelIndexList selected)
 {
 	if (!currentServerDirectory.isEmpty() && !networkManager.isDownloading() && currentDownload.isEmpty() && !currentUpload.exists())
 	{
-		emit writeTextSignal("Fetching current server files.");
+		//emit writeTextSignal("Fetching current server files, files selected: " + QString::number(selected.size()));
+		fileIndicesToSelect = selected;
 
 		QMap<QString, QString> requestVariables{
 			{"requestPath", currentServerDirectory}
@@ -835,4 +837,10 @@ void clientModel::setMinimizeToTray(bool checked)
 void clientModel::disconnectedFromServer()
 {
 	serverFileList.clear(); 
+}
+
+
+void clientModel::logToFile()
+{
+
 }

@@ -109,6 +109,7 @@
   <ItemGroup>
     <QtMoc Include="headers\controller.h" />
     <ClInclude Include="headers\ftp_manager.h" />
+    <QtMoc Include="headers\logger_manager.h" />
     <ClInclude Include="headers\transfer.h" />
     <ClInclude Include="headers\user.h" />
     <QtMoc Include="headers\model.h" />
@@ -127,6 +128,7 @@
   <ItemGroup>
     <ClCompile Include="src\controller.cpp" />
     <ClCompile Include="src\ftp_manager.cpp" />
+    <ClCompile Include="src\logger_manager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\model.cpp" />
     <ClCompile Include="src\network_manager.cpp" />

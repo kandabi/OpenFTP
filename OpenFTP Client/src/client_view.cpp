@@ -74,7 +74,9 @@ void clientView::disableButtons(const bool disable)
 	ui.searchButton->setDisabled(disable);
 	ui.deleteButton->setDisabled(disable);
 	ui.uploadButton->setDisabled(disable);
+	ui.uploadButton2->setDisabled(disable);
 	ui.downloadButton->setDisabled(disable);
+	ui.downloadButton2->setDisabled(disable);
 	ui.serverSearchEdit->setDisabled(disable);
 }
 
@@ -143,7 +145,9 @@ void clientView::dragEnterEvent(QDragEnterEvent* e)
 void clientView::writeTextToScreen(QString text, QColor color)
 {
 	ui.mainTextWindow->setTextColor(color);
-	ui.mainTextWindow->append('[' + QDateTime::currentDateTime().toString(Qt::ISODate) + "] - " + text);
+	ui.mainTextWindow->append('[' + QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss ") + "] - " + text);
+	
+		//ui.mainTextWindow->append('[' + QDateTime::currentDateTime().toString(Qt::ISODate) + "] - " + text);
 }
 
 void clientView::openOptionMenu()
@@ -426,7 +430,7 @@ void clientView::onSaveConnectionCredentials()
 		emit saveConnectionCredentialsSignal(checked, "", "", "", "");
 }
 
-void clientView::connectedToServer(FileListServerModel* model,const QString& currentDirectory)
+void clientView::connectedToServer(FileListServerModel* model, const QString& currentDirectory, const QModelIndexList fileIndicesToSelect)
 {
 	if (model != Q_NULLPTR)
 		ui.serverBrowser->setModel(model);
@@ -447,6 +451,11 @@ void clientView::connectedToServer(FileListServerModel* model,const QString& cur
 	disableButtons(false);
 
 	connectedToServerBool = true;
+
+	for (const QModelIndex& index : fileIndicesToSelect)
+	{
+		ui.serverBrowser->selectionModel()->select(index, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+	}
 }
 
 void clientView::disconnectedFromServer()
@@ -710,6 +719,37 @@ void clientView::minimize()
 {
 	setWindowState(Qt::WindowMinimized);;
 }
+
+
+void clientView::refreshServerBrowser()
+{
+	if(connectedToServerBool && !transfersInProgress)
+		emit refreshServerBrowserSignal(ui.serverBrowser->selectionModel()->selectedRows());
+}
+
+//void clientView::reselectFilesInBrowser(const QModelIndexList fileIndicesToSelect)
+//{
+//	QItemSelectionModel* selectionModel = ui.serverBrowser->selectionModel();
+//
+//
+//
+//
+//	for (const QModelIndex& index : fileIndicesToSelect)
+//	{
+//		//selectionModel->select(, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+//		selectionModel->select(
+//			QItemSelection(
+//				ui.serverBrowser->model()->index(index.row(), 0),
+//				ui.serverBrowser->model()->index(index.row(), ui.serverBrowser->model()->columnCount() - 1)),
+//			QItemSelectionModel::Select);
+//
+//		emit writeTextToScreen("Index: " + QString::number(index.row()));
+//	}
+//
+//	//ui.serverBrowser->setSelectionModel(selectionModel);
+//}
+
+
 
 
 void clientView::fadeInAnimation()

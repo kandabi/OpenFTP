@@ -4,6 +4,7 @@
 #include "settings_manager.h"
 #include "list_model.h"
 #include "worker_manager.h"
+#include "logger_manager.h"
 
 
 class clientModel : public QObject
@@ -20,13 +21,14 @@ signals:
 	
 	void uploadCompleteSignal();
 	void uploadFailedSignal(QString errorString);
-	void connectedToServerSignal(FileListServerModel* model, const QString& currentDirectory);
+	void connectedToServerSignal(FileListServerModel* model, const QString& currentDirectory, const QModelIndexList fileIndicesToSelect);
 	void updateProgressBarSignal(quint64 bytesReceived, quint64 totalBytes);
 	void setLocalFileBrowserSignal(QFileSystemModel& model);
 	void fileAlreadyExistsSignal(const QString& filename);
 	void deletedFilesSignal();
 	void connectToServerSignal(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
 	void initClient(const bool& storeCredentials ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword, const bool& minimizeToTray);
+	//void reselectFilesInBrowserSignal(const QModelIndexList fileIndicesToSelect);
 
 
 private slots:
@@ -57,9 +59,10 @@ private slots:
 	void resetConnectionCredentials();
 	void saveConnectionCredentials(const bool& checkboxChecked, const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
 	void searchFolder(const QString& directory, bool searchInServer);
-	void requestServerUpdate();
+	void refreshServerBrowser(const QModelIndexList selected);
 	void setMinimizeToTray(bool checked);
 	void cancelTransfers();
+	void logToFile();
 
 
 private:
@@ -69,6 +72,7 @@ private:
 
 	SettingsManager settingsManager;
 	NetworkManager networkManager;
+	LoggerManager logger;
 
 	QString currentLocalDirectory;
 	QString currentServerDirectory;
@@ -80,6 +84,7 @@ private:
 	QString directoryToSave;
 
 	QStringList fileListToUpload;
+	QModelIndexList fileIndicesToSelect;
 	QList<File> fileListToDownload;
 	QList<File> serverFileList;
 

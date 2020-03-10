@@ -43,7 +43,9 @@ void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
 	connectionResults.append(connect(&view, &clientView::createNewFolderSignal, &data, &clientModel::createFolderAction));
 	connectionResults.append(connect(&view, &clientView::queueFilesToUploadSignal, &data, &clientModel::queueFilesToUpload));
 	connectionResults.append(connect(view.ui.uploadButton, &QPushButton::clicked, &view, &clientView::uploadFileButton));
+	connectionResults.append(connect(view.ui.uploadButton2, &QPushButton::clicked, &view, &clientView::uploadFileButton));
 	connectionResults.append(connect(view.ui.downloadButton, &QPushButton::clicked, &view, &clientView::downloadFileButton));
+	connectionResults.append(connect(view.ui.downloadButton2, &QPushButton::clicked, &view, &clientView::downloadFileButton));
 	connectionResults.append(connect(&view, &clientView::queueFilesToDownloadSignal, &data, &clientModel::queueFilesToDownload));
 	connectionResults.append(connect(&view, &clientView::copyFilesToDirectorySignal, &data, &clientModel::copyFilesToDirectory));
 	connectionResults.append(connect(&view, &clientView::copyFilesToClipboardLocalSignal, &data, &clientModel::copyFilesToClipboardLocal));
@@ -71,6 +73,7 @@ void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
 void clientController::connectModelSignalSlots(QList<bool>& connectionResults)
 {
 	connectionResults.append(connect(&data, &clientModel::writeTextSignal, &view, &clientView::writeTextToScreen));
+	connectionResults.append(connect(&data, &clientModel::writeTextSignal, &data.logger, &LoggerManager::logToFile));
 	connectionResults.append(connect(&data, &clientModel::beepSignal, &view, &clientView::beep));
 	connectionResults.append(connect(&data, &clientModel::connectedToServerSignal, &view, &clientView::connectedToServer));
 	connectionResults.append(connect(&data, &clientModel::updateProgressBarSignal, &view, &clientView::updateProgressBar));
@@ -91,7 +94,8 @@ void clientController::connectModelSignalSlots(QList<bool>& connectionResults)
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::parseJsonSignal, &data, &clientModel::parseJson));
 
 	timer = new QTimer(this);
-	connectionResults.append(connect(timer, &QTimer::timeout, &data, &clientModel::requestServerUpdate));
+	connectionResults.append(connect(timer, &QTimer::timeout, &view, &clientView::refreshServerBrowser));
+	connectionResults.append(connect(&view, &clientView::refreshServerBrowserSignal, &data, &clientModel::refreshServerBrowser));
 	timer->start(10000);
 }
 

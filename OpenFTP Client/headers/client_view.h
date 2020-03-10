@@ -37,6 +37,7 @@ signals:
 	void copyFilesToClipboardServerSignal(const QModelIndexList& indices);
 	void connectToServerSignal(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword, const bool& saveInformation);
 	void saveConnectionCredentialsSignal(const bool& isChecked ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
+	void refreshServerBrowserSignal(const QModelIndexList& selected);
 	
 
 public slots:
@@ -44,7 +45,7 @@ public slots:
 	void connectToServer();
 	void writeTextToScreen(QString text, QColor color = Qt::white);
 	void openOptionMenu();
-	void connectedToServer(FileListServerModel* model,const QString& currentDirectory);
+	void connectedToServer(FileListServerModel* model, const QString& currentDirectory, const QModelIndexList fileIndicesToSelect = {});
 	void disconnectedFromServer();
 	void showServerContextMenu(const QPoint& pos);
 	void showLocalContextMenu(const QPoint& pos);
@@ -82,6 +83,8 @@ public slots:
 	bool eventFilter(QObject* watched, QEvent* event) override;
 	void toggleFullscreen();
 	void minimize();
+	void refreshServerBrowser();
+	//void reselectFilesInBrowser(const QModelIndexList fileListToSelect);
 
 private:
 	QStringList getFileListFromMimeData(const QMimeData* data);

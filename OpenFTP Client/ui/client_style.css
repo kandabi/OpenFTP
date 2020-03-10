@@ -252,3 +252,30 @@ QProgressBar::chunk:horizontal {
     margin-right: 2px; /* space */
     width: 10px;
 }
+
+a {
+    color: red;
+}
+
+QGroupBox {
+    border: none;
+}
+
+
+    QGroupBox QPushButton {
+        width: 36px;
+        height: 34px;
+        margin:0;
+        padding:0;
+    }
+
+
+QToolButton {
+    background-color: black;
+    color: white;
+}
+
+    QToolButton QWidget {
+        color: black;
+    }
+

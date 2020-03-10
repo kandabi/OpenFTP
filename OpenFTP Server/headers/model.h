@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "network_manager.h"
 #include "settings_manager.h"
-
+#include "logger_manager.h"
 
 
 class serverModel : public QObject 
@@ -38,6 +38,7 @@ public slots:
 private:
 	SettingsManager settingsManager;
 	NetworkManager networkManager;
+	LoggerManager logger;
 	QList<User> registeredUsersList;
 
 	QStringList getUserNamesFromUserList(const QList<User>& userList);
