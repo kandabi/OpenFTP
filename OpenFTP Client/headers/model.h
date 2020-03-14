@@ -28,7 +28,6 @@ signals:
 	void deletedFilesSignal();
 	void connectToServerSignal(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
 	void initClient(const bool& storeCredentials ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword, const bool& minimizeToTray);
-	//void reselectFilesInBrowserSignal(const QModelIndexList fileIndicesToSelect);
 
 
 private slots:
@@ -39,8 +38,8 @@ private slots:
 	void checkRemainingDownloads();
 	void queueFilesToDownload(const QModelIndexList& indices, bool appendMorefiles);
 	void queueFilesToUpload(const QStringList& fileList, bool appendMorefiles);
-	void createUploadFileRequest(const QFileInfo& currentUpload, bool isDir, const RequestManager::FileOverwrite& overwriteOptionSelected = RequestManager::FileOverwrite::NoneSelected);
-	void createDownloadFileRequest(File& file, const RequestManager::FileOverwrite& overwriteOptionSelected = RequestManager::FileOverwrite::NoneSelected);
+	void createUploadFileRequest(const QFileInfo& currentUpload, bool isDir, const RequestManager::FileOverwrite& overwriteOptionSelected = RequestManager::FileOverwrite::NoneSelected, const bool& writeText = true);
+	void createDownloadFileRequest(File& file, const RequestManager::FileOverwrite& overwriteOptionSelected = RequestManager::FileOverwrite::NoneSelected, const bool& writeText = true);
 	void createFolderAction(const QString& newFolderPath, bool createInServer);
 	void renameInServer(const QModelIndex& indices, const QString& newFileName);
 	void renameInLocal(const QString& oldFileName, QString& newFileName);
@@ -62,13 +61,11 @@ private slots:
 	void refreshServerBrowser(const QModelIndexList selected);
 	void setMinimizeToTray(bool checked);
 	void cancelTransfers();
-	void logToFile();
-
 
 private:
 	void beginPendingDownload(const File& currentDownload, const QString& directoryToSave);
 	void parseJson(const QByteArray& jsonArray);
-	void createWorkerThread(const quint64& readFromPosition, const QByteArray& requestData);
+	void createWorkerThread(const quint64& readFromPosition = 0/*, const QByteArray& requestData*/);
 
 	SettingsManager settingsManager;
 	NetworkManager networkManager;

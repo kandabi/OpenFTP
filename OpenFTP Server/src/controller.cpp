@@ -55,7 +55,6 @@ void serverController::connectModelSignalSlots(QList<bool>& connectionResults)
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::connectUserToListSignal, &data, &serverModel::connectUserToListSignal));
 	connectionResults.append(connect(&data, &serverModel::deleteUserFromListSignal, &view, &serverView::deleteUserFromList));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::deleteUserFromListSignal, &data, &serverModel::deleteUserFromListSignal));
-	//connectionResults.append(connect(&data, &serverModel::closeSettingsSignal, &view, &serverView::closeSettingsMenu)); //*** Unused function.
 	connectionResults.append(connect(&data, &serverModel::startServerSignal, &view, &serverView::startServer));
 	connectionResults.append(connect(&data, &serverModel::stopServerSignal, &view, &serverView::stopServer));
 	connectionResults.append(connect(&data, &serverModel::initializeSettingsSignal, &view.settingsView, &settingsView::initializeSettings));

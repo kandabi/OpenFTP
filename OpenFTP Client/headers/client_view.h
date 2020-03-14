@@ -2,10 +2,12 @@
 #include "stdafx.h"
 #include "ui_clientView.h"
 #include "settings_view.h"
+#include "about_view.h"
 #include "fileExists_view.h"
 #include "list_model.h"
 #include "file_manager.h"
 #include "settings_manager.h"
+
 
 class clientView : public QMainWindow
 {
@@ -44,7 +46,8 @@ public slots:
 	void onSaveConnectionCredentials();
 	void connectToServer();
 	void writeTextToScreen(QString text, QColor color = Qt::white);
-	void openOptionMenu();
+	void showOptionWindow();
+	void showAboutWindow();
 	void connectedToServer(FileListServerModel* model, const QString& currentDirectory, const QModelIndexList fileIndicesToSelect = {});
 	void disconnectedFromServer();
 	void showServerContextMenu(const QPoint& pos);
@@ -118,5 +121,6 @@ private:
 	SettingsManager settingsManager;
 	fileExistsView fileExistsWindow;
 	settingsView settingsWindow;
+	aboutView aboutWindow;
 	friend class clientController;
 };

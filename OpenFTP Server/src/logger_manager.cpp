@@ -5,6 +5,9 @@ LoggerManager::LoggerManager(QObject* parent, QString fileName) : QObject(parent
     if (!fileName.isEmpty()) {
         file = new QFile;
         file->setFileName(fileName);
+        if (file->size() > 3000000) // *** If log file is larger than 3 Mb, empty it.
+            file->remove();
+
         file->open(QIODevice::Append | QIODevice::Text);
     }
 }

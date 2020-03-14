@@ -45,8 +45,7 @@ void serverView::showContextMenu(const QPoint& pos)
 
 void serverView::writeTextToScreen(QString text, QColor color)
 {
-	ui.mainTextWindow->setTextColor(color);
-	ui.mainTextWindow->append('['  + QDateTime::currentDateTime().toString(Qt::ISODate) + "] - " + text);
+	ui.mainTextWindow->append("<span style='color:black'> [" + QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss ") + "] </span> - <span style='color:" + color.name() + ";'>" + text + "</span>");
 }
 
 void serverView::openSettingsMenu()

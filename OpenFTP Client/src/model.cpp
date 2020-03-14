@@ -27,7 +27,7 @@ void clientModel::init()
 	emit initClient(credentials.checkboxChecked, credentials.serverAddress, credentials.serverPort, credentials.userName, credentials.userPassword, settingsManager.getMinimizeToTray());
 
 	emit setLocalFileBrowserSignal(*localBrowserModel);
-	emit writeTextSignal("OpenFTP Client 0.2.6, written by kandabi", Qt::darkGray);
+	emit writeTextSignal("OpenFTP Client 0.2.8, written by kandabi", Qt::darkGray);
 	emit writeTextSignal("<span style='color:darkGrey;'>OpenFTP is an open source file transfer server and client, check it out on <a style='color: red;' href='https://github.com/kandabi/OpenFTP'>Github!</a> </span>", Qt::darkGray);
 }
 
@@ -107,8 +107,13 @@ void clientModel::parseJson(const QByteArray& data)
 		beepSignal();
 		break;
 	case RequestManager::ResponseType::FileUploading:
-		emit updateProgressBarSignal(serverDetails.value("bytesWritten").toString().toULongLong(), currentUpload.size());
-		break;
+	{
+		quint64 bytesWritten = serverDetails.value("bytesWritten").toString().toULongLong();
+		emit updateProgressBarSignal(bytesWritten, currentUpload.size());
+		if (networkManager.useWorkerThread && (bytesWritten % (WorkerThread::packetSize) == 0))
+			createWorkerThread(WorkerThread::packetSize * ++networkManager.packetsSent);
+			break;
+	}
 	case RequestManager::ResponseType::FileAlreadyExists:
 	{
 		RequestManager::FileOverwrite overwriteBehaviour = (currentSessionFileBehavior != RequestManager::FileOverwrite::NoneSelected) ?
@@ -125,7 +130,10 @@ void clientModel::parseJson(const QByteArray& data)
 		break;
 	}
 	case RequestManager::ResponseType::BeginFileUpload:
-		networkManager.uploadFileData();
+		if (networkManager.useWorkerThread)
+			createWorkerThread();
+		else 
+			networkManager.uploadFileData();
 		break;
 	case RequestManager::ResponseType::UploadCompleted:
 	{
@@ -146,7 +154,8 @@ void clientModel::parseJson(const QByteArray& data)
 			fileListToDownload.prepend(file);
 		}
 		checkRemainingDownloads();
-		break; }
+		break; 
+	}
 	case RequestManager::ResponseType::Unauthorized:
 		emit writeTextSignal("Unauthorized server access.", Qt::red);
 		return;
@@ -174,10 +183,11 @@ void clientModel::parseJson(const QByteArray& data)
 
 void clientModel::checkRemainingUploads()
 {
+	networkManager.useWorkerThread = false;
+	networkManager.packetsSent = 0;
 	if (!fileListToUpload.isEmpty())
 	{
 		bool isDir = true;
-
 		RequestManager::FileOverwrite overwriteBehaviour = (currentSessionFileBehavior != RequestManager::FileOverwrite::NoneSelected) ?
 			currentSessionFileBehavior : settingsManager.getOverwriteExistingFileBehavior();
 
@@ -360,7 +370,7 @@ void clientModel::queueFilesToUpload(const QStringList& fileList, bool appendMor
 }
 
 
-void clientModel::createUploadFileRequest(const QFileInfo& currentUpload, bool isDir, const RequestManager::FileOverwrite& overwriteOptionSelected)
+void clientModel::createUploadFileRequest(const QFileInfo& currentUpload, bool isDir, const RequestManager::FileOverwrite& overwriteOptionSelected, const bool& writeText)
 {
 	if (isDir) 
 	{
@@ -379,6 +389,7 @@ void clientModel::createUploadFileRequest(const QFileInfo& currentUpload, bool i
 		QString fileSize = QString::number(qFile.size());
 		RequestManager::FileOverwrite overwriteExisting = (overwriteOptionSelected == RequestManager::FileOverwrite::NoneSelected) ?
 			settingsManager.getOverwriteExistingFileBehavior() : overwriteOptionSelected;
+		if(writeText)
 		emit writeTextSignal("Uploading File: " + currentUpload.fileName() + " File Size: " + fileSize + " bytes, Directory to upload: " + directoryToUpload, QColor(255, 153, 0));
 		emit networkManager.setProgressBarSignal();
 		//qFile.size()
@@ -395,18 +406,12 @@ void clientModel::createUploadFileRequest(const QFileInfo& currentUpload, bool i
 		QJsonObject request = RequestManager::createServerRequest(RequestManager::RequestType::UploadFile, requestVariables);
 		QByteArray requestData = Serializer::JsonObjectToByteArray(request);
 	
-		if (qFile.size() > WorkerThread::filesizeToSplit)
-		{
-			createWorkerThread(0, requestData);
-		}
-		else {
-			networkManager.setUploadDataToSend(qFile.readAll());
-			networkManager.writeData(requestData);
-		}
+		(qFile.size() > WorkerThread::filesizeToSplit) ? networkManager.useWorkerThread = true : networkManager.setUploadDataToSend(qFile.readAll());
+		networkManager.writeData(requestData);
 	}
 }
 
-void clientModel::createDownloadFileRequest(File& file, const RequestManager::FileOverwrite& overwriteOptionSelected)
+void clientModel::createDownloadFileRequest(File& file, const RequestManager::FileOverwrite& overwriteOptionSelected, const bool& writeText)
 {
 	QString fileName = file.fileName;
 	bool isFolder = file.isDir;
@@ -420,8 +425,8 @@ void clientModel::createDownloadFileRequest(File& file, const RequestManager::Fi
 	if (overwriteOptionSelected == RequestManager::FileOverwrite::CreateNewFileName)
 		file.fileName = FileManager::changeFileName(fileName, directoryToSave);
 
-
-	emit writeTextSignal("Downloading File: " + file.fileName + " ,File Size: " + QString::number(file.fileSize) + " bytes, Directory to upload: " + directoryToSave, QColor(255, 153, 0));
+	if(writeText)
+		emit writeTextSignal("Downloading File: " + file.fileName + " ,File Size: " + QString::number(file.fileSize) + " bytes, Directory to upload: " + directoryToSave, QColor(255, 153, 0));
 
 	QMap<QString, QString> requestVariables
 	{
@@ -597,6 +602,7 @@ void clientModel::deleteAction(const QModelIndexList& indices, bool deleteInServ
 			}
 		}
 
+		emit writeTextSignal("Deleted: " + QString::number(indices.count()) + " items from the server.", Qt::red);
 		emit deletedFilesSignal();
 	}
 	else if(!serverFileList[indices[0].row()].fileName.endsWith(":/Windows"))
@@ -609,6 +615,8 @@ void clientModel::deleteAction(const QModelIndexList& indices, bool deleteInServ
 		{
 			deletePaths.append(serverFileList[indices[i].row()].filePath);
 		}
+
+		emit writeTextSignal("Deleting: " + QString::number(deletePaths.count()) + " items from the server.", Qt::red);
 
 		QMap<QString, QString> requestVariables{
 			{"requestPath", currentServerDirectory}
@@ -701,27 +709,27 @@ void clientModel::fileAlreadyExistsSelection(const int& selection, const bool& r
 	else if (rememberTemporary)
 		currentSessionFileBehavior = static_cast<RequestManager::FileOverwrite>(selection);
 
-	auto overwriteFileSelection = static_cast<RequestManager::FileOverwrite>(selection);
+	RequestManager::FileOverwrite overwriteFileSelection = static_cast<RequestManager::FileOverwrite>(selection);
 
 	if (!currentDownload.isEmpty())
 	{
-		if (selection == 3)
+		if (overwriteFileSelection == RequestManager::FileOverwrite::SkipFile)
 		{
 			emit writeTextSignal("File: " + currentDownload.fileName + " has been skipped.", Qt::red);
 			checkRemainingDownloads();
 			return;
 		}
-		createDownloadFileRequest(currentDownload, overwriteFileSelection);
+		createDownloadFileRequest(currentDownload, overwriteFileSelection, false);
 	}
 	else if (currentUpload.exists())
 	{
-		if (selection == 3)
+		if (overwriteFileSelection == RequestManager::FileOverwrite::SkipFile)
 		{
 			emit writeTextSignal("File: " + currentUpload.fileName() + " has been skipped.", Qt::red);
 			checkRemainingUploads();
 			return;
 		}
-		createUploadFileRequest(currentUpload, false, overwriteFileSelection);
+		createUploadFileRequest(currentUpload, false, overwriteFileSelection, false);
 	}
 	else
 	{
@@ -739,10 +747,9 @@ void clientModel::resetFileAlreadyExistsBehavior()
 }
 
 
-void clientModel::createWorkerThread(const quint64& readFromPosition, const QByteArray& requestData)
+void clientModel::createWorkerThread(const quint64& readFromPosition)
 {
-	workerThread = new WorkerThread(currentUpload.absoluteFilePath(), readFromPosition, requestData);
-	connect(workerThread, &WorkerThread::setUploadDataToSendSignal, &networkManager, &NetworkManager::setUploadDataToSend);
+	workerThread = new WorkerThread(currentUpload.absoluteFilePath(), readFromPosition);
 	connect(workerThread, &WorkerThread::sendRequestData, &networkManager, &NetworkManager::writeData);
 	connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
 	workerThread->start();
@@ -837,10 +844,4 @@ void clientModel::setMinimizeToTray(bool checked)
 void clientModel::disconnectedFromServer()
 {
 	serverFileList.clear(); 
-}
-
-
-void clientModel::logToFile()
-{
-
 }

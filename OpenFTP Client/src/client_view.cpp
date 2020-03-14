@@ -12,6 +12,7 @@ clientView::clientView(QWidget* parent) : QMainWindow(parent), serverMouseMenu(p
 	fadeInAnimation();
 	setAcceptDrops(true);
 
+	menuBar()->addAction("About", this, &clientView::showAboutWindow);
 	serverMouseMenu.addAction("Rename", this, &clientView::renameAtServer);
 	serverMouseMenu.addAction("Delete", this, &clientView::deleteAtServerBrowser);
 	serverEmptyMouseMenu.addAction("New Folder", this, &clientView::createServerFolder);
@@ -144,13 +145,15 @@ void clientView::dragEnterEvent(QDragEnterEvent* e)
 
 void clientView::writeTextToScreen(QString text, QColor color)
 {
-	ui.mainTextWindow->setTextColor(color);
-	ui.mainTextWindow->append('[' + QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss ") + "] - " + text);
-	
-		//ui.mainTextWindow->append('[' + QDateTime::currentDateTime().toString(Qt::ISODate) + "] - " + text);
+	ui.mainTextWindow->append("<span style='color:darkGrey'> [" + QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss ") + "] - </span>  <span style='color:" + color.name() + ";'>" + text + "</span>");
 }
 
-void clientView::openOptionMenu()
+void clientView::showAboutWindow()
+{
+	aboutWindow.show();
+}
+
+void clientView::showOptionWindow()
 {
 	settingsWindow.show();
 }

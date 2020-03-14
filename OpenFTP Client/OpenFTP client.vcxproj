@@ -109,6 +109,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\about_view.cpp" />
     <ClCompile Include="src\client_view.cpp" />
     <ClCompile Include="src\controller.cpp" />
     <ClCompile Include="src\fileExists_view.cpp" />
@@ -127,11 +128,13 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\worker_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="headers\worker_manager.h" />
     <QtMoc Include="headers\client_view.h" />
     <QtMoc Include="headers\logger_manager.h" />
+    <QtMoc Include="headers\about_view.h" />
     <ClInclude Include="headers\user.h" />
     <QtMoc Include="headers\controller.h" />
     <ClInclude Include="headers\file.h" />
@@ -148,6 +151,7 @@
     <ClInclude Include="headers\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <QtUic Include="ui\aboutView.ui" />
     <QtUic Include="ui\clientView.ui" />
     <QtUic Include="ui\fileExistsView.ui" />
     <QtUic Include="ui\settingsView.ui" />
@@ -167,14 +171,11 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="images\delete.png" />
-    <Image Include="images\exit.png" />
     <Image Include="images\folder.png" />
-    <Image Include="images\fullscreen.png" />
     <Image Include="images\home_button.png" />
     <Image Include="images\icon.png" />
     <Image Include="images\icon_black.ico" />
     <Image Include="images\left.png" />
-    <Image Include="images\minimize.png" />
     <Image Include="images\return_button.png" />
     <Image Include="images\right.png" />
     <Image Include="images\search_button.png" />

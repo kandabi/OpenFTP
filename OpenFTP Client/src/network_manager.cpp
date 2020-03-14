@@ -89,18 +89,19 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 void NetworkManager::parseByteDownload(const QByteArray& data)
 {
 	writtenBytes += qSaveFile.write(data);
-	if (numOfPacketsRecieved % 20 == 0)
+	if (packetsRecieved % 20 == 0)
 	{
 		emit updateProgressBarSignal(writtenBytes, currentDownloadFileSize);
 	}
 
-	numOfPacketsRecieved++;
+	packetsRecieved++;
 
 	if (writtenBytes >= currentDownloadFileSize)
 	{
-		numOfPacketsRecieved = 0;
+		packetsRecieved = 0;
 		writtenBytes = 0;
 		qSaveFile.commit();
+		emit writeTextSignal("Download complete: " + qSaveFile.fileName(), Qt::darkGreen);
 		emit checkRemainingDownloadsSignal();
 	}
 }
@@ -136,7 +137,6 @@ QByteArray NetworkManager::parseByteData()
 void NetworkManager::beginPendingDownload(const File& currentDownload, const QString& directoryToSave)
 {
 	currentDownloadFileSize = currentDownload.fileSize;
-	//currentDownload.fileSize
 
 	emit setProgressBarSignal();
 	qSaveFile.setFileName(directoryToSave + "/" + currentDownload.fileName);
@@ -157,6 +157,7 @@ void NetworkManager::uploadFileData()
 	if (!dataToSend.isEmpty())
 		socket.write(dataToSend);
 }
+
 
 void NetworkManager::setdownloadInProgress(const bool& download)
 {

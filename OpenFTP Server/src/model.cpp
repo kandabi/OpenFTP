@@ -19,8 +19,8 @@ serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(regi
 
 void serverModel::init()
 {
-	emit writeTextSignal("OpenFTP Server 0.2.6, written by kandabi", Qt::darkGray);
-	emit writeTextSignal("OpenFTP is an open source file transfer server and client, check it out on <a style='color: red;' href='https://github.com/kandabi/OpenFTP'>Github!</a> ", Qt::darkGray);
+	emit writeTextSignal("OpenFTP Server 0.2.8, written by kandabi");
+	emit writeTextSignal("OpenFTP is an open source file transfer server and client, check it out on <a style='color: red;' href='https://github.com/kandabi/OpenFTP'>Github!</a> ");
 	int serverPort = settingsManager.getPort();
 	if (serverPort)
 		emit setPortSignal(serverPort);

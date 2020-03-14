@@ -4,12 +4,13 @@
 class User
 {
 private:
-	QTcpSocket* socket;
+	QTcpSocket* socket = Q_NULLPTR;
 
 public:
 	QString username;
 	QString password;
 	QString homeDirectory;
+	
 	bool transferInProgress = false;
 
 	User() {};
@@ -28,5 +29,10 @@ public:
 			return socket;
 		else
 			return Q_NULLPTR;
+	}
+
+	inline qintptr getSocketDescriptor()
+	{
+		return socket->socketDescriptor();
 	}
 };

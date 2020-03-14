@@ -2,9 +2,7 @@
 #include "network_manager.h"
 
 
-NetworkManager::NetworkManager(QList<User>& _registeredUsersList ,QWidget* parent) : QObject(parent) ,registeredUsersList(_registeredUsersList)
-{
-}
+NetworkManager::NetworkManager(QList<User>& _registeredUsersList ,QWidget* parent) : QObject(parent) ,registeredUsersList(_registeredUsersList) {}
 
 bool NetworkManager::initServer(const int& port)
 {
@@ -99,8 +97,12 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 			break;  
 		}
 		case FtpManager::RequestType::Remove: {
-			FtpManager::deleteFiles(json.value("filesToDelete").toArray());
+			QJsonArray fileArray = json.value("filesToDelete").toArray();
+			FtpManager::deleteFiles(fileArray);
 			responseCode = FtpManager::ResponseType::DeletedFiles;
+			std::for_each(fileArray.begin(), fileArray.end(), [this, &currentUser](QJsonValue const& file){
+				emit writeTextSignal("Deleted item: " + file.toString() + ", from the server by user: " + currentUser.username, Qt::darkRed);
+			});	
 			break;
 		}
 		case FtpManager::RequestType::Rename: { 
@@ -112,6 +114,7 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 		{
 			bool created = FtpManager::createFolder(json.value("createFolderPath").toString());
 			responseCode = (created) ? FtpManager::ResponseType::FolderCreated : FtpManager::ResponseType::FolderAlreadyExists;
+			emit writeTextSignal("Create folder request: " + json.value("createFolderPath").toString(), QColor(219, 143, 29));
 			break;
 		}
 		case FtpManager::RequestType::UploadFile: 
@@ -119,7 +122,7 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 			QString fileName = json.value("fileName").toString();
 			QString filePath = json.value("filePath").toString();
 			FtpManager::FileOverwrite overwriteExistingFile = (FtpManager::FileOverwrite)json.value("overwrite").toString().toInt();
-			emit writeTextSignal("Uploading file: " + fileName + ", File size: " + json.value("fileSize").toString() + " , by username: " + currentUser.username);
+			emit writeTextSignal("Uploading file: " + fileName + ", File size: " + json.value("fileSize").toString() + " , by user: " + currentUser.username, QColor(219, 143, 29));
 
 			if (FtpManager::checkFileExists(filePath, fileName))
 			{
@@ -169,7 +172,7 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 			QString errorString;
 			int transferIndex = getTransferByUserIndex(userIndex);
 			Transfer& download = transfersInProgress[transferIndex];
-			emit writeTextSignal("Download file request: " + download.fileName + ", File size: " + QString::number(download.fileSize) + ", by username: " + currentUser.username);
+			emit writeTextSignal("Download file request: " + download.fileName + ", File size: " + QString::number(download.fileSize) + ", by user: " + currentUser.username, QColor(219, 143, 29));
 			bool result = FtpManager::beginFileDownload(download, socket, errorString);
 			Q_ASSERT(result);
 			transfersInProgress.removeAt(transferIndex);
@@ -179,7 +182,7 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 		case FtpManager::RequestType::DownloadFolder:
 		{
 			QString fileName = json.value("fileName").toString();
-			writeTextSignal("Download folder request: " + fileName);
+			writeTextSignal("Download folder request: " + fileName, QColor(219, 143, 29));
 			responseCode = FtpManager::ResponseType::DownloadFolder;
 			baseDir = true;
 			break;
@@ -218,18 +221,20 @@ void NetworkManager::parseUpload(const QByteArray& data, QTcpSocket* socket, int
 
 	}
 	else {
-		serverResponse = FtpManager::createUploadProgressResponse(FtpManager::ResponseType::FileUploading, currentUpload.directoryToReturn, writtenBytes);
-		sendResponseData = (currentUpload.numOfPacketsSent % 10 == 0) ? true : false;
+		sendResponseData = (currentUpload.numOfPacketsSent % 10 == 0 || writtenBytes % (300000000) == 0) ? true : false;
+		if(sendResponseData)
+			serverResponse = FtpManager::createUploadProgressResponse(FtpManager::ResponseType::FileUploading, currentUpload.directoryToReturn, writtenBytes);
+		
 		currentUpload.numOfPacketsSent++;
 	}
 
-	if(!serverResponse.isEmpty() && sendResponseData)
+	if(sendResponseData && !serverResponse.isEmpty())
 		writeToClient(socket, Serializer::JsonToByteArray(serverResponse));
 }
 
 void NetworkManager::onReadyRead()
 {
-	QTcpSocket* socket = NetworkManager::getCurrentSocket();
+	QTcpSocket* socket = getCurrentSocket();
 	int userIndex = getUserIndexBySocket(socket);
 	Q_ASSERT(userIndex != -1);
 	QByteArray data = socket->readAll();
@@ -248,7 +253,7 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 {
 	if (socketState == QAbstractSocket::UnconnectedState)
 	{
-		QTcpSocket* socket = NetworkManager::getCurrentSocket();
+		QTcpSocket* socket = getCurrentSocket();
 		int userIndex = getUserIndexBySocket(socket);
 		if (connectedUsers[userIndex].transferInProgress)
 		{
@@ -257,6 +262,7 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 			{
 				Transfer& transfer = transfersInProgress[index];
 				transfer.cancelUpload();
+				transfersInProgress.removeAt(index);
 			}
 
 		}
@@ -291,16 +297,21 @@ void NetworkManager::newConnectionAttempt()
 		socket->disconnectFromHost();
 	}
 
-	auto data = socket->readAll();
-
+	QByteArray data = socket->readAll();
 	QJsonObject userJson = QJsonDocument::fromJson(data).object();
 	User connectedUser(userJson.value("username").toString(), userJson.value("password").toString());
 	int userIndex = validateUser(registeredUsersList, connectedUser.username, connectedUser.password);
 	bool alreadyConnected = false;
-	for (const User& user : connectedUsers)
-		if (user.username == registeredUsersList[userIndex].username)
-			alreadyConnected = true;
 
+
+	if (userIndex != -1)
+	{
+		for (const User& user : connectedUsers)
+			if (user.username == registeredUsersList[userIndex].username)
+				alreadyConnected = true;
+	}
+
+	
 	if (userIndex != -1 && !alreadyConnected)
 	{
 		connectedUser.setSocket(socket);
@@ -325,8 +336,41 @@ void NetworkManager::newConnectionAttempt()
 		writeToClient(socket, Serializer::JsonToByteArray(serverResponse));
 		disconnectUserSocket(socket);
 	}
+
 }
 
+
+int NetworkManager::getUserIndexBySocket(QTcpSocket* socket)
+{
+	for (int i = 0; i < connectedUsers.count(); ++i)
+	{
+		//if (socket->socketDescriptor() == connectedUsers[i].getSocketDescriptor());
+		if(socket == connectedUsers[i].getSocket())
+		{
+			//emit writeTextSignal("Socket descriptor: " + QString::number(socket->socketDescriptor()) + ", User Socket Descriptor: " + QString::number(connectedUsers[i].getSocketDescriptor()));
+			return i;
+		}
+	}
+	return -1;
+}
+
+
+int NetworkManager::getTransferByUserIndex(const int& userIndex)
+{
+	for (int i = 0; i < transfersInProgress.count(); ++i)
+	{
+		Transfer& transfer = transfersInProgress[i];
+		if (transfer.userIndex == userIndex)
+			return i;
+	}
+
+	return -1;
+}
+
+QTcpSocket* NetworkManager::getCurrentSocket()
+{
+	return qobject_cast<QTcpSocket*>(sender());
+}
 
 bool NetworkManager::disconnectUserSocket(QTcpSocket* socket)
 {
@@ -358,33 +402,3 @@ bool NetworkManager::writeToClient(QTcpSocket* socketToWrite, const QByteArray& 
 }
 
 
-QTcpSocket* NetworkManager::getCurrentSocket()
-{
-	return qobject_cast<QTcpSocket*>(sender());
-}
-
-
-int NetworkManager::getTransferByUserIndex(const int& userIndex)
-{
-	for (int i = 0; i < transfersInProgress.count(); ++i)
-	{
-		Transfer& transfer = transfersInProgress[i];
-		if (transfer.userIndex == userIndex)
-			return i;
-	}
-
-	return -1;
-}
-
-
-int NetworkManager::getUserIndexBySocket(QTcpSocket* socket)
-{
-	for (int i = 0; i < connectedUsers.count(); ++i)
-	{
-		if (socket == connectedUsers[i].getSocket());
-		{
-			return i;
-		}
-	}
-	return -1;
-}

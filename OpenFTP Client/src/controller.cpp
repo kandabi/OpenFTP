@@ -27,7 +27,7 @@ void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
 	connectionResults.append(connect(view.ui.localSearchButton, &QPushButton::clicked, &view, &clientView::localSearchBrowser));
 	connectionResults.append(connect(view.ui.openFileBrowserButton, &QPushButton::clicked, &view, &clientView::openFileBrowser));
 	connectionResults.append(connect(&view, &clientView::searchFolderSignal, &data, &clientModel::searchFolder));
-	connectionResults.append(connect(view.ui.actionOptions, &QAction::triggered, &view, &clientView::openOptionMenu));
+	connectionResults.append(connect(view.ui.actionOptions, &QAction::triggered, &view, &clientView::showOptionWindow));
 	connectionResults.append(connect(view.ui.serverBrowser, &QTableView::doubleClicked, &data, &clientModel::onDoubleClickServerBrowser));
 	connectionResults.append(connect(view.ui.localBrowser, &QTableView::doubleClicked, &data, &clientModel::onDoubleClickLocalBrowser));
 	connectionResults.append(connect(&view, &clientView::serverEnterKeySignal, &data, &clientModel::onDoubleClickServerBrowser));

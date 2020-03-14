@@ -23,7 +23,7 @@ public slots:
 private:
 	virtual void reject();
 
-	Ui::fileExists ui;
+	Ui::fileExistsView ui;
 
 	friend class clientView;
 	friend class clientController;

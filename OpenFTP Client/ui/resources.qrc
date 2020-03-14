@@ -29,9 +29,4 @@
   <qresource prefix="/searchIcon">
     <file>../images/search_button.png</file>
   </qresource>
-  <qresource prefix="/headers">
-    <file>../images/minimize.png</file>
-    <file>../images/exit.png</file>
-    <file>../images/fullscreen.png</file>
-  </qresource>
 </RCC>

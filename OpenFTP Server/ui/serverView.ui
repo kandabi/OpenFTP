@@ -38,7 +38,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>ftpServer</string>
+   <string>OpenFTP Server</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">

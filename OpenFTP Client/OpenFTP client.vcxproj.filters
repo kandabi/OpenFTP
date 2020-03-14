@@ -18,6 +18,12 @@
     <ClCompile Include="src\logger_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\worker_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\about_view.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\user.h" />
@@ -37,14 +43,11 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="images\delete.png" />
-    <Image Include="images\exit.png" />
     <Image Include="images\folder.png" />
-    <Image Include="images\fullscreen.png" />
     <Image Include="images\home_button.png" />
     <Image Include="images\icon.png" />
     <Image Include="images\icon_black.ico" />
     <Image Include="images\left.png" />
-    <Image Include="images\minimize.png" />
     <Image Include="images\return_button.png" />
     <Image Include="images\right.png" />
     <Image Include="images\search_button.png" />
@@ -64,6 +67,9 @@
     <QtMoc Include="headers\logger_manager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="headers\about_view.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="ui\resources.qrc" />
@@ -72,6 +78,9 @@
     <QtUic Include="ui\clientView.ui" />
     <QtUic Include="ui\fileExistsView.ui" />
     <QtUic Include="ui\settingsView.ui" />
+    <QtUic Include="ui\aboutView.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <None Include="ui\client_style.css" />
@@ -85,6 +94,11 @@
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+      <ParseFiles>true</ParseFiles>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
       <ParseFiles>true</ParseFiles>
     </Filter>
   </ItemGroup>

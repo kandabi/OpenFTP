@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>fileExists</class>
- <widget class="QDialog" name="fileExists">
+ <class>fileExistsView</class>
+ <widget class="QDialog" name="fileExistsView">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -62,13 +62,6 @@
       </property>
       <property name="autoDefault">
        <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="cancelButton">
-      <property name="text">
-       <string>Cancel</string>
       </property>
      </widget>
     </item>
@@ -176,7 +169,7 @@
   <connection>
    <sender>okButton</sender>
    <signal>clicked()</signal>
-   <receiver>fileExists</receiver>
+   <receiver>fileExistsView</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -186,22 +179,6 @@
     <hint type="destinationlabel">
      <x>233</x>
      <y>29</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cancelButton</sender>
-   <signal>clicked()</signal>
-   <receiver>fileExists</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>330</x>
-     <y>66</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>197</x>
-     <y>125</y>
     </hint>
    </hints>
   </connection>

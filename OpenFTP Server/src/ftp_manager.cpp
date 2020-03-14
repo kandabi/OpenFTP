@@ -156,7 +156,6 @@ bool FtpManager::completeFileUpload(Transfer& upload)
 
 void FtpManager::deleteFiles(const QJsonArray& filesToDelete)
 {
-
 	for (int i = 0; i < filesToDelete.count(); ++i)
 	{
 		 const QString& filePath = filesToDelete[i].toString();

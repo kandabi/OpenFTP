@@ -13,8 +13,6 @@ public:
 	void connectToServer(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
 	void disconnectFromServer();
 	void uploadFileData();
-	
-
 	QByteArray parseByteData();
 	void parseByteDownload(const QByteArray& data);
 	void beginPendingDownload(const File& currentDownload, const QString& directoryToSave);
@@ -38,21 +36,26 @@ signals:
 	void updateProgressBarSignal(quint64 bytesReceived, quint64 bytesTotal);
 	void setProgressBarSignal();
 	void checkRemainingDownloadsSignal();
+	//void createWorkerThreadSignal(const quint64& readFromPosition);
 
 public slots:
 	void setUploadDataToSend(const QByteArray& data);
 	void onReadyRead();
 	void onSocketStateChanged(QAbstractSocket::SocketState socketState);
+	//void writeDataAsync(const QByteArray& data);
+
+public:
+	bool useWorkerThread = false;
+	int packetsSent = 0;
 
 private:
 	QTcpSocket socket;
-	//QSslSocket socket;
-
 	QSaveFile qSaveFile;
+	//QSslSocket socket;
 
 	bool downloadInProgress = false;
 
-	int numOfPacketsRecieved = 0;
+	int packetsRecieved = 0;
 	int writtenBytes = 0;
 	int currentDownloadFileSize;
 
