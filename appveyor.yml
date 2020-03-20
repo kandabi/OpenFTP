@@ -1,9 +1,8 @@
-version: '{branch}-{build}'
+version: 'build-{branch}-{build}'
 image: Visual Studio 2019
 
-environment:
-  matrix:
-    - QTDIR: C:\Qt\5.14.0\msvc2017_64
+platform:
+  - x64
 
 configuration:
-  - debug
+  - Debug
