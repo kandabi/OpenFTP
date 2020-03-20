@@ -1,5 +1,5 @@
 version: 'build-{branch}-{build}'
-image: Visual Studio 2019
+image: Visual Studio 2017
 
 install:
 - ps: |
@@ -8,7 +8,7 @@ install:
     ConfigureQtVersion 'C:\Qt' '5.14.1'
 
 platform:
-  - x64
+  - x64 
 
 configuration:
   - Debug
