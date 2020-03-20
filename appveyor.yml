@@ -1,0 +1,10 @@
+version: '{branch}-{build}'
+
+image: Visual Studio 2019
+
+configuration:
+  - Debug
+
+
+  before_build:
+    call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvars64.bat"
