@@ -1,6 +1,12 @@
 version: 'build-{branch}-{build}'
 image: Visual Studio 2019
 
+install:
+- ps: |
+    iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/build-images/master/scripts/Windows/install_qt_module.ps1'))
+    Install-QtComponent -Version '5.14.1' -Name 'win64_msvc2017_64' -ExcludeDocs -ExcludeExamples
+    ConfigureQtVersion 'C:\Qt' '5.14.1'
+
 platform:
   - x64
 
