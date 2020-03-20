@@ -3,6 +3,7 @@ image: Visual Studio 2019
 
 environment:
   matrix:
-  - PlatformToolset: v142
-    QTPATH: C:\Qt\5.14.0\msvc2017_64
-    ARCHI: x64
+    - QTDIR: C:\Qt\5.14.0\msvc2017_64
+
+configuration:
+  - debug
