@@ -4,6 +4,7 @@
 NetworkManager::NetworkManager(QWidget* parent) : QObject(parent)
 {
 	//bool result = socket.addCaCertificates("sslserver.pem");
+	//socket.setReadBufferSize(100);
 }
 
 
@@ -89,7 +90,7 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 void NetworkManager::parseByteDownload(const QByteArray& data)
 {
 	writtenBytes += qSaveFile.write(data);
-	if (packetsRecieved % 20 == 0)
+	if (packetsRecieved % 10 == 0)
 	{
 		emit updateProgressBarSignal(writtenBytes, currentDownloadFileSize);
 	}
@@ -142,6 +143,17 @@ void NetworkManager::beginPendingDownload(const File& currentDownload, const QSt
 	qSaveFile.setFileName(directoryToSave + "/" + currentDownload.fileName);
 	bool open = qSaveFile.open(QIODevice::WriteOnly);
 }
+
+
+void NetworkManager::continueLargeUpload()
+{
+	quint64 readFromPosition = packetSize * packetsSent++;
+
+	qFile.seek(readFromPosition);
+	QByteArray fileData = qFile.read(packetSize);
+	writeData(fileData);
+}
+
 
 
 void NetworkManager::setUploadDataToSend(const QByteArray& data)

@@ -83,11 +83,10 @@ public slots:
 	void closeEvent(QCloseEvent* event) override;
 	void closeWindow();
 	void activateTrayIcon(QSystemTrayIcon::ActivationReason reason);
-	bool eventFilter(QObject* watched, QEvent* event) override;
 	void toggleFullscreen();
 	void minimize();
 	void refreshServerBrowser();
-	//void reselectFilesInBrowser(const QModelIndexList fileListToSelect);
+	void clearOutputWindow();
 
 private:
 	QStringList getFileListFromMimeData(const QMimeData* data);

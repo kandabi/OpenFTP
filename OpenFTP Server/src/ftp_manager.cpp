@@ -116,19 +116,19 @@ Transfer FtpManager::createPendingFileDownload(const int& userIndex, const QStri
 		return Transfer();
 	}
 
-	return Transfer(userIndex, filePath, fileName, baseDir);
+	return Transfer(userIndex, fileName, filePath, qfile.size(), baseDir);
 }
 
 
-bool FtpManager::beginFileDownload(const Transfer& download, QTcpSocket* socket, QString& errorString)
+bool FtpManager::processFileDownload(const Transfer& download, QTcpSocket* socket)
 {
-	QFile qfile(download.filePath + '/' + download.fileName);
-	if (!qfile.open(QIODevice::ReadOnly))
+	QFile qFile(download.filePath + "/" + download.fileName);
+	if (!qFile.open(QIODevice::ReadOnly))
 	{
 		return false;
 	}
 
-	QByteArray fileData = qfile.readAll();
+	QByteArray fileData = qFile.readAll();
 	if (fileData.isEmpty())
 		fileData = " ";
 	quint64 result = socket->write(fileData);
@@ -141,6 +141,7 @@ quint64 FtpManager::processFileUpload(const QByteArray& data, Transfer& upload)
 	upload.writeUpload(data);
 	return upload.writtenBytes;
 }
+
 
 void FtpManager::cancelFileUpload(Transfer& upload)
 {

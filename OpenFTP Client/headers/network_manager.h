@@ -10,25 +10,6 @@ class NetworkManager : public QObject
 public:
 	NetworkManager(QWidget* parent = Q_NULLPTR);
 
-	void connectToServer(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
-	void disconnectFromServer();
-	void uploadFileData();
-	QByteArray parseByteData();
-	void parseByteDownload(const QByteArray& data);
-	void beginPendingDownload(const File& currentDownload, const QString& directoryToSave);
-	void writeData(const QByteArray& data);
-	void flushSocket();
-	QByteArray readAll();
-
-	void setdownloadInProgress(const bool& download);
-	inline bool isDownloading()
-	{
-		return downloadInProgress;
-	}
-
-	QString getSocketAddress();
-	QString getSocketPort();
-
 signals:
 	void writeTextSignal(QString text, QColor color = Qt::white);
 	void disconnectedFromServerSignal();
@@ -36,17 +17,39 @@ signals:
 	void updateProgressBarSignal(quint64 bytesReceived, quint64 bytesTotal);
 	void setProgressBarSignal();
 	void checkRemainingDownloadsSignal();
-	//void createWorkerThreadSignal(const quint64& readFromPosition);
+
 
 public slots:
 	void setUploadDataToSend(const QByteArray& data);
 	void onReadyRead();
 	void onSocketStateChanged(QAbstractSocket::SocketState socketState);
-	//void writeDataAsync(const QByteArray& data);
+	void connectToServer(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
+	void disconnectFromServer();
+	void uploadFileData();
+	void continueLargeUpload();
+	QByteArray parseByteData();
+	void parseByteDownload(const QByteArray& data);
+	void beginPendingDownload(const File& currentDownload, const QString& directoryToSave);
+	void writeData(const QByteArray& data);
+	void flushSocket();
+	QByteArray readAll();
+	void setdownloadInProgress(const bool& download);
+	QString getSocketAddress();
+	QString getSocketPort();
+
+
+	inline bool isDownloading()
+	{
+		return downloadInProgress;
+	}
+
 
 public:
-	bool useWorkerThread = false;
+	bool splitUploadToChunks = false;
 	int packetsSent = 0;
+	QFile qFile;
+	static const qint64 packetSize = 6000000; //*** Large Files will be split to 6 Mb packets
+	static const qint64 filesizeToSplit = 200000000;
 
 private:
 	QTcpSocket socket;
@@ -56,8 +59,8 @@ private:
 	bool downloadInProgress = false;
 
 	int packetsRecieved = 0;
-	int writtenBytes = 0;
-	int currentDownloadFileSize;
+	quint64 writtenBytes = 0;
+	quint64 currentDownloadFileSize;
 
 	QByteArray previousReadyReadData;
 	QByteArray dataToSend;

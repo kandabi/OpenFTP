@@ -36,10 +36,10 @@ private:
 	int getTransferByUserIndex(const int& userIndex);
 
 	QList<User>& registeredUsersList;
+	QList<User> connectedUsers;
 	QList<Transfer> transfersInProgress;
 	QTcpServer server;
 	//SslServer server;
-	QList<User> connectedUsers;
 
 	friend class serverController;
 };

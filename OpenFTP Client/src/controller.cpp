@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "controller.h"
 
-clientController::clientController(int argc, char* argv[], QWidget* parent) : QObject(parent), app(argc, argv) 
+clientController::clientController(int argc, char* argv[], QWidget* parent) : QObject(parent), app(argc, argv) , data(parent), view(parent)
 {
 	QList<bool> connectionResults;
 	
@@ -46,6 +46,7 @@ void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
 	connectionResults.append(connect(view.ui.uploadButton2, &QPushButton::clicked, &view, &clientView::uploadFileButton));
 	connectionResults.append(connect(view.ui.downloadButton, &QPushButton::clicked, &view, &clientView::downloadFileButton));
 	connectionResults.append(connect(view.ui.downloadButton2, &QPushButton::clicked, &view, &clientView::downloadFileButton));
+	connectionResults.append(connect(view.ui.clearOutputButton, &QPushButton::clicked, &view, &clientView::clearOutputWindow));
 	connectionResults.append(connect(&view, &clientView::queueFilesToDownloadSignal, &data, &clientModel::queueFilesToDownload));
 	connectionResults.append(connect(&view, &clientView::copyFilesToDirectorySignal, &data, &clientModel::copyFilesToDirectory));
 	connectionResults.append(connect(&view, &clientView::copyFilesToClipboardLocalSignal, &data, &clientModel::copyFilesToClipboardLocal));

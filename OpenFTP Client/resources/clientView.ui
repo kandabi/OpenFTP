@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>client</string>
+   <string>OpenFTP Client</string>
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
@@ -352,7 +352,7 @@
          <property name="minimumSize">
           <size>
            <width>36</width>
-           <height>28</height>
+           <height>31</height>
           </size>
          </property>
          <property name="maximumSize">
@@ -397,7 +397,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Upload selected files to server.</string>
+          <string>Upload selected files to the server.  (Ctrl + E)</string>
          </property>
          <property name="layoutDirection">
           <enum>Qt::RightToLeft</enum>
@@ -610,7 +610,7 @@
        <item>
         <widget class="QPushButton" name="downloadButton2">
          <property name="toolTip">
-          <string>Download selected files from server.</string>
+          <string>Download selected files from the server.  (Ctrl + Q)</string>
          </property>
          <property name="text">
           <string/>
@@ -659,7 +659,7 @@
          <property name="minimumSize">
           <size>
            <width>36</width>
-           <height>28</height>
+           <height>31</height>
           </size>
          </property>
          <property name="maximumSize">
@@ -747,7 +747,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Download selected files from server.</string>
+          <string>Download selected files from the server.  (Ctrl + Q)</string>
          </property>
          <property name="layoutDirection">
           <enum>Qt::LeftToRight</enum>
@@ -949,7 +949,7 @@
           </size>
          </property>
          <property name="toolTip">
-          <string>Upload selected files to server.</string>
+          <string>Upload selected files to the server.  (Ctrl + E)</string>
          </property>
          <property name="text">
           <string/>
@@ -1146,6 +1146,44 @@
         <number>25</number>
        </attribute>
       </widget>
+     </widget>
+    </item>
+    <item row="20" column="8">
+     <widget class="QPushButton" name="clearOutputButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>38</width>
+        <height>27</height>
+       </size>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::RightToLeft</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="resources.qrc">
+        <normaloff>:/cleanOutpt/images/clean.png</normaloff>:/cleanOutpt/images/clean.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>29</width>
+        <height>26</height>
+       </size>
+      </property>
      </widget>
     </item>
    </layout>

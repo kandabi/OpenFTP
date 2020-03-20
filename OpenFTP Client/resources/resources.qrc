@@ -3,7 +3,10 @@
     <file>../images/icon_black.ico</file>
     <file>../images/icon.png</file>
   </qresource>
-  <qresource prefix="style">
+  <qresource prefix="cleanOutpt">
+    <file>../images/clean.png</file>
+  </qresource>
+  <qresource prefix="/style">
     <file>client_style.css</file>
   </qresource>
   <qresource prefix="/arrow">

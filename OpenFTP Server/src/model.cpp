@@ -19,7 +19,7 @@ serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(regi
 
 void serverModel::init()
 {
-	emit writeTextSignal("OpenFTP Server 0.2.8, written by kandabi");
+	emit writeTextSignal("OpenFTP Server - " + (QString)APP_VERSION + ", written by kandabi");
 	emit writeTextSignal("OpenFTP is an open source file transfer server and client, check it out on <a style='color: red;' href='https://github.com/kandabi/OpenFTP'>Github!</a> ");
 	int serverPort = settingsManager.getPort();
 	if (serverPort)
@@ -111,11 +111,3 @@ QStringList serverModel::getUserNamesFromUserList(const QList<User>& userList)
 	}
 	return nameList;
 }
-
-
-//void serverModel::saveSettings() //*** Unused Function
-//{
-//	emit writeTextSignal("Settings have been saved. (Not implemented yet.) ", Qt::red);
-//	emit closeSettingsSignal();
-//}
-

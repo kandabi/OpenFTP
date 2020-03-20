@@ -5,8 +5,8 @@ class File
 {
 
 public:
-	File(QString _fileName, QString _filePath, quint64 _fileSize, bool _isDir, QString _lastModified ,QPixmap _icon = {})
-		: fileName{ _fileName }, filePath{ _filePath }, fileSize{ _fileSize }, isDir{ _isDir }, lastModified{ _lastModified }, icon{ _icon } {};
+	File(QString _fileName, QString _filePath, quint64 _fileSize = 0, bool _isDir = false, QString _lastModified = {}, QPixmap _icon = {}, QString _localDirectorySnapshot = {})
+	: fileName{ _fileName }, filePath{ _filePath }, fileSize{ _fileSize }, isDir{ _isDir }, lastModified{ _lastModified }, icon{ _icon }, localDirectorySnapshot(_localDirectorySnapshot){};
 
 	File() {};
 
@@ -21,4 +21,5 @@ public:
 	quint64 fileSize = 0;
 	bool isDir = false;
 	QPixmap icon;
+	QString localDirectorySnapshot;
 };

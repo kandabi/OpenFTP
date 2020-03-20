@@ -64,6 +64,9 @@
     <QtMoc Include="headers\logger_manager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="headers\worker_manager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <Image Include="images\return_button.png" />
@@ -109,24 +112,27 @@
     <ClCompile Include="src\logger_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\worker_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ui\icon.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtUic Include="ui\serverView.ui">
+    <QtUic Include="resources\serverView.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include="ui\settingsView.ui">
+    <QtUic Include="resources\settingsView.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-  </ItemGroup>
-  <ItemGroup>
-    <QtRcc Include="ui\resources.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
   </ItemGroup>
   <ItemGroup>
     <None Include="settings\server_settings.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\icon.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="resources\resources.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

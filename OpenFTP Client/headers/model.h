@@ -3,7 +3,6 @@
 #include "network_manager.h"
 #include "settings_manager.h"
 #include "list_model.h"
-#include "worker_manager.h"
 #include "logger_manager.h"
 
 
@@ -65,7 +64,6 @@ private slots:
 private:
 	void beginPendingDownload(const File& currentDownload, const QString& directoryToSave);
 	void parseJson(const QByteArray& jsonArray);
-	void createWorkerThread(const quint64& readFromPosition = 0/*, const QByteArray& requestData*/);
 
 	SettingsManager settingsManager;
 	NetworkManager networkManager;
@@ -80,8 +78,8 @@ private:
 	QString directoryToUpload;
 	QString directoryToSave;
 
-	QStringList fileListToUpload;
 	QModelIndexList fileIndicesToSelect;
+	QList<File> fileListToUpload;
 	QList<File> fileListToDownload;
 	QList<File> serverFileList;
 
@@ -91,8 +89,5 @@ private:
 	FileListServerModel* serverBrowserModel;
 
 	RequestManager::FileOverwrite currentSessionFileBehavior = RequestManager::FileOverwrite::NoneSelected;
-
-	WorkerThread* workerThread;
-	QByteArray requestDataForMultithreading;
 };
 

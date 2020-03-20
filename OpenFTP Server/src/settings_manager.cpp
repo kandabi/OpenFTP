@@ -4,7 +4,7 @@
 SettingsManager::SettingsManager(QObject* parent) : QObject(parent)
 {
 	settings = new QSettings(settingsDirectory, jsonFormat);
-	crypto.setKey(0x062aa8eb52e07a3a2);
+	crypto.setKey(CRYPTO_KEY);
 }
 
 void SettingsManager::writeUserToSettings(QString username, QString password, QString directoryPermission)

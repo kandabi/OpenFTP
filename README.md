@@ -1,6 +1,8 @@
 # OpenFTP
 
-Open source FTP client \ server, built in c++ and Qt.
+
+
+An open-source file transfer client \ server, written in c++ and using the Qt Framework.
 
 ## Getting Started
 

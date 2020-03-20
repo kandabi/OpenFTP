@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "worker_manager.h"
 
-WorkerThread::WorkerThread(const QString& filePath, const quint64 _readFromPosition)
+WorkerThread::WorkerThread(const QString& filePath, QTcpSocket* _socket) : socket(_socket)
 {
     qFile.setFileName(filePath);
-    readFromPosition = _readFromPosition;
     size = qFile.size();
 }
 
@@ -14,13 +13,17 @@ void WorkerThread::run() {
     if (!qFile.open(QIODevice::ReadOnly) || !qFile.isReadable())
         return;
 
-    loadFile(fileData);
-    readFromPosition += packetSize;
-    emit sendRequestData(fileData);
-    //fileData.clear();
+    while (writtenBytes < size)
+    {
+        loadFile(fileData);
+        writtenBytes += packetSize;
+        emit writeDataSignal(socket ,fileData);
+
+        QThread::msleep(60);
+    }
 }
 
 void WorkerThread::loadFile(QByteArray& fileData) {
-    qFile.seek(readFromPosition);
+    qFile.seek(writtenBytes);
     fileData = qFile.read(packetSize);
 }

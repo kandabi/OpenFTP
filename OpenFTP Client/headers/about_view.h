@@ -9,6 +9,9 @@ class aboutView : public QDialog
 public:
 	aboutView(QWidget* parent = Q_NULLPTR);
 
+
+	void setIcon(const QIcon& icon);
+
 private:
 	Ui::aboutView ui;
 };

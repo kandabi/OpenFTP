@@ -4,7 +4,7 @@
 SettingsManager::SettingsManager(QObject* parent) : QObject(parent)
 {
 	settings = new QSettings(settingsDirectory, jsonFormat);
-	crypto.setKey(0x0530ecd6499b61986);
+	crypto.setKey(CRYPTO_KEY);
 }
 
 QString SettingsManager::getDefaultBrowserDirectory()

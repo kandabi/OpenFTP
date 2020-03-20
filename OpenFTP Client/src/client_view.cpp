@@ -1,13 +1,11 @@
 #include "stdafx.h"
 #include "client_view.h"
 
-clientView::clientView(QWidget* parent) : QMainWindow(parent), serverMouseMenu(parent), serverEmptyMouseMenu(parent), settingsWindow(parent), fileExistsWindow(parent), systemTrayIcon(parent),
+clientView::clientView(QWidget* parent) : QMainWindow(parent), serverMouseMenu(parent), serverEmptyMouseMenu(parent), settingsWindow(parent), aboutWindow(parent), fileExistsWindow(parent), systemTrayIcon(parent),
 		settingsManager(parent)
 {
-	//Qt::FramelessWindowHint
 
 	ui.setupUi(this);
-	setWindowTitle("OpenFTP client");
 	setWindowOpacity(0.0);
 	fadeInAnimation();
 	setAcceptDrops(true);
@@ -40,7 +38,9 @@ clientView::clientView(QWidget* parent) : QMainWindow(parent), serverMouseMenu(p
 	ui.progressBar->hide();
 
 	ui.portEdit->setValidator(new QIntValidator(0, 65535, this));
+
 	appIcon.addFile(":/alienIcon/images/icon_black.ico");
+	aboutWindow.setIcon(QIcon(":/alienIcon/images/icon.png"));
 
 	trayIconMenu.addAction("Exit", this, &clientView::closeWindow);
 	systemTrayIcon.setContextMenu(&trayIconMenu);
@@ -48,15 +48,6 @@ clientView::clientView(QWidget* parent) : QMainWindow(parent), serverMouseMenu(p
 	systemTrayIcon.show();
 
 	statusBar()->addWidget(&statusBarLabel);
-	//innerHeader = new QMenuBar(menuBar());
-	//innerHeader->addAction(ui.actionMinimize);
-	//innerHeader->addAction(ui.actionFullscreen);
-	//innerHeader->addAction(ui.actionExitIcon);
-	//menuBar()->setCornerWidget(innerHeader);
-
-	//installEventFilter(this);
-	//menuBar()->installEventFilter(this);
-	//installEventFilter(this);
 
 	QFile File(":/style/client_style.css");
 	File.open(QFile::ReadOnly);
@@ -91,7 +82,7 @@ void clientView::fileAlreadyExists(const QString& filename)
 
 void clientView::uploadFileButton()
 {
-	if (connectedToServerBool && !transfersInProgress && !ui.localBrowser->selectionModel()->selectedRows().isEmpty())
+	if (connectedToServerBool /*&& !transfersInProgress*/ && !ui.localBrowser->selectionModel()->selectedRows().isEmpty())
 	{   
 		QStringList filesToUpload;
 		for (const QModelIndex& selected : ui.localBrowser->selectionModel()->selectedRows())
@@ -113,11 +104,10 @@ void clientView::uploadFileButton()
 
 void clientView::downloadFileButton()
 {
-	if (connectedToServerBool && !transfersInProgress && !ui.serverBrowser->selectionModel()->selectedRows().isEmpty())
+	if (connectedToServerBool /*&& !transfersInProgress*/ && !ui.serverBrowser->selectionModel()->selectedRows().isEmpty())
 	{
+		emit queueFilesToDownloadSignal(ui.serverBrowser->selectionModel()->selectedRows(), transfersInProgress);
 		transfersInProgress = true;
-		emit queueFilesToDownloadSignal(ui.serverBrowser->selectionModel()->selectedRows(), !transfersInProgress);
-		
 	}
 }
 
@@ -229,49 +219,54 @@ void clientView::mousePressEvent(QMouseEvent* event)
 
 void clientView::keyPressEvent(QKeyEvent* event)
 {
-	if (event->key() == Qt::Key_Backspace)
+	int key = event->key();
+	switch (key)
 	{
-		if (ui.localBrowser->hasFocus())
-			ui.localReturnButton->click();
-		else if (ui.serverBrowser->hasFocus())
-			ui.returnButton->click();
-	}
-	else if (event->key() == Qt::Key_Delete)
-	{
-		if (ui.localBrowser->hasFocus())
-			deleteAtLocalBrowser();
-		else if (ui.serverBrowser->hasFocus())
-			deleteAtServerBrowser();
-	}
-	else if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return)
-	{
-		if (ui.localSearchEdit->hasFocus())
-			localSearchBrowser();
-		else if (ui.serverSearchEdit->hasFocus())
-			serverSearchBrowser();
-		else if (ui.localBrowser->hasFocus() && !ui.localBrowser->selectionModel()->selectedRows().isEmpty())
-			emit localEnterKeySignal(ui.localBrowser->selectionModel()->selectedRows().first());
-		else if (ui.serverBrowser->hasFocus() && !ui.serverBrowser->selectionModel()->selectedRows().isEmpty())
-			emit serverEnterKeySignal(ui.serverBrowser->selectionModel()->selectedRows().first());
-	}
-	else if ((event->key() == Qt::Key_S) && QApplication::keyboardModifiers() && Qt::ControlModifier)
-	{
-		if (ui.serverBrowser->hasFocus() && !ui.serverBrowser->selectionModel()->selectedRows().isEmpty())
-		{
-			renameAtServer();
-		}
-		else if (ui.localBrowser->hasFocus() && !ui.localBrowser->selectionModel()->selectedRows().isEmpty())
-		{
-			renameAtLocal();
-		}
-	}
-	else if ((event->key() == Qt::Key_C) && QApplication::keyboardModifiers() && Qt::ControlModifier)
-	{
-		copyFilesToClipboard();
-	}
-	else if ((event->key() == Qt::Key_V) && QApplication::keyboardModifiers() && Qt::ControlModifier)
-	{
-		pasteFilesFromClipboard();
+		case Qt::Key_Backspace:
+			if (ui.localBrowser->hasFocus())
+				ui.localReturnButton->click();
+			else if (ui.serverBrowser->hasFocus())
+				ui.returnButton->click();
+		break;
+		case Qt::Key_Delete:
+			if (ui.localBrowser->hasFocus())
+				deleteAtLocalBrowser();
+			else if (ui.serverBrowser->hasFocus())
+				deleteAtServerBrowser();
+		break;
+		case Qt::Key_Enter: case Qt::Key_Return:
+			if (ui.localSearchEdit->hasFocus())
+				localSearchBrowser();
+			else if (ui.serverSearchEdit->hasFocus())
+				serverSearchBrowser();
+			else if (ui.localBrowser->hasFocus() && !ui.localBrowser->selectionModel()->selectedRows().isEmpty())
+				emit localEnterKeySignal(ui.localBrowser->selectionModel()->selectedRows().first());
+			else if (ui.serverBrowser->hasFocus() && !ui.serverBrowser->selectionModel()->selectedRows().isEmpty())
+				emit serverEnterKeySignal(ui.serverBrowser->selectionModel()->selectedRows().first());
+		break;
+		case Qt::Key_S:
+			if (QApplication::keyboardModifiers() && Qt::ControlModifier)
+				if (ui.serverBrowser->hasFocus() && !ui.serverBrowser->selectionModel()->selectedRows().isEmpty())
+					renameAtServer();
+				else if (ui.localBrowser->hasFocus() && !ui.localBrowser->selectionModel()->selectedRows().isEmpty())
+					renameAtLocal();
+		break;
+		case Qt::Key_C:
+			if (QApplication::keyboardModifiers() && Qt::ControlModifier)
+				copyFilesToClipboard();
+		break;
+		case Qt::Key_V:
+			if(QApplication::keyboardModifiers() && Qt::ControlModifier)
+				pasteFilesFromClipboard();
+		break;
+		case Qt::Key_E:
+			if(QApplication::keyboardModifiers() && Qt::ControlModifier)
+				uploadFileButton();
+		break;
+		case Qt::Key_Q:
+			if (QApplication::keyboardModifiers() && Qt::ControlModifier)
+				downloadFileButton();
+		break;
 	}
 }
 
@@ -324,7 +319,6 @@ void clientView::showProgressBar()
 void clientView::hideProgressBar()
 {
 	ui.progressBar->hide();
-	//ui.progressBar->setMaximum(0);
 }
 
 void clientView::setProgressBar()
@@ -538,146 +532,6 @@ void clientView::activateTrayIcon(QSystemTrayIcon::ActivationReason reason)
 }
 
 
-bool clientView::eventFilter(QObject* watched, QEvent* event)
-{
-	auto eventType = event->type();
-	
-	if (eventType == QEvent::MouseButtonRelease)
-	{
-		setCursor(Qt::ArrowCursor);
-		resizeVertical = 0;
-		resizeHorizontal = 0;
-		performMoveEvent = false;
-	}
-	else if (eventType == QEvent::MouseMove && watched != menuBar())
-	{
-		QMouseEvent* mouse_event = dynamic_cast<QMouseEvent*>(event);
-		
-		if (mouse_event->buttons() & Qt::LeftButton)
-		{
-			QRect rect = geometry();
-			if (resizeHorizontal > 0 && resizeVertical > 0) {
-				rect.setBottomLeft(mouse_event->globalPos());
-			}
-			else if (resizeHorizontal > 0) {
-				rect.setLeft(mouse_event->globalPos().x());
-			}
-			else if (resizeHorizontal < 0) {
-				rect.setRight(mouse_event->globalPos().x());
-			}
-			else if (resizeVertical < 1) {
-				rect.setBottom(mouse_event->globalPos().y());
-			}
-
-			setGeometry(rect);
-			
-		}
-		else {
-			resizeVertical = 0;
-			resizeHorizontal = 0;
-		}
-	}
-	else if (watched == menuBar())
-	{
-		QMouseEvent* mouse_event = dynamic_cast<QMouseEvent*>(event);
-		if (eventType == QEvent::MouseButtonDblClick)
-		{
-			if (isMaximized)
-			{
-				setWindowState(Qt::WindowNoState);
-			}
-			else 
-			{
-				setWindowState(Qt::WindowFullScreen);
-			}
-
-			performMoveEvent = false;
-			resizeHorizontal = 0;
-			resizeVertical = 0;
-			isMaximized = !isMaximized;
-			return true;
-		}
-		else if (eventType == QEvent::MouseButtonPress && mouse_event->button() == Qt::LeftButton)
-		{
-			if (mouse_event->pos().y() <= resizeDetectionRadius && mouse_event->pos().x() <= resizeDetectionRadius)
-			{
-				setCursor(Qt::SplitVCursor);
-				resizeVertical = 1;
-				resizeHorizontal = 1;
-			}
-			else if (mouse_event->pos().y() <= resizeDetectionRadius) 
-			{
-				setCursor(Qt::SplitVCursor);
-				resizeVertical = 1;
-				resizeHorizontal = 0;
-			}
-			else 
-			{
-				dragPosition = mouse_event->globalPos() - frameGeometry().topLeft();
-				performMoveEvent = true;
-				resizeHorizontal = 0;
-				resizeVertical = 0;
-			}
-		}
-		else if (eventType == QEvent::MouseMove && mouse_event->buttons() & Qt::LeftButton)
-		{
-			if (performMoveEvent) 
-			{
-				move(mouse_event->globalPos() - dragPosition);
-			}
-			else if (resizeVertical > 0 && resizeHorizontal > 0)
-			{
-				QRect rect = geometry();
-				rect.setTopLeft(mouse_event->globalPos());
-				setGeometry(rect);
-			}
-			else if (resizeVertical > 0) 
-			{
-				QRect rect = geometry();
-				rect.setTop(mouse_event->globalPos().y());
-				setGeometry(rect);
-			}
-		}
-	}
-	else if (eventType == QEvent::MouseButtonPress)
-	{
-		QMouseEvent* mouse_event = dynamic_cast<QMouseEvent*>(event);
-		
-		if (mouse_event->button() == Qt::LeftButton)
-		{
-
-			//writeTextToScreen(QString::number(()) + " " + QString::number(mouse_event->pos().x()) + " " + QString::number(mouse_event->pos().y()));
-			if(height() - mouse_event->pos().y() <= resizeDetectionRadius && mouse_event->pos().x() <= resizeDetectionRadius)
-			{
-				resizeHorizontal = 1;
-				resizeVertical = 1;
-				performMoveEvent = false;
-			}
-			if (mouse_event->pos().x() <= resizeDetectionRadius) {
-				
-				resizeHorizontal = 1;
-				setCursor(Qt::SplitHCursor);
-				performMoveEvent = false;
-			}
-			else if (width() - mouse_event->pos().x() <= resizeDetectionRadius)
-			{
-				setCursor(Qt::SplitHCursor);
-				resizeHorizontal = -1;
-				performMoveEvent = false;
-			}
-			else if (height() - mouse_event->pos().y() <= resizeDetectionRadius)
-			{
-				setCursor(Qt::SplitVCursor);
-				resizeVertical = -1;
-				performMoveEvent = false;
-			}
-
-		}
-	}
-	return false;
-}
-
-
 void clientView::closeEvent(QCloseEvent* event)
 {
 	if (closing || !settingsManager.getMinimizeToTray())
@@ -730,31 +584,6 @@ void clientView::refreshServerBrowser()
 		emit refreshServerBrowserSignal(ui.serverBrowser->selectionModel()->selectedRows());
 }
 
-//void clientView::reselectFilesInBrowser(const QModelIndexList fileIndicesToSelect)
-//{
-//	QItemSelectionModel* selectionModel = ui.serverBrowser->selectionModel();
-//
-//
-//
-//
-//	for (const QModelIndex& index : fileIndicesToSelect)
-//	{
-//		//selectionModel->select(, QItemSelectionModel::Select | QItemSelectionModel::Rows);
-//		selectionModel->select(
-//			QItemSelection(
-//				ui.serverBrowser->model()->index(index.row(), 0),
-//				ui.serverBrowser->model()->index(index.row(), ui.serverBrowser->model()->columnCount() - 1)),
-//			QItemSelectionModel::Select);
-//
-//		emit writeTextToScreen("Index: " + QString::number(index.row()));
-//	}
-//
-//	//ui.serverBrowser->setSelectionModel(selectionModel);
-//}
-
-
-
-
 void clientView::fadeInAnimation()
 {
 	QPropertyAnimation* a1 = new QPropertyAnimation(this, "windowOpacity");
@@ -763,6 +592,11 @@ void clientView::fadeInAnimation()
 	a1->setEndValue(1.0);
 	a1->setEasingCurve(QEasingCurve::Linear);
 	a1->start(QPropertyAnimation::DeleteWhenStopped);
+}
+
+void clientView::clearOutputWindow()
+{
+	ui.mainTextWindow->clear();
 }
 
 QStringList clientView::getFileListFromMimeData(const QMimeData* data)

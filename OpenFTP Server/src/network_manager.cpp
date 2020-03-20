@@ -169,12 +169,22 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 		}
 		case FtpManager::RequestType::NextPendingDownload:
 		{
-			QString errorString;
 			int transferIndex = getTransferByUserIndex(userIndex);
 			Transfer& download = transfersInProgress[transferIndex];
 			emit writeTextSignal("Download file request: " + download.fileName + ", File size: " + QString::number(download.fileSize) + ", by user: " + currentUser.username, QColor(219, 143, 29));
-			bool result = FtpManager::beginFileDownload(download, socket, errorString);
-			Q_ASSERT(result);
+
+			if (download.fileSize < WorkerThread::filesizeToSplit)
+			{
+				bool result = FtpManager::processFileDownload(download, socket);
+				Q_ASSERT(result);
+			}
+			else {
+				download.workerThread = new WorkerThread(download.filePath + "/" + download.fileName, socket);
+				connect(download.workerThread, &WorkerThread::finished, download.workerThread, &QObject::deleteLater);
+				connect(download.workerThread, &WorkerThread::writeDataSignal, this, &NetworkManager::writeToClient);
+				download.workerThread->start();
+			}
+
 			transfersInProgress.removeAt(transferIndex);
 			responseCode = FtpManager::ResponseType::DownloadComplete;
 			break;
@@ -221,11 +231,10 @@ void NetworkManager::parseUpload(const QByteArray& data, QTcpSocket* socket, int
 
 	}
 	else {
-		sendResponseData = (currentUpload.numOfPacketsSent % 10 == 0 || writtenBytes % (300000000) == 0) ? true : false;
+		sendResponseData = (currentUpload.numOfPacketsSent++ % 10 == 0 || writtenBytes % (6000000) == 0) ? true : false;
 		if(sendResponseData)
 			serverResponse = FtpManager::createUploadProgressResponse(FtpManager::ResponseType::FileUploading, currentUpload.directoryToReturn, writtenBytes);
 		
-		currentUpload.numOfPacketsSent++;
 	}
 
 	if(sendResponseData && !serverResponse.isEmpty())

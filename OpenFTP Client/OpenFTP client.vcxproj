@@ -128,10 +128,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\worker_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include="headers\worker_manager.h" />
     <QtMoc Include="headers\client_view.h" />
     <QtMoc Include="headers\logger_manager.h" />
     <QtMoc Include="headers\about_view.h" />
@@ -151,23 +149,23 @@
     <ClInclude Include="headers\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtUic Include="ui\aboutView.ui" />
-    <QtUic Include="ui\clientView.ui" />
-    <QtUic Include="ui\fileExistsView.ui" />
-    <QtUic Include="ui\settingsView.ui" />
+    <QtUic Include="resources\aboutView.ui" />
+    <QtUic Include="resources\clientView.ui" />
+    <QtUic Include="resources\fileExistsView.ui" />
+    <QtUic Include="resources\settingsView.ui" />
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="ui\resources.qrc" />
+    <QtRcc Include="resources\resources.qrc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="ui\client_style.css" />
+    <None Include="resources\client_style.css" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="ui\complete.wav" />
-    <Media Include="ui\delete.wav" />
+    <Media Include="resources\complete.wav" />
+    <Media Include="resources\delete.wav" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ui\icon.rc" />
+    <ResourceCompile Include="resources\icon.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="images\delete.png" />

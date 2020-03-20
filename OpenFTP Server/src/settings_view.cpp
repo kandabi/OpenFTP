@@ -12,7 +12,6 @@ settingsView::settingsView(QWidget *parent)
 	
 	ui.userValidationLabel->setText("");
 	ui.userValidationLabel->setAlignment(Qt::AlignRight);
-	/*ui.groupBox.userValidationLabel->setColor(Qt::darkRed);*/
 	ui.userListWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 }
 

@@ -34,7 +34,6 @@ QMenuBar {
         QMenuBar QMenuBar::item {
             width: 25px;
             height: 45px;
-            /*background-color: red;*/
             padding-top: 3px;
             padding-left: 12px;
             padding-right: 12px;
@@ -57,7 +56,6 @@ QLineEdit {
 
     QLineEdit:hover {
         background-color: #37373D;
-        /*border: 0.5px solid #1E1E1E;*/
     }
 
 #mainTextWindow {
@@ -182,7 +180,6 @@ QPushButton {
     border: none;
     width: 60px;
     height: 20px;
-    /*border: 1px solid #007ACC;*/
 }
 
     QPushButton:disabled {
@@ -198,7 +195,7 @@ QPushButton {
     background-color: #1E1E1E;
 }
 
-    #connectButton, #disconnectButton, #settingsView QPushButton, #fileExistsView QPushButton, QInputDialog QPushButton, QMessageBox QPushButton, #aboutView QPushButton {
+    #connectButton, #disconnectButton, #settingsView QPushButton, #fileExistsView QPushButton, QInputDialog QPushButton, QMessageBox QPushButton, #aboutView QPushButton, #clearOutputButton {
         border: 0.5px solid #007ACC;
     }
 
@@ -226,7 +223,6 @@ QStatusBar QLabel{
 
 QProgressBar {
     background-color: #FFC58C;
-    /*color: #0a9dff;*/
     color: #F0FEFE;
     text-align: right;
     margin-right: 30px;
@@ -237,7 +233,6 @@ QProgressBar {
     QProgressBar::chunk {
         border-radius: 7px;
         background: qlineargradient(x1: 0, y1: 0.5, x2: 1, y2: 0.5, stop: 0 #FDC830, stop: 1 #F37335);
-        /*background: qlineargradient(x1: 0, y1: 0.5, x2: 1, y2: 0.5, stop: 0 #12c2e9, stop: 1 #c471ed, stop: 2 #f64f59);*/
     } 
 
 
@@ -263,3 +258,7 @@ QToolButton {
         color: black;
     }
 
+
+#aboutView QLabel {
+    color: #D0E8EA;
+}

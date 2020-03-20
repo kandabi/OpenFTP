@@ -107,6 +107,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <QtMoc Include="headers\worker_manager.h" />
     <QtMoc Include="headers\controller.h" />
     <ClInclude Include="headers\ftp_manager.h" />
     <QtMoc Include="headers\logger_manager.h" />
@@ -142,16 +143,17 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\transfer.cpp" />
+    <ClCompile Include="src\worker_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="ui\icon.rc" />
+    <ResourceCompile Include="resources\icon.rc" />
   </ItemGroup>
   <ItemGroup>
-    <QtUic Include="ui\serverView.ui" />
-    <QtUic Include="ui\settingsView.ui" />
+    <QtUic Include="resources\serverView.ui" />
+    <QtUic Include="resources\settingsView.ui" />
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="ui\resources.qrc" />
+    <QtRcc Include="resources\resources.qrc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="settings\server_settings.json" />
