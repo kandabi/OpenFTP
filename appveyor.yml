@@ -1,5 +1,8 @@
 version: '{branch}-{build}'
 image: Visual Studio 2019
 
-install:
-  - set QTDIR=C:\Qt\5.14.0\msvc2017_64
+environment:
+  matrix:
+  - PlatformToolset: v142
+    QTPATH: C:\Qt\5.14.0\msvc2017_64
+    ARCHI: x64
