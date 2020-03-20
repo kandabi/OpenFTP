@@ -1,4 +1,3 @@
-
 .vs/OpenFTP/v16/.suo
 .vs/OpenFTP/v16/Browse.VC.db
 .vs/OpenFTP/v16/Solution.VC.db
@@ -120,3 +119,5 @@ ftpClient/.vs/ftpProject/v16/Solution.VC.db
 ftpServer/settings/server_settings.json
 *.db
 OpenFTP Client/.vs/OpenFTP Client/v16/.suo
+OpenFTP Server/Log.txt
+OpenFTP Client/Log.txt

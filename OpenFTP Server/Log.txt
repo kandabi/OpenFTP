@@ -1,2 +1,0 @@
-[20.03.2020 16:52:39 ] - OpenFTP Server - 0.3.0, written by kandabi
-[20.03.2020 16:52:39 ] - OpenFTP is an open source file transfer server and client, check it out on <a style='color: red;' href='https://github.com/kandabi/OpenFTP'>Github!</a> 
