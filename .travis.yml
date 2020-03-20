@@ -1,5 +1,0 @@
-before_install:
-- echo -e "machine github.com\n  login 0f2401b83c897d6fd6ab5fe119fb6452f6f37359 " > ~/.netrc
-- git lfs pull
-
-language: cpp
