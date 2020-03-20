@@ -4,3 +4,8 @@ image: Visual Studio 2019
 build:
   project: OpenFTP.sln
   verbosity: minimal
+
+
+environment:
+  matrix:
+    QTDIR: 'C:\Qt\5.14.0\msvc2017_64'
