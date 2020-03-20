@@ -118,5 +118,5 @@ ftpClient/.vs/ftpProject/v16/ipch/ba7116e332a12c4a.ipch
 ftpClient/.vs/ftpProject/v16/ipch/ffdf0b07f4612aae.ipch
 ftpClient/.vs/ftpProject/v16/Solution.VC.db
 ftpServer/settings/server_settings.json
-OpenFTP Client/.vs/OpenFTP Client/v16/.suo
 *.db
+OpenFTP Client/.vs/OpenFTP Client/v16/.suo
