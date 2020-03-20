@@ -1,19 +1,5 @@
-version: 'build-{branch}-{build}'
-image: Visual Studio 2017
-
-install:
-- ps: |
-    iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/build-images/master/scripts/Windows/install_qt_module.ps1'))
-    Install-QtComponent -Id 'qt.tools.vcredist_msvc2017_x86' -ExcludeDocs -ExcludeExamples
-    Install-QtComponent -Id 'qt.tools.vcredist_msvc2017_x64' -ExcludeDocs -ExcludeExamples
-- ps: |
-    iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/build-images/master/scripts/Windows/install_qt_module.ps1'))
-    Install-QtComponent -Version '5.14.1' -Name 'win64_msvc2017_64' -ExcludeDocs -ExcludeExamples
-    ConfigureQtVersion 'C:\Qt' '5.14.1'
-
-platform:
-  - x64 
-
-configuration:
-  - Debug
-
+version: 1.0.{build}
+configuration: Debug
+build:
+  project: OpenFTP.sln
+  verbosity: minimal
