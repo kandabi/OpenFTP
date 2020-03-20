@@ -1,5 +1,5 @@
 version: 'build-{branch}-{build}'
-image: Visual Studio 2019
+image: Visual Studio 2017
 
 install:
 - ps: |
