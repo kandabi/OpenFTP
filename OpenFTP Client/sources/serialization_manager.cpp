@@ -1,10 +1,6 @@
 #include "stdafx.h"
 #include "serialization_manager.h"
 
-
-
-
-
 QString Serializer::ByteArrayToString(const QByteArray& data)
 {
 	return QString::fromStdString(data.toStdString());

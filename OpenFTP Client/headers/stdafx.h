@@ -1,10 +1,12 @@
 #include <QtWidgets>
 #include <QtNetwork>
-#include <utility>
 #include <QSound>
 
-#define APP_VERSION "0.3.0" 
+#define APP_VERSION "0.3.1" 
 
 #ifdef QT_DEBUG 
 #define CRYPTO_KEY 0xb2f641dc9fffec4e //*** Randomize this on each new release version
+#define STYLE_DIR "./resources/"
+#else 
+#define STYLE_DIR "./plugins/styles/"
 #endif

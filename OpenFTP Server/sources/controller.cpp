@@ -38,10 +38,10 @@ void serverController::connectViewSignalSlots(QList<bool>& connectionResults)
 	connectionResults.append(connect(view.settingsView.ui.cancelButton, &QPushButton::clicked, &view, &serverView::closeSettingsMenu));
 
 	connectionResults.append(connect(view.ui.connectedUsersList, &QListWidget::customContextMenuRequested, &view, &serverView::showContextMenu));
-	connectionResults.append(connect(&view, &serverView::disconnectUserSignal, &data, &serverModel::disconnectUser));
+	connectionResults.append(connect(&view, &serverView::ForceUserDisconnectSignal, &data, &serverModel::ForceUserDisconnect));
 
 	view.settingsView.menu.addAction("Remove", &view.settingsView, &settingsView::deleteUser);
-	view.menu.addAction("Disconnect User", &view, &serverView::disconnectUser);
+	view.menu.addAction("Force User Disconnect", &view, &serverView::ForceUserDisconnect);
 	view.trayIconMenu.addAction("Exit", &view, &serverView::closeWindow);
 }
 
@@ -51,6 +51,7 @@ void serverController::connectModelSignalSlots(QList<bool>& connectionResults)
 	connectionResults.append(connect(&data, &serverModel::writeTextSignal, &view, &serverView::writeTextToScreen));
 	connectionResults.append(connect(&data, &serverModel::writeTextSignal, &data.logger, &LoggerManager::logToFile));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::writeTextSignal, &data, &serverModel::writeTextSignal));
+	connectionResults.append(connect(&data.networkManager.server, &SslServer::writeTextSignal, &data, &serverModel::writeTextSignal));
 	connectionResults.append(connect(&data, &serverModel::connectUserToListSignal, &view, &serverView::connectUserToList));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::connectUserToListSignal, &data, &serverModel::connectUserToListSignal));
 	connectionResults.append(connect(&data, &serverModel::deleteUserFromListSignal, &view, &serverView::deleteUserFromList));
@@ -59,7 +60,7 @@ void serverController::connectModelSignalSlots(QList<bool>& connectionResults)
 	connectionResults.append(connect(&data, &serverModel::stopServerSignal, &view, &serverView::stopServer));
 	connectionResults.append(connect(&data, &serverModel::initializeSettingsSignal, &view.settingsView, &settingsView::initializeSettings));
 
-	connectionResults.append(connect(&data.networkManager.server, &QTcpServer::newConnection, &data.networkManager, &NetworkManager::newConnectionAttempt));
+	connectionResults.append(connect(&data.networkManager.server, &SslServer::newConnection, &data.networkManager, &NetworkManager::newConnectionAttempt));
 }
 
 

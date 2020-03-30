@@ -2,22 +2,16 @@ QLabel, QCheckBox, QPushButton, QGroupBox, QRadioButton {
     color: #F0FEFE;
 }
 
-
-
-QMainWindow {
-    background-color: #2D2D30;
-    border: 0.5px solid black;
+QMainWindow, #settingsView {
+    background-color: #252526;
 }
-
 
 QMenuBar {
     background-color: #252526;
     color: #F0FEFE;
-    padding-top: 10px;
-    border-bottom: 0.5px solid #007ACC;
-    border-top: 0.5px solid black;
-    border-right: 0.5px solid black;
-    border-left: 0.5px solid black;
+    padding-top: 8px;
+    padding-left:5px;
+    border-bottom: 1px solid #007ACC;
 }
 
     QMenuBar::item:selected, QMenu::item:selected {
@@ -40,7 +34,6 @@ QMenuBar {
             padding-bottom: 4px;
         }
 
-
 QMenu {
     background-color: #1E1E1E;
     color: #F0FEFE;
@@ -61,6 +54,7 @@ QLineEdit {
 #mainTextWindow {
     background-color: #1E1E1E;
     border: 0.5px solid #1E1E1E;
+    color: darkgray;
 }
 
 QTableView {
@@ -130,9 +124,6 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     background: none;
 }
 
-
-
-
 QScrollBar:horizontal {
     border: 2px solid #2D2D30;
     background: #2D2D30;
@@ -191,7 +182,7 @@ QPushButton {
     }
 
 
-#settingsView, #fileExistsView, #aboutView {
+#fileExistsView, #aboutView {
     background-color: #1E1E1E;
 }
 
@@ -205,20 +196,19 @@ QPushButton {
 
 
 QStatusBar {
-    background-color: #007ACC;
-    max-height:23px;
+    background: qlineargradient(x1: 0, y1: 0.5, x2: 1, y2: 0.5, stop: 0 #00a2ed, stop: 1 #007ACC);
 }
 
     QStatusBar::item {
         border: none;
     }
 
-QStatusBar QLabel{
-    font-size:13px;
-    padding:2px;
-    padding-left:10px;
-    padding-top:0;
-}
+    QStatusBar QLabel {
+        font-size: 13px;
+        padding-left: 12px;
+        padding-bottom: 3px;
+        color: #F0FEFE;
+    }
 
 
 QProgressBar {
@@ -262,3 +252,21 @@ QToolButton {
 #aboutView QLabel {
     color: #D0E8EA;
 }
+
+QComboBox {
+    background-color: #252526;
+    selection-background-color: #252526;
+    selection-color: #F0FEFE;
+    color: #F0FEFE;
+}
+
+    QComboBox::selection {
+        background-color:red;
+    }
+
+    QComboBox QAbstractItemView {
+        color: darkGray;
+        background-color: #252526;
+        selection-background-color: #3F3F46;
+        padding: 5px;
+    }

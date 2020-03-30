@@ -1,18 +1,17 @@
 #include "stdafx.h"
 #include "model.h"
 
-
-serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(registeredUsersList, parent), settingsManager(parent), logger(parent, "Log.txt")
+serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(registeredUsersList, parent), settingsManager(parent), logger(parent, "settings/Log.txt")
 {
+	if (!QSslSocket::supportsSsl()) {
+		QMessageBox::information(0, "OpenFTP Server",
+			"Missing openssl dll files, please reinstall OpenFTP.");
+		exit(EXIT_FAILURE);
+	}
+
 	QCoreApplication::setOrganizationName("OpenFTP");
 	QCoreApplication::setOrganizationDomain("OpenFTP.com");
 	QCoreApplication::setApplicationName("OpenFTP");
-
-	//auto appPath = QCoreApplication::applicationDirPath();
-	//auto libraryPaths = QCoreApplication::libraryPaths();
-	//libraryPaths.append(appPath + "/plugins");
-	//libraryPaths.append(appPath + "/lib");
-	//QCoreApplication::setLibraryPaths(libraryPaths);
 
 	registeredUsersList = settingsManager.getUsersFromSettings();
 }
@@ -78,9 +77,9 @@ void serverModel::createUser(QString username, QString password, QString directo
 	emit initializeSettingsSignal(settingsManager.getFtpDirectory() ,getUserNamesFromUserList(registeredUsersList), settingsManager.getMinimizeToTray());
 }
 
-void serverModel::disconnectUser(QString userName)
+void serverModel::ForceUserDisconnect(QString userName)
 {
-	networkManager.disconnectUser(userName);
+	networkManager.ForceUserDisconnect(userName);
 }
 
 

@@ -4,7 +4,6 @@
 clientView::clientView(QWidget* parent) : QMainWindow(parent), serverMouseMenu(parent), serverEmptyMouseMenu(parent), settingsWindow(parent), aboutWindow(parent), fileExistsWindow(parent), systemTrayIcon(parent),
 		settingsManager(parent)
 {
-
 	ui.setupUi(this);
 	setWindowOpacity(0.0);
 	fadeInAnimation();
@@ -49,10 +48,7 @@ clientView::clientView(QWidget* parent) : QMainWindow(parent), serverMouseMenu(p
 
 	statusBar()->addWidget(&statusBarLabel);
 
-	QFile File(":/style/client_style.css");
-	File.open(QFile::ReadOnly);
-	QString StyleSheet = QLatin1String(File.readAll());
-	qApp->setStyleSheet(StyleSheet);
+	loadStyle(settingsManager.getAppStyle());
 }
 
 
@@ -135,7 +131,8 @@ void clientView::dragEnterEvent(QDragEnterEvent* e)
 
 void clientView::writeTextToScreen(QString text, QColor color)
 {
-	ui.mainTextWindow->append("<span style='color:darkGrey'> [" + QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss ") + "] - </span>  <span style='color:" + color.name() + ";'>" + text + "</span>");
+	QString addColor = (color.isValid()) ? "style='color:" + color.name() + ";'" : "";
+	ui.mainTextWindow->append("<span " + addColor + " > [" + QDateTime::currentDateTime().toString("dd.MM.yyyy hh:mm:ss ") + "] - " + text + "</span>");
 }
 
 void clientView::showAboutWindow()
@@ -143,8 +140,9 @@ void clientView::showAboutWindow()
 	aboutWindow.show();
 }
 
-void clientView::showOptionWindow()
+void clientView::showOptionsWindow(const QString& currentStyle ,const QStringList& styles)
 {
+	settingsWindow.initSettings(currentStyle ,styles);
 	settingsWindow.show();
 }
 
@@ -593,6 +591,18 @@ void clientView::fadeInAnimation()
 	a1->setEasingCurve(QEasingCurve::Linear);
 	a1->start(QPropertyAnimation::DeleteWhenStopped);
 }
+
+
+void clientView::loadStyle(const QString& filename)
+{
+	QFile File(STYLE_DIR + filename);
+	File.open(QFile::ReadOnly);
+	QString StyleSheet = QLatin1String(File.readAll());
+	qApp->setStyleSheet(StyleSheet);
+
+	settingsManager.setAppStyle(filename);
+}
+
 
 void clientView::clearOutputWindow()
 {

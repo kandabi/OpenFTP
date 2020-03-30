@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "serialization_manager.h"
 
-
 QByteArray Serializer::JsonToByteArray(const QJsonObject& jsonObject)
 {
 	QJsonDocument doc(jsonObject);

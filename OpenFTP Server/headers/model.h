@@ -4,7 +4,6 @@
 #include "settings_manager.h"
 #include "logger_manager.h"
 
-
 class serverModel : public QObject 
 {   
 	Q_OBJECT 
@@ -30,7 +29,7 @@ public slots:
 	void deleteUser(int item);
 	void saveFtpDirectory(QString directory);
 	void createUser(QString username, QString password, QString directoryPermitted);
-	void disconnectUser(QString userName);
+	void ForceUserDisconnect(QString userName);
 	void setMinimizeToTray(bool checked);
 
 private:
@@ -40,7 +39,5 @@ private:
 	QList<User> registeredUsersList;
 
 	QStringList getUserNamesFromUserList(const QList<User>& userList);
-
-	
 };
 

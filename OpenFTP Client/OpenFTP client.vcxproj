@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0EAA1E0B-30C5-4A47-8807-438E5D661A07}</ProjectGuid>
     <Keyword>QtVS_v302</Keyword>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
     <ProjectName>OpenFTP Client</ProjectName>
   </PropertyGroup>
@@ -160,7 +160,7 @@
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <WarningLevel>Level1</WarningLevel>
-      <AdditionalIncludeDirectories>.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(ProjectDir)headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(ProjectDir)headers;E:\Qt\5.14.1\msvc2017_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>$(ProjectDir)headers</AdditionalUsingDirectories>
       <AdditionalOptions>/Zm2000 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -195,22 +195,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\about_view.cpp" />
-    <ClCompile Include="src\client_view.cpp" />
-    <ClCompile Include="src\controller.cpp" />
-    <ClCompile Include="src\fileExists_view.cpp" />
-    <ClCompile Include="src\file_manager.cpp" />
-    <ClCompile Include="src\list_model.cpp" />
-    <ClCompile Include="src\logger_manager.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\model.cpp" />
-    <ClCompile Include="src\network_manager.cpp" />
-    <ClCompile Include="src\request_manager.cpp" />
-    <ClCompile Include="src\serialization_manager.cpp" />
-    <ClCompile Include="src\settings_manager.cpp" />
-    <ClCompile Include="src\settings_view.cpp" />
-    <ClCompile Include="src\simplecrypt.cpp" />
-    <ClCompile Include="src\stdafx.cpp">
+    <ClCompile Include="sources\about_view.cpp" />
+    <ClCompile Include="sources\client_view.cpp" />
+    <ClCompile Include="sources\controller.cpp" />
+    <ClCompile Include="sources\fileExists_view.cpp" />
+    <ClCompile Include="sources\file_manager.cpp" />
+    <ClCompile Include="sources\list_model.cpp" />
+    <ClCompile Include="sources\logger_manager.cpp" />
+    <ClCompile Include="sources\main.cpp" />
+    <ClCompile Include="sources\model.cpp" />
+    <ClCompile Include="sources\network_manager.cpp" />
+    <ClCompile Include="sources\request_manager.cpp" />
+    <ClCompile Include="sources\serialization_manager.cpp" />
+    <ClCompile Include="sources\settings_manager.cpp" />
+    <ClCompile Include="sources\settings_view.cpp" />
+    <ClCompile Include="sources\simplecrypt.cpp" />
+    <ClCompile Include="sources\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -246,7 +246,12 @@
     <QtRcc Include="resources\resources.qrc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\client_style.css" />
+    <None Include="certificates\client.crt" />
+    <None Include="certificates\client.key" />
+    <None Include="certificates\root_certificate.crt" />
+    <None Include="certificates\server.crt" />
+    <None Include="resources\dark_style.css" />
+    <None Include="resources\default_style.css" />
   </ItemGroup>
   <ItemGroup>
     <Media Include="resources\complete.wav" />
@@ -256,6 +261,7 @@
     <ResourceCompile Include="resources\icon.rc" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="images\clean.png" />
     <Image Include="images\delete.png" />
     <Image Include="images\folder.png" />
     <Image Include="images\home_button.png" />

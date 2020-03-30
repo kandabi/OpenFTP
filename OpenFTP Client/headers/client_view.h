@@ -45,8 +45,8 @@ signals:
 public slots:
 	void onSaveConnectionCredentials();
 	void connectToServer();
-	void writeTextToScreen(QString text, QColor color = Qt::white);
-	void showOptionWindow();
+	void writeTextToScreen(QString text, QColor color);
+	void showOptionsWindow(const QString& currentStyle ,const QStringList& styles);
 	void showAboutWindow();
 	void connectedToServer(FileListServerModel* model, const QString& currentDirectory, const QModelIndexList fileIndicesToSelect = {});
 	void disconnectedFromServer();
@@ -87,6 +87,7 @@ public slots:
 	void minimize();
 	void refreshServerBrowser();
 	void clearOutputWindow();
+	void loadStyle(const QString& filename);
 
 private:
 	QStringList getFileListFromMimeData(const QMimeData* data);

@@ -1,26 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="src\client_view.cpp" />
-    <ClCompile Include="src\controller.cpp" />
-    <ClCompile Include="src\fileExists_view.cpp" />
-    <ClCompile Include="src\file_manager.cpp" />
-    <ClCompile Include="src\list_model.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\model.cpp" />
-    <ClCompile Include="src\network_manager.cpp" />
-    <ClCompile Include="src\request_manager.cpp" />
-    <ClCompile Include="src\serialization_manager.cpp" />
-    <ClCompile Include="src\settings_manager.cpp" />
-    <ClCompile Include="src\settings_view.cpp" />
-    <ClCompile Include="src\simplecrypt.cpp" />
-    <ClCompile Include="src\stdafx.cpp" />
-    <ClCompile Include="src\logger_manager.cpp">
+    <ClCompile Include="sources\about_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\about_view.cpp">
+    <ClCompile Include="sources\client_view.cpp" />
+    <ClCompile Include="sources\controller.cpp" />
+    <ClCompile Include="sources\file_manager.cpp" />
+    <ClCompile Include="sources\fileExists_view.cpp" />
+    <ClCompile Include="sources\list_model.cpp" />
+    <ClCompile Include="sources\logger_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sources\main.cpp" />
+    <ClCompile Include="sources\model.cpp" />
+    <ClCompile Include="sources\network_manager.cpp" />
+    <ClCompile Include="sources\request_manager.cpp" />
+    <ClCompile Include="sources\serialization_manager.cpp" />
+    <ClCompile Include="sources\settings_manager.cpp" />
+    <ClCompile Include="sources\settings_view.cpp" />
+    <ClCompile Include="sources\simplecrypt.cpp" />
+    <ClCompile Include="sources\stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\user.h" />
@@ -45,6 +45,7 @@
     <Image Include="images\return_button.png" />
     <Image Include="images\right.png" />
     <Image Include="images\search_button.png" />
+    <Image Include="images\clean.png" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="headers\client_view.h" />
@@ -88,7 +89,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\client_style.css" />
+    <None Include="certificates\client.crt" />
+    <None Include="certificates\client.key" />
+    <None Include="certificates\root_certificate.crt" />
+    <None Include="certificates\server.crt" />
+    <None Include="resources\dark_style.css" />
+    <None Include="resources\default_style.css" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\icon.rc" />

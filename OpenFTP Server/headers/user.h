@@ -4,7 +4,7 @@
 class User
 {
 private:
-	QTcpSocket* socket = Q_NULLPTR;
+	QSslSocket* socket = Q_NULLPTR;
 
 public:
 	QString username;
@@ -18,12 +18,12 @@ public:
 	User(QString _username, QString _password, QString _directory = "") :
 		username(_username), password(_password), homeDirectory(_directory) {};
 
-	inline void setSocket(QTcpSocket* _socket)
+	inline void setSocket(QSslSocket* _socket)
 	{ 
 		socket = _socket; 
 	}
 
-	inline QTcpSocket* getSocket()
+	inline QSslSocket* getSocket()
 	{
 		if (socket != Q_NULLPTR)
 			return socket;

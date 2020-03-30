@@ -21,7 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{E5C588EB-C1B0-4ADA-A2F0-99DAF3B970C5}</ProjectGuid>
     <Keyword>QtVS_v302</Keyword>
-    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
     <ProjectName>OpenFTP Server</ProjectName>
   </PropertyGroup>
@@ -157,7 +157,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(ProjectDir)headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(ProjectDir)headers;E:\Qt\5.14.1\msvc2017_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>$(ProjectDir)headers</AdditionalUsingDirectories>
       <AdditionalOptions>/Zm2000 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -195,6 +195,7 @@
     <QtMoc Include="headers\controller.h" />
     <ClInclude Include="headers\ftp_manager.h" />
     <QtMoc Include="headers\logger_manager.h" />
+    <QtMoc Include="headers\ssl_server.h" />
     <ClInclude Include="headers\transfer.h" />
     <ClInclude Include="headers\user.h" />
     <QtMoc Include="headers\model.h" />
@@ -211,25 +212,26 @@
     <Image Include="images\return_button.png" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\controller.cpp" />
-    <ClCompile Include="src\ftp_manager.cpp" />
-    <ClCompile Include="src\logger_manager.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\model.cpp" />
-    <ClCompile Include="src\network_manager.cpp" />
-    <ClCompile Include="src\serialization_manager.cpp" />
-    <ClCompile Include="src\server_view.cpp" />
-    <ClCompile Include="src\settings_manager.cpp" />
-    <ClCompile Include="src\settings_view.cpp" />
-    <ClCompile Include="src\simplecrypt.cpp" />
-    <ClCompile Include="src\stdafx.cpp">
+    <ClCompile Include="sources\controller.cpp" />
+    <ClCompile Include="sources\ftp_manager.cpp" />
+    <ClCompile Include="sources\logger_manager.cpp" />
+    <ClCompile Include="sources\main.cpp" />
+    <ClCompile Include="sources\model.cpp" />
+    <ClCompile Include="sources\network_manager.cpp" />
+    <ClCompile Include="sources\serialization_manager.cpp" />
+    <ClCompile Include="sources\server_view.cpp" />
+    <ClCompile Include="sources\settings_manager.cpp" />
+    <ClCompile Include="sources\settings_view.cpp" />
+    <ClCompile Include="sources\simplecrypt.cpp" />
+    <ClCompile Include="sources\ssl_server.cpp" />
+    <ClCompile Include="sources\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="src\transfer.cpp" />
-    <ClCompile Include="src\worker_manager.cpp" />
+    <ClCompile Include="sources\transfer.cpp" />
+    <ClCompile Include="sources\worker_manager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\icon.rc" />
@@ -242,7 +244,11 @@
     <QtRcc Include="resources\resources.qrc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="settings\server_settings.json" />
+    <None Include="certificates\root_certificate.crt" />
+    <None Include="certificates\root_certificate.pem" />
+    <None Include="certificates\server.crt" />
+    <None Include="certificates\server.pem" />
+    <None Include="certificates\server.key" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

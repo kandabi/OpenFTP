@@ -57,7 +57,7 @@ public:
 	static bool createFolder(const QString& newFolderName);
 	static Transfer startFileUpload(const int& userIndex,const QString& fileName, const QString& filePath, const quint64& fileSize, const bool& baseDir, const QString& directoryToReturn);
 	static Transfer createPendingFileDownload(const int& userIndex, const QString& filePath, const QString& fileName, const bool& baseDir, QString& errorString);
-	static bool processFileDownload(const Transfer& download, QTcpSocket* socket);
+	static bool processFileDownload(const Transfer& download, QSslSocket* socket);
 	static quint64 processFileUpload(const QByteArray& data, Transfer& upload);
 	static bool completeFileUpload(Transfer& upload);
 	static void cancelFileUpload(Transfer& upload);

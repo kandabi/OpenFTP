@@ -260,7 +260,7 @@
     <item row="20" column="2">
      <widget class="QLabel" name="label">
       <property name="styleSheet">
-       <string notr="true">color:darkGrey;</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string> Output</string>
@@ -1158,15 +1158,18 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>32</width>
-        <height>32</height>
+        <width>20</width>
+        <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>38</width>
+        <width>35</width>
         <height>27</height>
        </size>
+      </property>
+      <property name="toolTip">
+       <string>Clear output window</string>
       </property>
       <property name="layoutDirection">
        <enum>Qt::RightToLeft</enum>
@@ -1180,8 +1183,8 @@
       </property>
       <property name="iconSize">
        <size>
-        <width>29</width>
-        <height>26</height>
+        <width>20</width>
+        <height>20</height>
        </size>
       </property>
      </widget>
@@ -1189,6 +1192,12 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusBar">
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>30</height>
+    </size>
+   </property>
    <property name="maximumSize">
     <size>
      <width>16777215</width>

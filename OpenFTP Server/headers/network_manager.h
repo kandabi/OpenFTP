@@ -1,9 +1,9 @@
 #pragma once
 #include "stdafx.h"
+#include "ssl_server.h"
 #include "serialization_manager.h"
 #include "ftp_manager.h"
 #include "transfer.h"
-
 
 class NetworkManager : public QObject
 {
@@ -13,7 +13,7 @@ public:
 
 	bool initServer(const int& port);
 	bool stopServer();
-	void disconnectUser(QString userName);
+	void ForceUserDisconnect(QString userName);
 
 public slots:
 	void newConnectionAttempt();
@@ -27,19 +27,20 @@ signals:
 
 private:
 	int validateUser(const QList<User>& userList, QString name, QString password);
-	bool writeToClient(QTcpSocket* socketToWrite, const QByteArray& data);
-	int getUserIndexBySocket(QTcpSocket* socket);
-	QTcpSocket* getCurrentSocket();
-	void parseJson(const QByteArray& data, QTcpSocket* socket, int userIndex);
-	void parseUpload(const QByteArray& data, QTcpSocket* socket, int userIndex);
-	bool disconnectUserSocket(QTcpSocket* socket);
+	bool writeToClient(QSslSocket* socketToWrite, const QByteArray& data);
+	int getUserIndexBySocket(QSslSocket* socket);
+	QSslSocket* getCurrentSocket();
+	void parseJson(const QByteArray& data, QSslSocket* socket, int userIndex);
+	void parseUpload(const QByteArray& data, QSslSocket* socket, int userIndex);
+	bool disconnectUserSocket(QSslSocket* socket);
 	int getTransferByUserIndex(const int& userIndex);
+	void isEncrypted(const QSslSocket* socket);
 
 	QList<User>& registeredUsersList;
 	QList<User> connectedUsers;
 	QList<Transfer> transfersInProgress;
-	QTcpServer server;
-	//SslServer server;
+	//QTcpServer server;
+	SslServer server;
 
 	friend class serverController;
 };

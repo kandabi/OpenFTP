@@ -15,12 +15,14 @@ QString SettingsManager::getDefaultBrowserDirectory()
 
 bool SettingsManager::getMinimizeToTray()
 {
-	if (!settings->value("minimizeToTray").isValid())
+	QVariant minimize = settings->value("minimizeToTray");
+
+	if (!minimize.isValid())
 	{
 		setMinimizeToTray(true);
 		return true;
 	}
-	return settings->value("minimizeToTray").toBool();
+	return minimize.toBool();
 }
 
 void SettingsManager::setMinimizeToTray(const bool& minimize)
@@ -71,6 +73,25 @@ void SettingsManager::setDefaultBrowserDirectory(QString directory)
 {
 	 settings->setValue("defaultLocalDirectory", directory);
 }
+
+
+void SettingsManager::setAppStyle(QString file)
+{
+	settings->setValue("appStyle", file);
+}
+
+
+QString SettingsManager::getAppStyle()
+{
+	QVariant style = settings->value("appStyle");
+	if (!style.isValid())
+	{
+		setAppStyle("default_style.css");
+		return "default_style.css";
+	}
+	return style.toString();
+}
+
 
 bool SettingsManager::readJsonFile(QIODevice& device, QSettings::SettingsMap& map)
 {

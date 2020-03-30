@@ -24,12 +24,12 @@ void serverView::initServer()
 }
 
 
-void serverView::disconnectUser()
+void serverView::ForceUserDisconnect()
 {
 	QModelIndexList selected = ui.connectedUsersList->selectionModel()->selectedRows();
 	for (const QModelIndex& index : selected)
 	{
-		emit disconnectUserSignal(index.data().toString());
+		emit ForceUserDisconnectSignal(index.data().toString());
 	}
 }
 
@@ -40,7 +40,6 @@ void serverView::showContextMenu(const QPoint& pos)
 	if (!selected.isEmpty())
 		menu.exec(QCursor::pos());
 }
-
 
 
 void serverView::writeTextToScreen(QString text, QColor color)

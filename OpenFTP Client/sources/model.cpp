@@ -2,8 +2,14 @@
 #include "model.h"
 
 
-clientModel::clientModel(QWidget* parent) : QObject(parent), settingsManager(parent), logger(parent, "Log.txt")
+clientModel::clientModel(QWidget* parent) : QObject(parent), settingsManager(parent), logger(parent, "settings/Log.txt")
 {
+	if (!QSslSocket::supportsSsl()) {
+		QMessageBox::information(0, "OpenFTP Client",
+			"Missing openssl dll files, please reinstall OpenFTP.");
+		exit(EXIT_FAILURE);
+	}
+
 	QCoreApplication::setOrganizationName("OpenFTP");
 	QCoreApplication::setOrganizationDomain("OpenFTP.com");
 	QCoreApplication::setApplicationName("OpenFTP");
@@ -22,8 +28,8 @@ void clientModel::init()
 	emit initClient(credentials.checkboxChecked, credentials.serverAddress, credentials.serverPort, credentials.userName, credentials.userPassword, settingsManager.getMinimizeToTray());
 
 	emit setLocalFileBrowserSignal(*localBrowserModel);
-	emit writeTextSignal("OpenFTP Client - " + (QString)APP_VERSION +", written by kandabi", Qt::darkGray);
-	emit writeTextSignal("<span style='color:darkGrey;'>OpenFTP is an open source file transfer server and client, check it out on <a style='color: red;' href='https://github.com/kandabi/OpenFTP'>Github!</a> </span>", Qt::darkGray);
+	emit writeTextSignal("OpenFTP Client - " + (QString)APP_VERSION +", written by kandabi");
+	emit writeTextSignal("OpenFTP is an open source file transfer server and client, check it out on <a style='color: red;' href='https://github.com/kandabi/OpenFTP'>Github!</a>");
 }
 
 
@@ -143,9 +149,11 @@ void clientModel::parseJson(const QByteArray& data)
 		case RequestManager::ResponseType::DownloadFolder: {
 			QList<File> fileArray = FileManager::getFileListFromJson(jsonArray);
 
-			writeTextSignal("Appended " + QString::number(fileArray.count()) + " files to download from directory: " + currentDownload.fileName);
-			for (const File& file : fileArray)
+			emit writeTextSignal("Appended " + QString::number(fileArray.count()) + " files to download from directory: " + currentDownload.fileName);
+			for (File& file : fileArray)
 			{
+				file.localDirectorySnapshot = currentLocalDirectory;
+				file.serverDirectorySnapshot = currentServerDirectory;
 				fileListToDownload.prepend(file);
 			}
 			checkRemainingDownloads();
@@ -205,8 +213,6 @@ void clientModel::checkRemainingUploads()
 		{
 			QString localDirectorySnapshot = fileListToUpload.last().localDirectorySnapshot;
 			directoryToUpload = currentServerDirectory + currentUpload.filePath().split(localDirectorySnapshot).last();
-
-			emit writeTextSignal("directoryToUpload - " + directoryToUpload, Qt::red);
 
 			fileListToUpload.removeLast();
 
@@ -286,9 +292,7 @@ void clientModel::checkRemainingDownloads()
 		}
 		else if (currentDownload.isDir)
 		{
-			QString localDirectorySnapshot = fileListToDownload.last().localDirectorySnapshot;
-			directoryToSave = currentLocalDirectory + currentDownload.filePath.split(localDirectorySnapshot).last();
-
+			directoryToSave = currentDownload.localDirectorySnapshot + currentDownload.filePath.split(currentDownload.serverDirectorySnapshot).last();
 			fileListToDownload.removeLast();
 		}
 
@@ -297,7 +301,7 @@ void clientModel::checkRemainingDownloads()
 	}
 	else {
 		directoryToSave.clear();
-
+		currentDownload = {};
 		emit uploadCompleteSignal();
 
 		if (!fileListToUpload.empty())
@@ -351,6 +355,7 @@ void clientModel::queueFilesToDownload(const QModelIndexList& indices, bool appe
 			continue;
 
 		file.localDirectorySnapshot = currentLocalDirectory;
+		file.serverDirectorySnapshot = currentServerDirectory;
 		fileListToDownload.append(file);
 	}
 
@@ -582,7 +587,7 @@ void clientModel::onDoubleClickLocalBrowser(const QModelIndex& index)
 void clientModel::onDoubleClickServerBrowser(const QModelIndex& index)
 {
 	int rowSelected = index.row();
-	if (!serverFileList[rowSelected].isDir)
+	if (!serverFileList[rowSelected].isDir || networkManager.isDownloading() || !currentDownload.isEmpty())
 		return;
 
 	QString pathToRequest = (serverFileList[rowSelected].fileName == ".") ? FileManager::getPreviousFolderPath(serverFileList[rowSelected].filePath) : serverFileList[rowSelected].filePath;
@@ -639,7 +644,7 @@ void clientModel::deleteAction(const QModelIndexList& indices, bool deleteInServ
 		emit writeTextSignal("Deleting: " + QString::number(deletePaths.count()) + " items from the server.", Qt::red);
 
 		QMap<QString, QString> requestVariables{
-			{"requestPath", currentServerDirectory}
+			{ "requestPath", currentServerDirectory }
 		};
 
 		QJsonObject request = RequestManager::createServerRequest(RequestManager::RequestType::Remove, requestVariables, deletePaths);
@@ -695,7 +700,6 @@ void clientModel::copyFilesToDirectory(const QStringList& files, bool lastFuncti
 		{
 			QDir directory(file);
 			QString newDirectoryTocopy = (directoryTocopy.isEmpty()) ? currentLocalDirectory + "/" + directory.dirName() : directoryTocopy + "/" + directory.dirName();
-			
 			
 			QStringList extraFiles;
 			QFileInfoList subdirectoryFiles = directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot | QDir::Files);
@@ -769,7 +773,7 @@ void clientModel::resetFileAlreadyExistsBehavior()
 
 void clientModel::resetConnectionCredentials()
 {
-	settingsManager.setConnectionCredentials(false ,"",0, "", "");
+	settingsManager.setConnectionCredentials(false , "", 0, "", "");
 	emit writeTextSignal("Succesfully removed saved connection data.");
 }
 
@@ -850,6 +854,14 @@ void clientModel::setMinimizeToTray(bool checked)
 {
 	settingsManager.setMinimizeToTray(checked);
 }
+
+void clientModel::setOptionsWindow()
+{
+	QDir dir(STYLE_DIR);
+	QString currentStyle = settingsManager.getAppStyle();
+	emit showOptionsWindowSignal(currentStyle ,dir.entryList(QStringList() << "*.css", QDir::Files));
+}
+
 
 void clientModel::disconnectedFromServer()
 {

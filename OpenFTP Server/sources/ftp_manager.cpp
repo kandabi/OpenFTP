@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "ftp_manager.h"
 
-
 QFileInfoList FtpManager::getFilesFromDirectory(const QString& path, bool isBaseDir)
 {
 	QDir directory(path);
@@ -120,7 +119,7 @@ Transfer FtpManager::createPendingFileDownload(const int& userIndex, const QStri
 }
 
 
-bool FtpManager::processFileDownload(const Transfer& download, QTcpSocket* socket)
+bool FtpManager::processFileDownload(const Transfer& download, QSslSocket* socket)
 {
 	QFile qFile(download.filePath + "/" + download.fileName);
 	if (!qFile.open(QIODevice::ReadOnly))

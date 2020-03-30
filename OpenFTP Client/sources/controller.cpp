@@ -14,10 +14,10 @@ clientController::clientController(int argc, char* argv[], QWidget* parent) : QO
 
 
 void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
-{
+{   
+	//*** Main Window Functions
 	connectionResults.append(connect(view.ui.connectButton, &QPushButton::clicked, &view, &clientView::connectToServer));
 	connectionResults.append(connect(&view, &clientView::connectToServerSignal, &data, &clientModel::connectToServer));
-	connectionResults.append(connect(&data, &clientModel::initClient, &view, &clientView::init));
 	connectionResults.append(connect(view.ui.disconnectButton, &QPushButton::clicked, &data, &clientModel::disconnectFromServerButton));
 	connectionResults.append(connect(view.ui.homeButton, &QPushButton::clicked, &data, &clientModel::browseHomeServer));
 	connectionResults.append(connect(view.ui.localHomeButton, &QPushButton::clicked, &data, &clientModel::browseHomeLocal));
@@ -27,12 +27,10 @@ void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
 	connectionResults.append(connect(view.ui.localSearchButton, &QPushButton::clicked, &view, &clientView::localSearchBrowser));
 	connectionResults.append(connect(view.ui.openFileBrowserButton, &QPushButton::clicked, &view, &clientView::openFileBrowser));
 	connectionResults.append(connect(&view, &clientView::searchFolderSignal, &data, &clientModel::searchFolder));
-	connectionResults.append(connect(view.ui.actionOptions, &QAction::triggered, &view, &clientView::showOptionWindow));
 	connectionResults.append(connect(view.ui.serverBrowser, &QTableView::doubleClicked, &data, &clientModel::onDoubleClickServerBrowser));
 	connectionResults.append(connect(view.ui.localBrowser, &QTableView::doubleClicked, &data, &clientModel::onDoubleClickLocalBrowser));
 	connectionResults.append(connect(&view, &clientView::serverEnterKeySignal, &data, &clientModel::onDoubleClickServerBrowser));
 	connectionResults.append(connect(&view, &clientView::localEnterKeySignal, &data, &clientModel::onDoubleClickLocalBrowser));
-
 	connectionResults.append(connect(view.ui.serverBrowser, &QTableView::customContextMenuRequested, &view, &clientView::showServerContextMenu));
 	connectionResults.append(connect(view.ui.localBrowser, &QTableView::customContextMenuRequested, &view, &clientView::showLocalContextMenu));
 	connectionResults.append(connect(view.ui.deleteButton, &QPushButton::clicked, &view, &clientView::deleteAtServerBrowser));
@@ -51,28 +49,41 @@ void clientController::connectViewSignalSlots(QList<bool> &connectionResults)
 	connectionResults.append(connect(&view, &clientView::copyFilesToDirectorySignal, &data, &clientModel::copyFilesToDirectory));
 	connectionResults.append(connect(&view, &clientView::copyFilesToClipboardLocalSignal, &data, &clientModel::copyFilesToClipboardLocal));
 	connectionResults.append(connect(&view, &clientView::copyFilesToClipboardServerSignal, &data, &clientModel::copyFilesToClipboardServer));
+	connectionResults.append(connect(view.ui.storeInformationCheckbox, &QCheckBox::clicked, &view, &clientView::onSaveConnectionCredentials));
+	connectionResults.append(connect(&view, &clientView::saveConnectionCredentialsSignal, &data, &clientModel::saveConnectionCredentials));
 
+	//*** Toolbar Functions
+	connectionResults.append(connect(view.ui.actionExit, &QAction::triggered, &view, &clientView::close));
+	connectionResults.append(connect(view.ui.actionOptions, &QAction::triggered, &data, &clientModel::setOptionsWindow));
+
+	//*** File Already Exists Window 
 	connectionResults.append(connect(view.fileExistsWindow.ui.okButton, &QPushButton::clicked , &view.fileExistsWindow, &fileExistsView::performSelection));
 	connectionResults.append(connect(&view.fileExistsWindow, &fileExistsView::cancelTransfersSignal, &data, &clientModel::cancelTransfers));
 	connectionResults.append(connect(&view.fileExistsWindow, &fileExistsView::performSelectionSignal, &data, &clientModel::fileAlreadyExistsSelection));
 	connectionResults.append(connect(view.fileExistsWindow.ui.permanentCheckbox, &QCheckBox::clicked, &view.fileExistsWindow, &fileExistsView::togglePermanentCheckbox));
 	connectionResults.append(connect(view.fileExistsWindow.ui.temporaryCheckbox, &QCheckBox::clicked, &view.fileExistsWindow, &fileExistsView::toggleTemporaryCheckbox));
-	connectionResults.append(connect(view.settingsWindow.ui.resetFileExistsBehaviorButton, &QPushButton::clicked, &data, &clientModel::resetFileAlreadyExistsBehavior));
+
+	//*** Settings Window Functions
+	connectionResults.append(connect(&view.settingsWindow, &settingsView::loadStyleSignal, &view, &clientView::loadStyle));
+	connectionResults.append(connect(view.settingsWindow.ui.selectStyleButton, &QPushButton::clicked, &view.settingsWindow, &settingsView::selectStyle));
 	connectionResults.append(connect(view.settingsWindow.ui.resetConnectionData, &QPushButton::clicked, &data, &clientModel::resetConnectionCredentials));
-	connectionResults.append(connect(view.ui.storeInformationCheckbox, &QCheckBox::clicked, &view, &clientView::onSaveConnectionCredentials));
-	connectionResults.append(connect(&view, &clientView::saveConnectionCredentialsSignal, &data, &clientModel::saveConnectionCredentials));
+	connectionResults.append(connect(view.settingsWindow.ui.resetFileExistsBehaviorButton, &QPushButton::clicked, &data, &clientModel::resetFileAlreadyExistsBehavior));
 
-	connectionResults.append(connect(view.ui.actionExit, &QAction::triggered, &view, &clientView::close));
-	connectionResults.append(connect(view.ui.actionExitIcon, &QAction::triggered, &view, &clientView::close));
-	connectionResults.append(connect(view.ui.actionFullscreen, &QAction::triggered, &view, &clientView::toggleFullscreen));
-	connectionResults.append(connect(view.ui.actionMinimize, &QAction::triggered, &view, &clientView::minimize));
-
-	connectionResults.append(connect(&view.systemTrayIcon, &QSystemTrayIcon::activated, &view, &clientView::activateTrayIcon));
+	//*** Minimize To Tray
 	connectionResults.append(connect(view.settingsWindow.ui.minimizeToTray, &QCheckBox::clicked, &data, &clientModel::setMinimizeToTray));
+	connectionResults.append(connect(&view.systemTrayIcon, &QSystemTrayIcon::activated, &view, &clientView::activateTrayIcon));
+
+	//*** Refresh Server Browser every 10 seconds
+	timer = new QTimer(this);
+	connectionResults.append(connect(timer, &QTimer::timeout, &view, &clientView::refreshServerBrowser));
+	connectionResults.append(connect(&view, &clientView::refreshServerBrowserSignal, &data, &clientModel::refreshServerBrowser));
+	timer->start(10000);
 }
 
 void clientController::connectModelSignalSlots(QList<bool>& connectionResults)
 {
+	//*** Main Model Functions
+	connectionResults.append(connect(&data, &clientModel::initClient, &view, &clientView::init));
 	connectionResults.append(connect(&data, &clientModel::writeTextSignal, &view, &clientView::writeTextToScreen));
 	connectionResults.append(connect(&data, &clientModel::writeTextSignal, &data.logger, &LoggerManager::logToFile));
 	connectionResults.append(connect(&data, &clientModel::beepSignal, &view, &clientView::beep));
@@ -83,9 +94,12 @@ void clientController::connectModelSignalSlots(QList<bool>& connectionResults)
 	connectionResults.append(connect(&data, &clientModel::setLocalFileBrowserSignal, &view, &clientView::setLocalFileBrowser));
 	connectionResults.append(connect(&data, &clientModel::fileAlreadyExistsSignal, &view, &clientView::fileAlreadyExists));
 	connectionResults.append(connect(&data, &clientModel::deletedFilesSignal, &view, &clientView::deletedFiles));
+	connectionResults.append(connect(&data, &clientModel::showOptionsWindowSignal, &view, &clientView::showOptionsWindow));
 
-	connectionResults.append(connect(&data.networkManager.socket, &QTcpSocket::readyRead, &data.networkManager, &NetworkManager::onReadyRead));
-	connectionResults.append(connect(&data.networkManager.socket, &QTcpSocket::stateChanged, &data.networkManager, &NetworkManager::onSocketStateChanged));
+	//*** Network Manager Functions
+	connectionResults.append(connect(&data.networkManager.socket, &QSslSocket::readyRead, &data.networkManager, &NetworkManager::onReadyRead));
+	connectionResults.append(connect(&data.networkManager.socket, &QSslSocket::stateChanged, &data.networkManager, &NetworkManager::onSocketStateChanged));
+	connectionResults.append(connect(&data.networkManager.socket, qOverload<const QList<QSslError>&>(&QSslSocket::sslErrors), &data.networkManager, &NetworkManager::sslErrors));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::writeTextSignal, &view, &clientView::writeTextToScreen));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::disconnectedFromServerSignal, &view, &clientView::disconnectedFromServer));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::disconnectedFromServerSignal, &data, &clientModel::disconnectedFromServer));
@@ -93,11 +107,6 @@ void clientController::connectModelSignalSlots(QList<bool>& connectionResults)
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::setProgressBarSignal, &view, &clientView::setProgressBar));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::checkRemainingDownloadsSignal, &data, &clientModel::checkRemainingDownloads));
 	connectionResults.append(connect(&data.networkManager, &NetworkManager::parseJsonSignal, &data, &clientModel::parseJson));
-
-	timer = new QTimer(this);
-	connectionResults.append(connect(timer, &QTimer::timeout, &view, &clientView::refreshServerBrowser));
-	connectionResults.append(connect(&view, &clientView::refreshServerBrowserSignal, &data, &clientModel::refreshServerBrowser));
-	timer->start(10000);
 }
 
 int clientController::init()

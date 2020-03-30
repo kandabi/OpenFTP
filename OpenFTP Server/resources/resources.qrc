@@ -1,5 +1,10 @@
 <RCC>
-    <qresource prefix="/alienIcon">
-        <file>../images/icon.ico</file>
-    </qresource>
+  <qresource prefix="/alienIcon">
+    <file>../images/icon.ico</file>
+  </qresource>
+  <qresource prefix="openssl">
+    <file>../certificates/root_certificate.crt</file>
+    <file>../certificates/server.crt</file>
+    <file>../certificates/server.key</file>
+  </qresource>
 </RCC>

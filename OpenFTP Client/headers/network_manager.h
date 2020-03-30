@@ -11,7 +11,7 @@ public:
 	NetworkManager(QWidget* parent = Q_NULLPTR);
 
 signals:
-	void writeTextSignal(QString text, QColor color = Qt::white);
+	void writeTextSignal(QString text, QColor color = {});
 	void disconnectedFromServerSignal();
 	void parseJsonSignal(const QByteArray& jsonArray);
 	void updateProgressBarSignal(quint64 bytesReceived, quint64 bytesTotal);
@@ -23,6 +23,7 @@ public slots:
 	void setUploadDataToSend(const QByteArray& data);
 	void onReadyRead();
 	void onSocketStateChanged(QAbstractSocket::SocketState socketState);
+	void sslErrors(const QList<QSslError>& errors);
 	void connectToServer(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
 	void disconnectFromServer();
 	void uploadFileData();
@@ -36,13 +37,12 @@ public slots:
 	void setdownloadInProgress(const bool& download);
 	QString getSocketAddress();
 	QString getSocketPort();
-
+	void isEncrypted();
 
 	inline bool isDownloading()
 	{
 		return downloadInProgress;
 	}
-
 
 public:
 	bool splitUploadToChunks = false;
@@ -52,9 +52,10 @@ public:
 	static const qint64 filesizeToSplit = 200000000;
 
 private:
-	QTcpSocket socket;
+	//QTcpSocket socket;
+	QSslSocket socket;
+	QList<QSslError> expectedSslErrors;
 	QSaveFile qSaveFile;
-	//QSslSocket socket;
 
 	bool downloadInProgress = false;
 

@@ -15,7 +15,7 @@ public:
 	void init();
 
 signals:
-	void writeTextSignal(QString text, QColor color = Qt::white);
+	void writeTextSignal(QString text, QColor color = {});
 	void beepSignal();
 	
 	void uploadCompleteSignal();
@@ -27,7 +27,7 @@ signals:
 	void deletedFilesSignal();
 	void connectToServerSignal(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
 	void initClient(const bool& storeCredentials ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword, const bool& minimizeToTray);
-
+	void showOptionsWindowSignal(const QString& currentStyle ,const QStringList& styles);
 
 private slots:
 	void connectToServer(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword, const bool& saveInformation);
@@ -60,6 +60,7 @@ private slots:
 	void refreshServerBrowser(const QModelIndexList selected);
 	void setMinimizeToTray(bool checked);
 	void cancelTransfers();
+	void setOptionsWindow();
 
 private:
 	void beginPendingDownload(const File& currentDownload, const QString& directoryToSave);

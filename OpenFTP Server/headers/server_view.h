@@ -15,7 +15,7 @@ public:
 	QMenu trayIconMenu;
 signals:
 	void saveSettingsSignal();
-	void disconnectUserSignal(QString userName);
+	void ForceUserDisconnectSignal(QString userName);
 	void deleteUserSignal(QString username);
 	void initServerSignal(int port);
 
@@ -25,7 +25,7 @@ public slots:
 	void closeSettingsMenu();
 	void startServer();
 	void stopServer();
-	void disconnectUser();
+	void ForceUserDisconnect();
 	void connectUserToList(QString name);
 	void deleteUserFromList(QString name);
 	void showContextMenu(const QPoint& pos);

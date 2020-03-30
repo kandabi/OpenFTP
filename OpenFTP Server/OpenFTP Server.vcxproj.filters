@@ -67,52 +67,58 @@
     <QtMoc Include="headers\worker_manager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="headers\ssl_server.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <Image Include="images\return_button.png" />
     <Image Include="images\icon.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ftp_manager.cpp">
+    <ClCompile Include="sources\controller.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\main.cpp">
+    <ClCompile Include="sources\ftp_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\model.cpp">
+    <ClCompile Include="sources\logger_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\network_manager.cpp">
+    <ClCompile Include="sources\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\serialization_manager.cpp">
+    <ClCompile Include="sources\model.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\server_view.cpp">
+    <ClCompile Include="sources\network_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\settings_manager.cpp">
+    <ClCompile Include="sources\serialization_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\settings_view.cpp">
+    <ClCompile Include="sources\server_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\simplecrypt.cpp">
+    <ClCompile Include="sources\settings_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\stdafx.cpp">
+    <ClCompile Include="sources\settings_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\transfer.cpp">
+    <ClCompile Include="sources\simplecrypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\controller.cpp">
+    <ClCompile Include="sources\ssl_server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\logger_manager.cpp">
+    <ClCompile Include="sources\stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\worker_manager.cpp">
+    <ClCompile Include="sources\transfer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\worker_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -125,7 +131,11 @@
     </QtUic>
   </ItemGroup>
   <ItemGroup>
-    <None Include="settings\server_settings.json" />
+    <None Include="certificates\server.key" />
+    <None Include="certificates\root_certificate.pem" />
+    <None Include="certificates\server.pem" />
+    <None Include="certificates\server.crt" />
+    <None Include="certificates\root_certificate.crt" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\icon.rc" />

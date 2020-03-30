@@ -121,3 +121,4 @@ ftpServer/settings/server_settings.json
 OpenFTP Client/.vs/OpenFTP Client/v16/.suo
 OpenFTP Server/Log.txt
 OpenFTP Client/Log.txt
+deployment scripts/openssl/ssl-password.txt

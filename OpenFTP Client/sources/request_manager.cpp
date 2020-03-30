@@ -1,8 +1,6 @@
 #include "stdafx.h"
 #include "request_manager.h"
 
-
-
 QJsonObject RequestManager::createServerRequest(RequestManager::RequestType action, const QMap<QString, QString>& requestVariables, const QStringList& deleteFiles)
 {
 	QJsonObject serverRequest

@@ -23,16 +23,19 @@ class SettingsManager : QObject
 public:
 	SettingsManager(QObject* parent);
 
-	QString getDefaultBrowserDirectory();
 	void setDefaultBrowserDirectory(QString directory);
-	RequestManager::FileOverwrite getOverwriteExistingFileBehavior();
 	void setOverwriteExistingFileBehavior(const int& selection);
-	connectionCredentials SettingsManager::getConnectionCredentials();
-	void setConnectionCredentials(const bool& checkboxChecked ,const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
-	bool getShowTrayMessage();
+	void setConnectionCredentials(const bool& checkboxChecked, const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword);
 	void setShowTrayMessage();
-	bool getMinimizeToTray();
 	void setMinimizeToTray(const bool& minimize);
+	void setAppStyle(QString file);
+
+	QString getDefaultBrowserDirectory();
+	bool getShowTrayMessage();
+	bool getMinimizeToTray();
+	QString getAppStyle();
+	RequestManager::FileOverwrite getOverwriteExistingFileBehavior();
+	connectionCredentials getConnectionCredentials();
 
 private:
 	QSettings* settings;

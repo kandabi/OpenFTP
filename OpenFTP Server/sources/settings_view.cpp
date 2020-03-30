@@ -34,12 +34,10 @@ void settingsView::initializeSettings(QString directory ,QStringList nameList, b
 		ui.userValidationLabel->setText("");
 	}
 
-
 	ui.userListWidget->clear();
 	for (auto name : nameList)
 	{
 		ui.userListWidget->addItem(name);
-
 	}
 }
 

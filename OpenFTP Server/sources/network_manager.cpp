@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "network_manager.h"
 
-
 NetworkManager::NetworkManager(QList<User>& _registeredUsersList ,QWidget* parent) : QObject(parent) ,registeredUsersList(_registeredUsersList) {}
 
 bool NetworkManager::initServer(const int& port)
@@ -40,8 +39,7 @@ bool NetworkManager::stopServer()
 {
 	for (User& user : connectedUsers)
 	{
-		QJsonArray serverResponse;
-		serverResponse.append(QJsonObject{ {"response_status" , static_cast<int>(FtpManager::ResponseType::Closing) } });
+		QJsonArray serverResponse({ {"response_status" , static_cast<int>(FtpManager::ResponseType::Closing) } });
 		writeToClient(user.getSocket(), Serializer::JsonToByteArray(serverResponse));
 		disconnectUserSocket(user.getSocket());
 	}
@@ -57,20 +55,22 @@ bool NetworkManager::stopServer()
 	return true;
 }
 
-void NetworkManager::disconnectUser(QString userName)
+void NetworkManager::ForceUserDisconnect(QString userName)
 {
 	for (int i = 0; i < connectedUsers.count(); ++i)
 	{
 		if (connectedUsers[i].username == userName)
 		{
 			disconnectUserSocket(connectedUsers[i].getSocket());
+			deleteUserFromListSignal(connectedUsers[i].username);
+			connectedUsers.removeAt(i);
 			break;
 		}
 	}
 }
 
 
-void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int userIndex)
+void NetworkManager::parseJson(const QByteArray& data, QSslSocket* socket, int userIndex)
 {
 	QJsonObject json = QJsonDocument::fromJson(data).object();
 	User& currentUser = connectedUsers[userIndex];
@@ -148,7 +148,6 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 		case FtpManager::RequestType::DownloadFile:
 		{
 			QString fileName = json.value("fileName").toString();
-
 			int currentTransfer = getTransferByUserIndex(userIndex);
 			if (currentTransfer != -1)
 				transfersInProgress.removeAt(currentTransfer);
@@ -207,7 +206,7 @@ void NetworkManager::parseJson(const QByteArray& data, QTcpSocket* socket, int u
 	}
 }
 
-void NetworkManager::parseUpload(const QByteArray& data, QTcpSocket* socket, int userIndex)
+void NetworkManager::parseUpload(const QByteArray& data, QSslSocket* socket, int userIndex)
 {
 	int transferIndex = getTransferByUserIndex(userIndex);
 	Q_ASSERT(transferIndex != -1);
@@ -232,7 +231,7 @@ void NetworkManager::parseUpload(const QByteArray& data, QTcpSocket* socket, int
 	}
 	else {
 		sendResponseData = (currentUpload.numOfPacketsSent++ % 10 == 0 || writtenBytes % (6000000) == 0) ? true : false;
-		if(sendResponseData)
+		if (sendResponseData)
 			serverResponse = FtpManager::createUploadProgressResponse(FtpManager::ResponseType::FileUploading, currentUpload.directoryToReturn, writtenBytes);
 		
 	}
@@ -243,7 +242,7 @@ void NetworkManager::parseUpload(const QByteArray& data, QTcpSocket* socket, int
 
 void NetworkManager::onReadyRead()
 {
-	QTcpSocket* socket = getCurrentSocket();
+	QSslSocket* socket = getCurrentSocket();
 	int userIndex = getUserIndexBySocket(socket);
 	Q_ASSERT(userIndex != -1);
 	QByteArray data = socket->readAll();
@@ -262,7 +261,7 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 {
 	if (socketState == QAbstractSocket::UnconnectedState)
 	{
-		QTcpSocket* socket = getCurrentSocket();
+		QSslSocket* socket = getCurrentSocket();
 		int userIndex = getUserIndexBySocket(socket);
 		if (connectedUsers[userIndex].transferInProgress)
 		{
@@ -273,7 +272,6 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 				transfer.cancelUpload();
 				transfersInProgress.removeAt(index);
 			}
-
 		}
 
 		disconnectUserSocket(socket);
@@ -293,25 +291,20 @@ void NetworkManager::newConnectionAttempt()
 {
 	emit writeTextSignal("New Connection Attempted", QColor(255, 153, 0));
 
-	QTcpSocket* socket = server.nextPendingConnection();
+	QSslSocket* socket = dynamic_cast<QSslSocket*>(server.nextPendingConnection());
 
-	//QSslSocket* socket = dynamic_cast<QSslSocket*>(server.nextPendingConnection());
-	//if(!socket->waitForEncrypted(1000))
-	//{
-	//	socket->disconnectFromHost();;
-	//}
-
-	if (!socket->waitForReadyRead(1000))
+	if (!socket->waitForReadyRead(10000))
 	{
-		socket->disconnectFromHost();
+		socket->disconnectFromHost();;
 	}
+
+	isEncrypted(socket);
 
 	QByteArray data = socket->readAll();
 	QJsonObject userJson = QJsonDocument::fromJson(data).object();
 	User connectedUser(userJson.value("username").toString(), userJson.value("password").toString());
 	int userIndex = validateUser(registeredUsersList, connectedUser.username, connectedUser.password);
 	bool alreadyConnected = false;
-
 
 	if (userIndex != -1)
 	{
@@ -327,8 +320,8 @@ void NetworkManager::newConnectionAttempt()
 		connectedUser.homeDirectory = registeredUsersList[userIndex].homeDirectory;
 		connectedUsers.append(connectedUser);
 
-		connect(socket, &QTcpSocket::readyRead, this, &NetworkManager::onReadyRead);
-		connect(socket, &QTcpSocket::stateChanged, this, &NetworkManager::onSocketStateChanged);
+		connect(socket, &QSslSocket::readyRead, this, &NetworkManager::onReadyRead);
+		connect(socket, &QSslSocket::stateChanged, this, &NetworkManager::onSocketStateChanged);
 
 		QJsonArray serverResponse = FtpManager::createServerResponse(FtpManager::ResponseType::Connected ,connectedUser.homeDirectory, true);
 		writeToClient(socket, Serializer::JsonToByteArray(serverResponse));
@@ -340,8 +333,7 @@ void NetworkManager::newConnectionAttempt()
 	{
 		emit writeTextSignal("User Authentication Failed.", Qt::red);
 
-		QJsonArray serverResponse;
-		serverResponse.append(QJsonObject{ {"response_status" , static_cast<int>(FtpManager::ResponseType::Unauthorized) } });
+		QJsonArray serverResponse({ {"response_status" , static_cast<int>(FtpManager::ResponseType::Unauthorized) } });
 		writeToClient(socket, Serializer::JsonToByteArray(serverResponse));
 		disconnectUserSocket(socket);
 	}
@@ -349,7 +341,7 @@ void NetworkManager::newConnectionAttempt()
 }
 
 
-int NetworkManager::getUserIndexBySocket(QTcpSocket* socket)
+int NetworkManager::getUserIndexBySocket(QSslSocket* socket)
 {
 	for (int i = 0; i < connectedUsers.count(); ++i)
 	{
@@ -376,12 +368,22 @@ int NetworkManager::getTransferByUserIndex(const int& userIndex)
 	return -1;
 }
 
-QTcpSocket* NetworkManager::getCurrentSocket()
+QSslSocket* NetworkManager::getCurrentSocket()
 {
-	return qobject_cast<QTcpSocket*>(sender());
+	return qobject_cast<QSslSocket*>(sender());
 }
 
-bool NetworkManager::disconnectUserSocket(QTcpSocket* socket)
+
+void NetworkManager::isEncrypted(const QSslSocket* socket)
+{
+	if(socket->isEncrypted())
+		emit writeTextSignal("Socket is encrypted!", QColor(189, 121, 19));
+	else 
+		emit writeTextSignal("Socket is NOT encrypted!", Qt::darkRed);
+}
+
+
+bool NetworkManager::disconnectUserSocket(QSslSocket* socket)
 {
 	if (socket)
 	{
@@ -405,7 +407,7 @@ int NetworkManager::validateUser(const QList<User>& userList, QString name, QStr
 	return -1;
 }
 
-bool NetworkManager::writeToClient(QTcpSocket* socketToWrite, const QByteArray& data)
+bool NetworkManager::writeToClient(QSslSocket* socketToWrite, const QByteArray& data)
 {
 	return socketToWrite->write(data);
 }

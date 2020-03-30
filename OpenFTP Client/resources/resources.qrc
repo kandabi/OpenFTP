@@ -3,11 +3,14 @@
     <file>../images/icon_black.ico</file>
     <file>../images/icon.png</file>
   </qresource>
+  <qresource prefix="openssl">
+    <file>../certificates/client.crt</file>
+    <file>../certificates/server.crt</file>
+    <file>../certificates/client.key</file>
+    <file>../certificates/root_certificate.crt</file>
+  </qresource>
   <qresource prefix="cleanOutpt">
     <file>../images/clean.png</file>
-  </qresource>
-  <qresource prefix="/style">
-    <file>client_style.css</file>
   </qresource>
   <qresource prefix="/arrow">
     <file>../images/right.png</file>

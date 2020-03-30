@@ -1,10 +1,18 @@
 #include "stdafx.h"
 #include "network_manager.h"
 
-NetworkManager::NetworkManager(QWidget* parent) : QObject(parent)
+NetworkManager::NetworkManager(QWidget* parent) : QObject(parent), socket(parent)
 {
-	//bool result = socket.addCaCertificates("sslserver.pem");
 	//socket.setReadBufferSize(100);
+
+	socket.addCaCertificate(QSslCertificate::fromPath(":/openssl/certificates/root_certificate.crt").first());
+
+	socket.setPrivateKey(":/openssl/certificates/client.key");
+	socket.setLocalCertificate(":/openssl/certificates/client.crt");
+	socket.setPeerVerifyMode(QSslSocket::VerifyPeer);
+
+	expectedSslErrors.append(QSslError(QSslError::HostNameMismatch, QSslCertificate::fromPath(":/openssl/certificates/server.crt").first()));
+	socket.ignoreSslErrors(expectedSslErrors);
 }
 
 
@@ -23,8 +31,7 @@ void NetworkManager::connectToServer(const QString& serverAddress, const QString
 	password = userPassword;
 
 	socket.close();
-	//socket.connectToHostEncrypted(serverAddress, serverPort.toInt());
-	socket.connectToHost(QHostAddress(serverAddress), serverPort.toInt());
+	socket.connectToHostEncrypted(serverAddress, serverPort.toInt());
 }
 
 
@@ -79,11 +86,11 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 			{ "password", password },
 		};
 
-		socket.write(Serializer::JsonObjectToByteArray(request));
-		//if(socket.waitForEncrypted(-1))
-		//else {
-		//	emit writeTextSignal("Error establishing secure connection: " + socket.errorString(), Qt::red);
-		//}
+		if (socket.waitForEncrypted())
+		{
+			isEncrypted();
+			socket.write(Serializer::JsonObjectToByteArray(request));
+		}
 	}
 }
 
@@ -134,6 +141,15 @@ QByteArray NetworkManager::parseByteData()
 	return data;
 }
 
+void NetworkManager::sslErrors(const QList<QSslError>& errors)
+{
+	foreach(const QSslError &error, errors)
+	{
+		if(expectedSslErrors.first().certificate() != error.certificate() || error.error() != QSslError::HostNameMismatch)
+			emit writeTextSignal(error.errorString(), Qt::darkRed);
+	}
+}
+
 
 void NetworkManager::beginPendingDownload(const File& currentDownload, const QString& directoryToSave)
 {
@@ -152,6 +168,15 @@ void NetworkManager::continueLargeUpload()
 	qFile.seek(readFromPosition);
 	QByteArray fileData = qFile.read(packetSize);
 	writeData(fileData);
+}
+
+
+void NetworkManager::isEncrypted()
+{
+	if (socket.isEncrypted())
+		emit writeTextSignal("Socket is encrypted!", QColor(189, 121, 19));
+	else
+		emit writeTextSignal("Socket is NOT encrypted!", Qt::darkRed);
 }
 
 

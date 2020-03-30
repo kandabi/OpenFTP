@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "worker_manager.h"
 
-WorkerThread::WorkerThread(const QString& filePath, QTcpSocket* _socket) : socket(_socket)
+WorkerThread::WorkerThread(const QString& filePath, QSslSocket* _socket) : socket(_socket)
 {
     qFile.setFileName(filePath);
     size = qFile.size();

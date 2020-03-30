@@ -9,8 +9,12 @@ class settingsView : public QDialog
 public:
 	settingsView(QWidget *parent = Q_NULLPTR);
 
+	void initSettings(const QString& currentStyle ,const QStringList& styles);
+	void selectStyle();
+
 signals:
 	void onClose();
+	void loadStyleSignal(const QString& style);
 
 private:
 	Ui::settingsView ui;
