@@ -1,89 +1,42 @@
 # OpenFTP
 
+[![AppVeyor status](https://ci.appveyor.com/api/projects/status/c4i06722k53tqu16?svg=true)](https://ci.appveyor.com/project/kandabi/openftp)
+[![GPL3 license](https://img.shields.io/badge/license-GPL-blue)](https://fsf.org/)
 
+OpenFTP is a file transfer client + server, programmed in C++ / Qt, it uses openssl for securing network connections.  
+It aims to be a good alternative to other ftp software, while being feature rich and simple to use.
+it does not support connections between non-openftp servers and clients.  
 
-An open-source file transfer client \ server, written in c++ and using the Qt Framework.
+Currently only supports Windows, with macOS and Linux versions planned. 
 
-## Getting Started
+## Installation
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
+For Windows installation, please download the following software, with the specified versions:
 
-### Prerequisites
+* [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) - The IDE, make sure to install the MSVC2019 v142 Compiler.
+* [Qt Framework](https://www.qt.io/download-qt-installer) - The GUI framework, version: 5.14.1, make sure to install the MSVC2017 and MSVC2017_64 Compilers for both 64 and 32 bit support, future Qt versions are likely to break compilation.
+* [Qt Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools-19123) - Used to add support for Qt projects inside of Visual Studio.
+* [OpenSSL](https://www.openssl.org/) - OpenSSL, used for network security. If you would like only to build the project locally, I would recommend using the Qt online installer, and ticking the openssl checkbox.  
+however if you would like to create and sign your own SSL certificates, you must have openssl installed on your system!   
+you can build openssl from [here](https://www.openssl.org/source/), or you could download the binaries from a trusted source such as [this website](https://slproweb.com/products/Win32OpenSSL.html). make sure to grab the non-light installer!
 
-What things you need to install the software and how to install them
-
-```
-Give examples
-```
-
-### Installing
-
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
-
-```
-Give the example
-```
-
-And repeat
-
-```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+Now you should hopefully be able run the solution on your system in both debug and release modes!
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **kandabi aviv** - kandabiaviv@gmail.com
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+This project is licensed under the GPLv3 License - see the [LICENSE.md](https://github.com/kandabi/OpenFTP/blob/master/LICENSE) file for details
+with two exceptions: [Qt LGPLv3](https://doc.qt.io/qt-5/lgpl.html) ,[OpenSSL Apache](https://www.openssl.org/source/apache-license-2.0.txt) 
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* [Qt Framework](https://www.qt.io/)
+* [OpenSSL](https://www.openssl.org/)
+* [SimpleCrypt](https://wiki.qt.io/Simple_encryption_with_SimpleCrypt) - Simple encryption, written by Andre Somers.
+* Audio clips made by: [Headphaze](https://freesound.org/people/Headphaze/), [debsound](https://freesound.org/people/debsound/) from [freesound.org](https://freesound.org)
+* Icons made by: [freepik](https://www.flaticon.com/authors/freepik), [Kiranshastry](https://www.flaticon.com/authors/kiranshastry) from [flaticon.com](https://flaticon.com)
+
+ 

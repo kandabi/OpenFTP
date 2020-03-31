@@ -122,3 +122,9 @@ OpenFTP Client/.vs/OpenFTP Client/v16/.suo
 OpenFTP Server/Log.txt
 OpenFTP Client/Log.txt
 deployment scripts/openssl/ssl-password.txt
+OpenFTP Server/certificates/debug
+OpenFTP Client/certificates/debug
+OpenFTP Server/certificates/release
+OpenFTP Client/certificates/release
+.vs
+bin
