@@ -28,7 +28,7 @@ Now you should hopefully be able run the solution on your system in both debug a
 
 ## License
 
-This project is licensed under the GPLv3 License - see the [license](https://github.com/kandabi/OpenFTP/blob/master/LICENSE.md) file for details
+This project is licensed under the GPLv3 License - see the [license](LICENSE.md) file for details
 with two exceptions: [Qt LGPLv3](https://doc.qt.io/qt-5/lgpl.html) ,[OpenSSL Apache](https://www.openssl.org/source/apache-license-2.0.txt) 
 
 ## Acknowledgments
