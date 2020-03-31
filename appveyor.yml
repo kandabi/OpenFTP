@@ -2,4 +2,7 @@
 image: Visual Studio 2019 Preview
 
 install:
-  - set QTDIR=C:\Qt\5.14.1
+  - set QTDIR="C:\\Qt\\5.14.1\\msvc2017_64"
+  - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
+build_script:
+  - msbuild OpenFTP.sln
