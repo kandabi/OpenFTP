@@ -1,7 +1,5 @@
 
-image: Visual Studio 2019
+image: Visual Studio 2019 Preview
 
 install:
   - set QTDIR=C:\Qt\5.14.1
-  - set PATH=%PATH%;%QTDIR%\bin;C:\Qt\5.14.1\msvc2017_64
-  - set QtMsBuild=%LOCALAPPDATA%\QtMsBuild
