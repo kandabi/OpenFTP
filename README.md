@@ -16,7 +16,7 @@ For Windows installation, please download the following software, with the speci
 * [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) - The IDE, make sure to install the MSVC2019 v142 Compiler.
 * [Qt Framework](https://www.qt.io/download-qt-installer) - The GUI framework, version: 5.14.1, make sure to install the MSVC2017 and MSVC2017_64 Compilers for both 64 and 32 bit support, future Qt versions are likely to break compilation.
 * [Qt Visual Studio Extension](https://marketplace.visualstudio.com/items?itemName=TheQtCompany.QtVisualStudioTools-19123) - Used to add support for Qt projects inside of Visual Studio.
-* [OpenSSL](https://www.openssl.org/) - OpenSSL, used for network security. If you would like only to build the project locally, I would recommend using the Qt online installer, and ticking the openssl checkbox.  
+* [OpenSSL](https://www.openssl.org/) - Used for implementation of secure networking. If you would like only to build the project locally, I would recommend using the Qt online installer, and ticking the openssl checkbox.  
 however if you would like to create and sign your own SSL certificates, you must have openssl installed on your system!   
 you can build openssl from [here](https://www.openssl.org/source/), or you could download the binaries from a trusted source such as [this website](https://slproweb.com/products/Win32OpenSSL.html). make sure to grab the non-light installer!
 
@@ -28,7 +28,7 @@ Now you should hopefully be able run the solution on your system in both debug a
 
 ## License
 
-This project is licensed under the GPLv3 License - see the [LICENSE.md](https://github.com/kandabi/OpenFTP/blob/master/LICENSE) file for details
+This project is licensed under the GPLv3 License - see the [license](https://github.com/kandabi/OpenFTP/blob/master/LICENSE.md) file for details
 with two exceptions: [Qt LGPLv3](https://doc.qt.io/qt-5/lgpl.html) ,[OpenSSL Apache](https://www.openssl.org/source/apache-license-2.0.txt) 
 
 ## Acknowledgments
