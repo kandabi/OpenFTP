@@ -1,7 +1,5 @@
 OpenFTP Server/settings/
 OpenFTP Client/settings/
-OpenFTP Server/certificates/release/
-OpenFTP Client/certificates/release/
 bin/
 .vs/
 deployment scripts/openssl/output/
