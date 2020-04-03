@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "user.h"
-#include "simplecrypt.h"
+#include "encryption_manager.h"
 
 class SettingsManager : QObject
 {
@@ -23,7 +23,6 @@ public:
 
 private:
 	User getUser();
-	SimpleCrypt crypto;
 	QSettings* settings;
 	const QString settingsDirectory = "./settings/server_settings.json";
 	QSettings::Format jsonFormat = QSettings::registerFormat("json", SettingsManager::readJsonFile, SettingsManager::writeJsonFile);

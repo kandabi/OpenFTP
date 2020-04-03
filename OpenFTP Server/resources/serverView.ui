@@ -222,6 +222,7 @@
  <layoutdefault spacing="6" margin="11"/>
  <resources>
   <include location="resources.qrc"/>
+  <include location="certificates.qrc"/>
  </resources>
  <connections/>
 </ui>

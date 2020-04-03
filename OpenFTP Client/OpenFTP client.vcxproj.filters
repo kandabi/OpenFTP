@@ -87,6 +87,11 @@
       <Extensions>ui</Extensions>
       <ParseFiles>true</ParseFiles>
     </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}</UniqueIdentifier>
+      <Extensions>qrc;*</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="certificates\client.crt" />
@@ -95,11 +100,28 @@
     <None Include="certificates\server.crt" />
     <None Include="resources\dark_style.css" />
     <None Include="resources\default_style.css" />
+    <None Include="certificates\debug\client.crt" />
+    <None Include="certificates\debug\client.key" />
+    <None Include="certificates\debug\server.crt" />
+    <None Include="certificates\release\client.crt" />
+    <None Include="certificates\release\client.key" />
+    <None Include="certificates\release\root_certificate.crt" />
+    <None Include="certificates\release\server.crt" />
+    <None Include="certificates\debug\client_certificate.crt" />
+    <None Include="certificates\debug\client_private.key" />
+    <None Include="certificates\debug\root_certificate.crt" />
+    <None Include="certificates\debug\server_public.key" />
+    <None Include="certificates\release\client_certificate.crt" />
+    <None Include="certificates\release\client_private.key" />
+    <None Include="certificates\release\server_public.key" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\icon.rc" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="resources\resources.qrc" />
+    <QtRcc Include="resources\certificates.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

@@ -243,11 +243,26 @@
     <QtUic Include="resources\settingsView.ui" />
   </ItemGroup>
   <ItemGroup>
+    <QtRcc Include="resources\certificates.qrc" />
     <QtRcc Include="resources\resources.qrc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="certificates\client.crt" />
     <None Include="certificates\client.key" />
+    <None Include="certificates\debug\client.crt" />
+    <None Include="certificates\debug\client.key" />
+    <None Include="certificates\debug\client_certificate.crt" />
+    <None Include="certificates\debug\client_private.key" />
+    <None Include="certificates\debug\root_certificate.crt" />
+    <None Include="certificates\debug\server.crt" />
+    <None Include="certificates\debug\server_public.key" />
+    <None Include="certificates\release\client.crt" />
+    <None Include="certificates\release\client.key" />
+    <None Include="certificates\release\client_certificate.crt" />
+    <None Include="certificates\release\client_private.key" />
+    <None Include="certificates\release\root_certificate.crt" />
+    <None Include="certificates\release\server.crt" />
+    <None Include="certificates\release\server_public.key" />
     <None Include="certificates\root_certificate.crt" />
     <None Include="certificates\server.crt" />
     <None Include="resources\dark_style.css" />

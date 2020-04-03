@@ -184,7 +184,7 @@
     </font>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;using the &lt;a href=&quot;https://www.qt.io/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#ff0004;&quot;&gt;Qt Framework&lt;/span&gt;&lt;/a&gt;, check it out on &lt;a href=&quot;https://github.com/kandabi/OpenFTP&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#ff0004;&quot;&gt;github!&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;using the &lt;a href=&quot;https://www.qt.io/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#ff0004;&quot;&gt;Qt Framework&lt;/span&gt;&lt;/a&gt;, &lt;a href=&quot;https://doc.qt.io/qt-5/lgpl.html&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#ff0004;&quot;&gt;Qt License.&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="textFormat">
     <enum>Qt::RichText</enum>
@@ -245,12 +245,12 @@
     <rect>
      <x>40</x>
      <y>190</y>
-     <width>291</width>
+     <width>141</width>
      <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Encryption lib by &lt;a href=&quot;https://wiki.qt.io/Simple_encryption_with_SimpleCrypt&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#ff0004;&quot;&gt;Simplecrypt&lt;/span&gt;&lt;/a&gt; written by Andre Somers.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Encryption lib by &lt;a href=&quot;https://www.openssl.org/&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#ff0004;&quot;&gt;OpenSSL&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="textFormat">
     <enum>Qt::RichText</enum>

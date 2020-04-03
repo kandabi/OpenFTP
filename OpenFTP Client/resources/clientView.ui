@@ -1307,6 +1307,7 @@
  </tabstops>
  <resources>
   <include location="resources.qrc"/>
+  <include location="certificates.qrc"/>
  </resources>
  <connections/>
 </ui>

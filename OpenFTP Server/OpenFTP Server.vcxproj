@@ -112,7 +112,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(ProjectDir)headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(ProjectDir)headers;$(OPENSSL_INSTALL_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>$(ProjectDir)headers</AdditionalUsingDirectories>
       <AdditionalOptions>/Zm2000 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -120,6 +120,8 @@
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(OPENSSL_INSTALL_DIR)\lib\libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -157,7 +159,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
-      <AdditionalIncludeDirectories>.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(ProjectDir)headers;E:\Qt\5.14.1\msvc2017_64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(ProjectDir)headers;$(OPENSSL_INSTALL_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>$(ProjectDir)headers</AdditionalUsingDirectories>
       <AdditionalOptions>/Zm2000 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -165,6 +167,7 @@
       <SubSystem>Windows</SubSystem>
       <OutputFile>$(OutDir)$(ProjectName).exe</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>$(OPENSSL_INSTALL_DIR)\lib\libcrypto.lib;$(Qt_LIBS_);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -193,6 +196,7 @@
   <ItemGroup>
     <QtMoc Include="headers\worker_manager.h" />
     <QtMoc Include="headers\controller.h" />
+    <QtMoc Include="headers\encryption_manager.h" />
     <ClInclude Include="headers\ftp_manager.h" />
     <QtMoc Include="headers\logger_manager.h" />
     <QtMoc Include="headers\ssl_server.h" />
@@ -204,7 +208,6 @@
     <QtMoc Include="headers\server_view.h" />
     <QtMoc Include="headers\settings_manager.h" />
     <QtMoc Include="headers\settings_view.h" />
-    <ClInclude Include="headers\simplecrypt.h" />
     <ClInclude Include="headers\stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +216,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="sources\controller.cpp" />
+    <ClCompile Include="sources\encryption_manager.cpp" />
     <ClCompile Include="sources\ftp_manager.cpp" />
     <ClCompile Include="sources\logger_manager.cpp" />
     <ClCompile Include="sources\main.cpp" />
@@ -222,7 +226,6 @@
     <ClCompile Include="sources\server_view.cpp" />
     <ClCompile Include="sources\settings_manager.cpp" />
     <ClCompile Include="sources\settings_view.cpp" />
-    <ClCompile Include="sources\simplecrypt.cpp" />
     <ClCompile Include="sources\ssl_server.cpp" />
     <ClCompile Include="sources\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -241,9 +244,20 @@
     <QtUic Include="resources\settingsView.ui" />
   </ItemGroup>
   <ItemGroup>
+    <QtRcc Include="resources\certificates.qrc" />
     <QtRcc Include="resources\resources.qrc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="certificates\debug\root_certificate.crt" />
+    <None Include="certificates\debug\server.crt" />
+    <None Include="certificates\debug\server.key" />
+    <None Include="certificates\debug\server_certificate.crt" />
+    <None Include="certificates\debug\server_private.key" />
+    <None Include="certificates\release\root_certificate.crt" />
+    <None Include="certificates\release\server.crt" />
+    <None Include="certificates\release\server.key" />
+    <None Include="certificates\release\server_certificate.crt" />
+    <None Include="certificates\release\server_private.key" />
     <None Include="certificates\root_certificate.crt" />
     <None Include="certificates\root_certificate.pem" />
     <None Include="certificates\server.crt" />

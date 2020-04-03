@@ -2,13 +2,13 @@
 #include <QtNetwork>
 #include <QSound>
 
-#define APP_VERSION "0.3.1" 
-
-//*** Replace debug OPENSSL certificates with release version!!
+#define APP_VERSION "0.3.3" 
 
 #ifdef QT_DEBUG 
-#define CRYPTO_KEY 0xb2f641dc9fffec4e //*** Randomize this on each new release version
+#define CRYPTO_KEY 0xb2f641dc9fffec4e
 #define STYLE_DIR "./resources/"
+#define CERTIFICATES_DIR ":/certificates-debug/"
 #else 
 #define STYLE_DIR "./plugins/styles/"
+#define CERTIFICATES_DIR ":/certificates-release/"
 #endif

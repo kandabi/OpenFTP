@@ -1,17 +1,20 @@
 # OpenFTP
 
-[![AppVeyor status](https://ci.appveyor.com/api/projects/status/c4i06722k53tqu16?svg=true)](https://ci.appveyor.com/project/kandabi/openftp)
+<!-- [![AppVeyor status](https://ci.appveyor.com/api/projects/status/c4i06722k53tqu16?svg=true)](https://ci.appveyor.com/project/kandabi/openftp) -->
 [![GPL3 license](https://img.shields.io/badge/license-GPL-blue)](https://fsf.org/)
 
 OpenFTP is a file transfer client + server, programmed in C++ / Qt, it uses openssl for securing network connections.  
 It aims to be a good alternative to other ftp software, while being feature rich and simple to use.
 it does not support connections between non-openftp servers and clients.  
 
-Currently only supports Windows, with macOS and Linux versions planned. 
+Available on Windows, with macOS and Linux versions planned.
 
-## Installation
+## Download Latest Version!
 
-For Windows installation, please download the following software, with the specified versions:
+
+## Settings Up Dev Environment
+
+Necessary software to compile the solution, with the specific versions:
 
 * [Visual Studio 2019](https://visualstudio.microsoft.com/vs/) - The IDE, make sure to install the MSVC2019 v142 Compiler.
 * [Qt Framework](https://www.qt.io/download-qt-installer) - The GUI framework, version: 5.14.1, make sure to install the MSVC2017 and MSVC2017_64 Compilers for both 64 and 32 bit support, future Qt versions are likely to break compilation.

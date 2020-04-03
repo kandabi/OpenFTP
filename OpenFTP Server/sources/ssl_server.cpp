@@ -3,13 +3,13 @@
 
 SslServer::SslServer(QObject* parent) : QTcpServer(parent)
 {
-	QFile keyFile(":/openssl/certificates/server.key", parent);
+	QFile keyFile((QString)CERTIFICATES_DIR + "server_private.key");
 	keyFile.open(QIODevice::ReadOnly);
 	sslKey = QSslKey(keyFile.readAll(), QSsl::Rsa);
 	keyFile.close();
 
-	serverCertificate = QSslCertificate::fromPath(":/openssl/certificates/server.crt").first();
-	certificateAuthorty = QSslCertificate::fromPath(":/openssl/certificates/root_certificate.crt");
+	serverCertificate = QSslCertificate::fromPath((QString)CERTIFICATES_DIR + "server_certificate.crt").first();
+	certificateAuthorty = QSslCertificate::fromPath((QString)CERTIFICATES_DIR + "root_certificate.crt");
 }
 
 

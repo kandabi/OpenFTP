@@ -1,10 +1,15 @@
 #include "stdafx.h"
 #include "settings_manager.h"
 
+
 SettingsManager::SettingsManager(QObject* parent) : QObject(parent)
 {
 	settings = new QSettings(settingsDirectory, jsonFormat);
-	crypto.setKey(CRYPTO_KEY);
+
+	//encryptionManager crypto;
+	////crypto.setKey(CRYPTO_KEY);
+	//QString encryptedStr = crypto.encrypt("testing...");
+	//QString decryptedStr = crypto.decrypt(encryptedStr);
 }
 
 void SettingsManager::writeUserToSettings(QString username, QString password, QString directoryPermission)
@@ -15,8 +20,8 @@ void SettingsManager::writeUserToSettings(QString username, QString password, QS
 
 	settings->setArrayIndex(initialArraySize);
 
-	settings->setValue("name", crypto.encryptToString(username));
-	settings->setValue("password", crypto.encryptToString(password));
+	settings->setValue("name", username);
+	settings->setValue("password", password);
 	settings->setValue("directory", directoryPermission);
 
 	settings->sync();
@@ -130,8 +135,8 @@ void SettingsManager::removeUserFromSettings(int index)
 User SettingsManager::getUser()
 {
 	return User {
-		crypto.decryptToString(settings->value("name").toString()),
-		crypto.decryptToString(settings->value("password").toString()),
+		/*crypto.decryptToString*/(settings->value("name").toString()),
+		/*crypto.decryptToString*/(settings->value("password").toString()),
 		settings->value("directory").toString()
 	};
 }

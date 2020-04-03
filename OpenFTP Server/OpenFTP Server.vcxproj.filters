@@ -7,9 +7,6 @@
     <ClInclude Include="headers\serialization_manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="headers\simplecrypt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="headers\stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -70,6 +67,9 @@
     <QtMoc Include="headers\ssl_server.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="headers\encryption_manager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <Image Include="images\return_button.png" />
@@ -106,9 +106,6 @@
     <ClCompile Include="sources\settings_view.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sources\simplecrypt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sources\ssl_server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -119,6 +116,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sources\worker_manager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\encryption_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -136,12 +136,25 @@
     <None Include="certificates\server.pem" />
     <None Include="certificates\server.crt" />
     <None Include="certificates\root_certificate.crt" />
+    <None Include="certificates\debug\root_certificate.crt" />
+    <None Include="certificates\debug\server.crt" />
+    <None Include="certificates\debug\server.key" />
+    <None Include="certificates\release\root_certificate.crt" />
+    <None Include="certificates\release\server.crt" />
+    <None Include="certificates\release\server.key" />
+    <None Include="certificates\debug\server_certificate.crt" />
+    <None Include="certificates\debug\server_private.key" />
+    <None Include="certificates\release\server_certificate.crt" />
+    <None Include="certificates\release\server_private.key" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\icon.rc" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="resources\resources.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+    <QtRcc Include="resources\certificates.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
   </ItemGroup>

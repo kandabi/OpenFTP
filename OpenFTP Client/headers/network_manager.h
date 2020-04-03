@@ -54,7 +54,7 @@ public:
 private:
 	//QTcpSocket socket;
 	QSslSocket socket;
-	QList<QSslError> expectedSslErrors;
+	QSslKey serverPublicKey;
 	QSaveFile qSaveFile;
 
 	bool downloadInProgress = false;

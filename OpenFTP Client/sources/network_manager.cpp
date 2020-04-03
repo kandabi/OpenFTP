@@ -4,15 +4,17 @@
 NetworkManager::NetworkManager(QWidget* parent) : QObject(parent), socket(parent)
 {
 	//socket.setReadBufferSize(100);
+	socket.addCaCertificate(QSslCertificate::fromPath((QString)CERTIFICATES_DIR + "root_certificate.crt").first());
 
-	socket.addCaCertificate(QSslCertificate::fromPath(":/openssl/certificates/root_certificate.crt").first());
-
-	socket.setPrivateKey(":/openssl/certificates/client.key");
-	socket.setLocalCertificate(":/openssl/certificates/client.crt");
+	socket.setPrivateKey((QString)CERTIFICATES_DIR + "client_private.key");
+	socket.setLocalCertificate((QString)CERTIFICATES_DIR + "client_certificate.crt");
 	socket.setPeerVerifyMode(QSslSocket::VerifyPeer);
 
-	expectedSslErrors.append(QSslError(QSslError::HostNameMismatch, QSslCertificate::fromPath(":/openssl/certificates/server.crt").first()));
-	socket.ignoreSslErrors(expectedSslErrors);
+
+	QFile keyFile((QString)CERTIFICATES_DIR + "server_public.key");
+	keyFile.open(QIODevice::ReadOnly);
+	serverPublicKey = QSslKey(keyFile.readAll(), QSsl::KeyAlgorithm::Rsa, QSsl::EncodingFormat::Pem, QSsl::KeyType::PublicKey);
+	keyFile.close();
 }
 
 
@@ -145,7 +147,11 @@ void NetworkManager::sslErrors(const QList<QSslError>& errors)
 {
 	foreach(const QSslError &error, errors)
 	{
-		if(expectedSslErrors.first().certificate() != error.certificate() || error.error() != QSslError::HostNameMismatch)
+		QSslCertificate cert = error.certificate();
+
+		if (cert.publicKey() == serverPublicKey)
+			socket.ignoreSslErrors();
+		else
 			emit writeTextSignal(error.errorString(), Qt::darkRed);
 	}
 }

@@ -10,14 +10,15 @@ openssl genrsa -aes128 -passout pass:%password% -out output/root_key.key 4096
 openssl req -x509 -new -nodes -key output/root_key.key -sha256 -days %days% -passin pass:%password% -out output/root_certificate.crt -subj "/C=IL/ST=./L=Rishon Le Zion/O=OpenFTP/OU=./CN=Aviv Kandabi/emailAddress=kandabiaviv@gmail.com" 
 
 
-openssl genrsa -out output/server.key 4096
-openssl req -new -sha256 -key output/server.key -out output/server.csr -subj "/C=IL/ST=./L=Rishon Le Zion/O=OpenFTP Server/OU=./CN=Aviv Kandabi/emailAddress=kandabiaviv@gmail.com"
-openssl x509 -req -in output/server.csr -CA output/root_certificate.crt -CAkey output/root_key.key -CAcreateserial -out output/server.crt -days %days% -passin pass:%password% -sha256
+openssl genrsa -out output/server_private.key 4096
+openssl rsa -in output/server_private.key -outform PEM -pubout -out output/server_public.key
+openssl req -new -sha256 -key output/server_private.key -out output/server.csr -subj "/C=IL/ST=./L=Rishon Le Zion/O=OpenFTP Server/OU=./CN=Aviv Kandabi/emailAddress=kandabiaviv@gmail.com"
+openssl x509 -req -in output/server.csr -CA output/root_certificate.crt -CAkey output/root_key.key -CAcreateserial -out output/server_certificate.crt -days %days% -passin pass:%password% -sha256
 
 
-openssl genrsa -out output/client.key 4096
-openssl req -new -sha256 -key output/client.key -out output/client.csr -subj "/C=IL/ST=./L=Rishon Le Zion/O=OpenFTP Client/OU=./CN=Aviv Kandabi/emailAddress=kandabiaviv@gmail.com"
-openssl x509 -req -in output/client.csr -CA output/root_certificate.crt -CAkey output/root_key.key -CAcreateserial -out output/client.crt -days %days% -passin pass:%password% -sha256
+openssl genrsa -out output/client_private.key 4096
+openssl req -new -sha256 -key output/client_private.key -out output/client.csr -subj "/C=IL/ST=./L=Rishon Le Zion/O=OpenFTP Client/OU=./CN=Aviv Kandabi/emailAddress=kandabiaviv@gmail.com"
+openssl x509 -req -in output/client.csr -CA output/root_certificate.crt -CAkey output/root_key.key -CAcreateserial -out output/client_certificate.crt -days %days% -passin pass:%password% -sha256
 
 cd output
 

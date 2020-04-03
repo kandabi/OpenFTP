@@ -1,38 +1,32 @@
 <RCC>
-  <qresource prefix="/alienIcon">
-    <file>../images/icon_black.ico</file>
-    <file>../images/icon.png</file>
-  </qresource>
-  <qresource prefix="openssl">
-    <file>../certificates/client.crt</file>
-    <file>../certificates/server.crt</file>
-    <file>../certificates/client.key</file>
-    <file>../certificates/root_certificate.crt</file>
-  </qresource>
-  <qresource prefix="cleanOutpt">
-    <file>../images/clean.png</file>
-  </qresource>
-  <qresource prefix="/arrow">
-    <file>../images/right.png</file>
-    <file>../images/left.png</file>
-  </qresource>
-  <qresource prefix="/folderIcon">
-    <file>../images/folder.png</file>
-  </qresource>
-  <qresource prefix="/audio">
-    <file>delete.wav</file>
-    <file>complete.wav</file>
-  </qresource>
-  <qresource prefix="/deleteIcon">
-    <file>../images/delete.png</file>
-  </qresource>
-  <qresource prefix="/returnIcon">
-    <file>../images/return_button.png</file>
-  </qresource>
-  <qresource prefix="/homeIcon">
-    <file>../images/home_button.png</file>
-  </qresource>
-  <qresource prefix="/searchIcon">
-    <file>../images/search_button.png</file>
-  </qresource>
+    <qresource prefix="/alienIcon">
+        <file>../images/icon_black.ico</file>
+        <file>../images/icon.png</file>
+    </qresource>
+    <qresource prefix="/cleanOutpt">
+        <file>../images/clean.png</file>
+    </qresource>
+    <qresource prefix="/arrow">
+        <file>../images/right.png</file>
+        <file>../images/left.png</file>
+    </qresource>
+    <qresource prefix="/folderIcon">
+        <file>../images/folder.png</file>
+    </qresource>
+    <qresource prefix="/audio">
+        <file>delete.wav</file>
+        <file>complete.wav</file>
+    </qresource>
+    <qresource prefix="/deleteIcon">
+        <file>../images/delete.png</file>
+    </qresource>
+    <qresource prefix="/returnIcon">
+        <file>../images/return_button.png</file>
+    </qresource>
+    <qresource prefix="/homeIcon">
+        <file>../images/home_button.png</file>
+    </qresource>
+    <qresource prefix="/searchIcon">
+        <file>../images/search_button.png</file>
+    </qresource>
 </RCC>
