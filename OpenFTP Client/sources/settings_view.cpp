@@ -21,9 +21,3 @@ void settingsView::initSettings(const QString& currentStyle, const QStringList& 
 	ui.styleSelectorBox->addItems(styles);
 	ui.styleSelectorBox->setCurrentText(currentStyle);
 }
-
-void settingsView::reject()
-{
-	emit onClose();
-	QDialog::reject();
-}

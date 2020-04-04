@@ -46,9 +46,13 @@ QLineEdit {
     color: #F0FEFE;
     padding: 2px;
 }
+    QLineEdit:focus {
+        color: #F0FEFE;
+    }
 
     QLineEdit:hover {
         background-color: #37373D;
+        color: #F0FEFE;
     }
 
 #mainTextWindow {

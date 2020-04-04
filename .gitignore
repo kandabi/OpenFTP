@@ -1,6 +1,17 @@
 OpenFTP Server/settings/
 OpenFTP Client/settings/
+OpenFTP Server/certificates/release/
+OpenFTP Client/certificates/release/
 bin/
 .vs/
 deployment scripts/openssl/output/
 deployment scripts/openssl/release-password.txt
+OpenFTP Client/certificates/release/client_certificate.crt
+OpenFTP Client/certificates/release/client_private.key
+OpenFTP Client/certificates/release/client_certificate.crt
+OpenFTP Client/certificates/release/client_private.key
+OpenFTP Client/certificates/release/root_certificate.crt
+OpenFTP Client/certificates/release/server_public.key
+OpenFTP Server/certificates/release/root_certificate.crt
+OpenFTP Server/certificates/release/server_certificate.crt
+OpenFTP Server/certificates/release/server_private.key

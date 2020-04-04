@@ -13,12 +13,10 @@ public:
 	void selectStyle();
 
 signals:
-	void onClose();
 	void loadStyleSignal(const QString& style);
 
 private:
 	Ui::settingsView ui;
-	virtual void reject();
 
 	friend class clientView;
 	friend class clientController;

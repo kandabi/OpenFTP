@@ -1,16 +1,6 @@
-<<<<<<< Updated upstream
-
-image: Visual Studio 2019 Preview
-
-install:
-  - set PATH=C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin;C:\Program Files (x86)\NuGet;%PATH%
-build_script:
-  - msbuild OpenFTP.sln
-=======
 
 image: Visual Studio 2019
 
 install:
   - set QTDIR=C:\Qt\5.14.1\msvc2017_64
   - set PATH=%PATH%;%QTDIR%\bin;C:\MinGW\bin
->>>>>>> Stashed changes
