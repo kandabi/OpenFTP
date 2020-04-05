@@ -199,8 +199,8 @@
     <ClCompile Include="sources\client_view.cpp" />
     <ClCompile Include="sources\controller.cpp" />
     <ClCompile Include="sources\fileExists_view.cpp" />
+    <ClCompile Include="sources\file_list_model.cpp" />
     <ClCompile Include="sources\file_manager.cpp" />
-    <ClCompile Include="sources\list_model.cpp" />
     <ClCompile Include="sources\logger_manager.cpp" />
     <ClCompile Include="sources\main.cpp" />
     <ClCompile Include="sources\model.cpp" />
@@ -221,12 +221,12 @@
     <QtMoc Include="headers\client_view.h" />
     <QtMoc Include="headers\logger_manager.h" />
     <QtMoc Include="headers\about_view.h" />
+    <QtMoc Include="headers\file_list_model.h" />
     <ClInclude Include="headers\user.h" />
     <QtMoc Include="headers\controller.h" />
     <ClInclude Include="headers\file.h" />
     <QtMoc Include="headers\fileExists_view.h" />
     <ClInclude Include="headers\file_manager.h" />
-    <QtMoc Include="headers\list_model.h" />
     <QtMoc Include="headers\model.h" />
     <QtMoc Include="headers\network_manager.h" />
     <ClInclude Include="headers\request_manager.h" />
@@ -243,7 +243,7 @@
     <QtUic Include="resources\settingsView.ui" />
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="resources\certificates.qrc" />
+    <QtRcc Include="resources\certificates-debug.qrc" />
     <QtRcc Include="resources\resources.qrc" />
   </ItemGroup>
   <ItemGroup>

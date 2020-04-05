@@ -211,6 +211,7 @@ void clientModel::checkRemainingUploads()
 
 		if (isDir)
 		{
+
 			QString localDirectorySnapshot = fileListToUpload.last().localDirectorySnapshot;
 			directoryToUpload = currentServerDirectory + currentUpload.filePath().split(localDirectorySnapshot).last();
 
@@ -866,4 +867,5 @@ void clientModel::setOptionsWindow()
 void clientModel::disconnectedFromServer()
 {
 	serverFileList.clear(); 
+	cancelTransfers();
 }

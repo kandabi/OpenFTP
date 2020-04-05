@@ -4,9 +4,4 @@
         <file alias="server_certificate.crt">../certificates/release/server_certificate.crt</file>
         <file alias="server_private.key">../certificates/release/server_private.key</file>
     </qresource>
-    <qresource prefix="/certificates-debug">
-        <file alias="root_certificate.crt">../certificates/debug/root_certificate.crt</file>
-        <file alias="server_certificate.crt">../certificates/debug/server_certificate.crt</file>
-        <file alias="server_private.key">../certificates/debug/server_private.key</file>
-    </qresource>
 </RCC>

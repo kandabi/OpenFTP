@@ -4,7 +4,7 @@
 #include "settings_view.h"
 #include "about_view.h"
 #include "fileExists_view.h"
-#include "list_model.h"
+#include "file_list_model.h"
 #include "file_manager.h"
 #include "settings_manager.h"
 

@@ -55,8 +55,8 @@ public:
 	static void deleteFiles(const QJsonArray& filesToDelete);
 	static bool renameFile(const QString& filePath, const QString& oldFileName, QString& newFileName);
 	static bool createFolder(const QString& newFolderName);
-	static Transfer startFileUpload(const int& userIndex,const QString& fileName, const QString& filePath, const quint64& fileSize, const bool& baseDir, const QString& directoryToReturn);
-	static Transfer createPendingFileDownload(const int& userIndex, const QString& filePath, const QString& fileName, const bool& baseDir, QString& errorString);
+	static Transfer startFileUpload(const QUuid& userGuid,const QString& fileName, const QString& filePath, const quint64& fileSize, const bool& baseDir, const QString& directoryToReturn);
+	static Transfer createPendingFileDownload(const QUuid& userGuid, const QString& filePath, const QString& fileName, const bool& baseDir, QString& errorString);
 	static bool processFileDownload(const Transfer& download, QSslSocket* socket);
 	static quint64 processFileUpload(const QByteArray& data, Transfer& upload);
 	static bool completeFileUpload(Transfer& upload);

@@ -244,7 +244,7 @@
     <QtUic Include="resources\settingsView.ui" />
   </ItemGroup>
   <ItemGroup>
-    <QtRcc Include="resources\certificates.qrc" />
+    <QtRcc Include="resources\certificates-debug.qrc" />
     <QtRcc Include="resources\resources.qrc" />
   </ItemGroup>
   <ItemGroup>

@@ -152,7 +152,7 @@ QStatusBar {
 
 QProgressBar {
     background-color: #FFC58C;
-    color: #F0FEFE;
+    color: black;
     text-align: right;
     margin-right: 30px;
     border-width: 2px;

@@ -36,8 +36,8 @@ private:
 	SettingsManager settingsManager;
 	NetworkManager networkManager;
 	LoggerManager logger;
-	QList<User> registeredUsersList;
+	QMap<QUuid ,User> registeredUsers;
 
-	QStringList getUserNamesFromUserList(const QList<User>& userList);
+	QStringList getUserNamesFromUserMap(const QMap<QUuid, User>& userMap);
 };
 

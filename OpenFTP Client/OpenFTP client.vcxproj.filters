@@ -8,7 +8,6 @@
     <ClCompile Include="sources\controller.cpp" />
     <ClCompile Include="sources\file_manager.cpp" />
     <ClCompile Include="sources\fileExists_view.cpp" />
-    <ClCompile Include="sources\list_model.cpp" />
     <ClCompile Include="sources\logger_manager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -21,6 +20,9 @@
     <ClCompile Include="sources\settings_view.cpp" />
     <ClCompile Include="sources\simplecrypt.cpp" />
     <ClCompile Include="sources\stdafx.cpp" />
+    <ClCompile Include="sources\file_list_model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\user.h" />
@@ -51,7 +53,6 @@
     <QtMoc Include="headers\client_view.h" />
     <QtMoc Include="headers\controller.h" />
     <QtMoc Include="headers\fileExists_view.h" />
-    <QtMoc Include="headers\list_model.h" />
     <QtMoc Include="headers\model.h" />
     <QtMoc Include="headers\network_manager.h" />
     <QtMoc Include="headers\settings_manager.h" />
@@ -60,6 +61,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="headers\about_view.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="headers\file_list_model.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -120,7 +124,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="resources\resources.qrc" />
-    <QtRcc Include="resources\certificates.qrc">
+    <QtRcc Include="resources\certificates-debug.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
   </ItemGroup>

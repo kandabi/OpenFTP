@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "network_manager.h"
 
-NetworkManager::NetworkManager(QList<User>& _registeredUsersList ,QWidget* parent) : QObject(parent) ,registeredUsersList(_registeredUsersList) {}
+NetworkManager::NetworkManager(QMap<QUuid ,User>& _registeredUsers ,QWidget* parent) : QObject(parent) ,registeredUsers(_registeredUsers) {}
 
 bool NetworkManager::initServer(const int& port)
 {
@@ -16,13 +16,7 @@ bool NetworkManager::initServer(const int& port)
 		}
 	}
 
-	//serverAddress = QHostAddress::LocalHost;
-	//bool certLoaded = server.setSslLocalCertificate("sslserver.pem");
-	//bool keyLoaded = server.setSslPrivateKey("sslserver.key");
-	//server.setSslProtocol(QSsl::TlsV1_2);
-
 	 bool isListening = server.listen(serverAddress, port);
-	 //if (isListening && certLoaded && keyLoaded)
 	 if(isListening)
 	 {
 		 emit writeTextSignal("Server listening on address: " + serverAddress.toString() + " , port: " + QString::number(server.serverPort()), Qt::darkGreen);
@@ -46,6 +40,7 @@ bool NetworkManager::stopServer()
 
 	for (Transfer& transfer : transfersInProgress)
 	{
+		emit writeTextSignal("Transfer: " + transfer.fileName + " aborted.", Qt::darkRed);
 		transfer.cancelUpload();
 	}
 
@@ -57,23 +52,23 @@ bool NetworkManager::stopServer()
 
 void NetworkManager::ForceUserDisconnect(QString userName)
 {
-	for (int i = 0; i < connectedUsers.count(); ++i)
+	for(User& user : connectedUsers)
 	{
-		if (connectedUsers[i].username == userName)
+		if (user.username == userName)
 		{
-			disconnectUserSocket(connectedUsers[i].getSocket());
-			deleteUserFromListSignal(connectedUsers[i].username);
-			connectedUsers.removeAt(i);
+			disconnectUserSocket(user.getSocket());
+			deleteUserFromListSignal(user.username);
+			connectedUsers.remove(user.getGuid());
 			break;
 		}
 	}
 }
 
 
-void NetworkManager::parseJson(const QByteArray& data, QSslSocket* socket, int userIndex)
+void NetworkManager::parseJson(const QByteArray& data, QSslSocket* socket, const QUuid& userGuid)
 {
 	QJsonObject json = QJsonDocument::fromJson(data).object();
-	User& currentUser = connectedUsers[userIndex];
+	User& currentUser = connectedUsers[userGuid];
 	FtpManager::RequestType requestType = (FtpManager::RequestType)json.value("request_type").toInt();
 	QString directory = json.value("requestPath").toString();
 	FtpManager::ResponseType responseCode = FtpManager::ResponseType::UnknownResponse;
@@ -139,8 +134,8 @@ void NetworkManager::parseJson(const QByteArray& data, QSslSocket* socket, int u
 			}
 
 			responseCode = FtpManager::ResponseType::BeginFileUpload;
-			Transfer fileTransfer = FtpManager::startFileUpload(userIndex, filePath, fileName, json.value("fileSize").toString().toULongLong(), baseDir, directory);
-			transfersInProgress.append(fileTransfer);
+			Transfer fileTransfer = FtpManager::startFileUpload(userGuid, filePath, fileName, json.value("fileSize").toString().toULongLong(), baseDir, directory);
+			transfersInProgress.insert(userGuid ,fileTransfer);
 			currentUser.transferInProgress = true;
 			
 			break;
@@ -148,15 +143,13 @@ void NetworkManager::parseJson(const QByteArray& data, QSslSocket* socket, int u
 		case FtpManager::RequestType::DownloadFile:
 		{
 			QString fileName = json.value("fileName").toString();
-			int currentTransfer = getTransferByUserIndex(userIndex);
-			if (currentTransfer != -1)
-				transfersInProgress.removeAt(currentTransfer);
+			transfersInProgress.remove(userGuid);
 			
 			QString errorString;
-			Transfer download = FtpManager::createPendingFileDownload(userIndex, directory, fileName, baseDir, errorString);
+			Transfer download = FtpManager::createPendingFileDownload(userGuid, directory, fileName, baseDir, errorString);
 			if (errorString.isEmpty())
 			{
-				transfersInProgress.append(download);
+				transfersInProgress.insert(userGuid,download);
 				responseCode = FtpManager::ResponseType::BeginFileDownload;
 			}
 			else
@@ -168,8 +161,8 @@ void NetworkManager::parseJson(const QByteArray& data, QSslSocket* socket, int u
 		}
 		case FtpManager::RequestType::NextPendingDownload:
 		{
-			int transferIndex = getTransferByUserIndex(userIndex);
-			Transfer& download = transfersInProgress[transferIndex];
+			//int transferIndex = getTransferByUserIndex(userIndex);
+			Transfer& download = transfersInProgress[userGuid];
 			emit writeTextSignal("Download file request: " + download.fileName + ", File size: " + QString::number(download.fileSize) + ", by user: " + currentUser.username, QColor(219, 143, 29));
 
 			if (download.fileSize < WorkerThread::filesizeToSplit)
@@ -184,7 +177,7 @@ void NetworkManager::parseJson(const QByteArray& data, QSslSocket* socket, int u
 				download.workerThread->start();
 			}
 
-			transfersInProgress.removeAt(transferIndex);
+			transfersInProgress.remove(userGuid);
 			responseCode = FtpManager::ResponseType::DownloadComplete;
 			break;
 		}
@@ -206,12 +199,12 @@ void NetworkManager::parseJson(const QByteArray& data, QSslSocket* socket, int u
 	}
 }
 
-void NetworkManager::parseUpload(const QByteArray& data, QSslSocket* socket, int userIndex)
+void NetworkManager::parseUpload(const QByteArray& data, QSslSocket* socket, const QUuid& userGuid)
 {
-	int transferIndex = getTransferByUserIndex(userIndex);
-	Q_ASSERT(transferIndex != -1);
+	//int transferIndex = getTransferByUserIndex(userIndex);
+	//Q_ASSERT(transferIndex != -1);
 
-	Transfer& currentUpload = transfersInProgress[transferIndex];
+	Transfer& currentUpload = transfersInProgress[userGuid];
 	quint64 writtenBytes = FtpManager::processFileUpload(data, currentUpload);
 
 	QJsonArray serverResponse;
@@ -224,9 +217,9 @@ void NetworkManager::parseUpload(const QByteArray& data, QSslSocket* socket, int
 		writeTextSignal("Upload complete: " + currentUpload.fileName, Qt::darkGreen);
 		serverResponse = FtpManager::createServerResponse(FtpManager::ResponseType::UploadCompleted, currentUpload.directoryToReturn, currentUpload.isBaseDir, writtenBytes);
 		socket->flush();
-		transfersInProgress.removeAt(transferIndex);
+		transfersInProgress.remove(userGuid);
 		sendResponseData = true;
-		connectedUsers[userIndex].transferInProgress = false;
+		connectedUsers[userGuid].transferInProgress = false;
 
 	}
 	else {
@@ -243,16 +236,16 @@ void NetworkManager::parseUpload(const QByteArray& data, QSslSocket* socket, int
 void NetworkManager::onReadyRead()
 {
 	QSslSocket* socket = getCurrentSocket();
-	int userIndex = getUserIndexBySocket(socket);
-	Q_ASSERT(userIndex != -1);
+	QUuid userGuid = getUserGuidBySocket(socket);
+	Q_ASSERT(!userGuid.isNull());
 	QByteArray data = socket->readAll();
 
-	if (!connectedUsers[userIndex].transferInProgress)
+	if (!connectedUsers[userGuid].transferInProgress)
 	{
-		parseJson(data, socket, userIndex);
+		parseJson(data, socket, userGuid);
 	}
 	else {
-		parseUpload(data, socket, userIndex);
+		parseUpload(data, socket, userGuid);
 	}
 }
 
@@ -262,26 +255,26 @@ void NetworkManager::onSocketStateChanged(QAbstractSocket::SocketState socketSta
 	if (socketState == QAbstractSocket::UnconnectedState)
 	{
 		QSslSocket* socket = getCurrentSocket();
-		int userIndex = getUserIndexBySocket(socket);
-		if (connectedUsers[userIndex].transferInProgress)
+		QUuid& userGuid = getUserGuidBySocket(socket);
+		if (connectedUsers[userGuid].transferInProgress)
 		{
-			int index = getTransferByUserIndex(userIndex);
-			if (index != -1)
+			if (transfersInProgress.contains(userGuid))
 			{
-				Transfer& transfer = transfersInProgress[index];
+				Transfer& transfer = transfersInProgress[userGuid];
+				emit writeTextSignal("Transfer: " + transfer.fileName + " aborted by user: " + connectedUsers[userGuid].username, Qt::darkRed);
 				transfer.cancelUpload();
-				transfersInProgress.removeAt(index);
+				transfersInProgress.remove(userGuid);
 			}
 		}
 
 		disconnectUserSocket(socket);
 
-		if (userIndex != -1)
+		if (!userGuid.isNull())
 		{
-			emit writeTextSignal("User " + connectedUsers[userIndex].username + " has disconnected", Qt::darkRed);
-			emit deleteUserFromListSignal(connectedUsers[userIndex].username);
+			emit writeTextSignal("User " + connectedUsers[userGuid].username + " has disconnected", Qt::darkRed);
+			emit deleteUserFromListSignal(connectedUsers[userGuid].username);
 
-			connectedUsers.removeAt(userIndex);
+			connectedUsers.remove(userGuid);
 		}
 	}
 }
@@ -302,23 +295,24 @@ void NetworkManager::newConnectionAttempt()
 
 	QByteArray data = socket->readAll();
 	QJsonObject userJson = QJsonDocument::fromJson(data).object();
-	User connectedUser(userJson.value("username").toString(), userJson.value("password").toString());
-	int userIndex = validateUser(registeredUsersList, connectedUser.username, connectedUser.password);
+	QUuid userGuid = validateUser(registeredUsers, userJson.value("username").toString(), userJson.value("password").toString());
+	User connectedUser(userGuid, userJson.value("username").toString(), userJson.value("password").toString());
+
 	bool alreadyConnected = false;
 
-	if (userIndex != -1)
+	if (!userGuid.isNull())
 	{
 		for (const User& user : connectedUsers)
-			if (user.username == registeredUsersList[userIndex].username)
+			if (user.username == registeredUsers[userGuid].username)
 				alreadyConnected = true;
 	}
 
 	
-	if (userIndex != -1 && !alreadyConnected)
+	if (!userGuid.isNull() && !alreadyConnected)
 	{
 		connectedUser.setSocket(socket);
-		connectedUser.homeDirectory = registeredUsersList[userIndex].homeDirectory;
-		connectedUsers.append(connectedUser);
+		connectedUser.homeDirectory = registeredUsers[userGuid].homeDirectory;
+		connectedUsers.insert(userGuid ,connectedUser);
 
 		connect(socket, &QSslSocket::readyRead, this, &NetworkManager::onReadyRead);
 		connect(socket, &QSslSocket::stateChanged, this, &NetworkManager::onSocketStateChanged);
@@ -341,32 +335,32 @@ void NetworkManager::newConnectionAttempt()
 }
 
 
-int NetworkManager::getUserIndexBySocket(QSslSocket* socket)
+QUuid NetworkManager::getUserGuidBySocket(QSslSocket* socket)
 {
-	for (int i = 0; i < connectedUsers.count(); ++i)
+	for (const User& user : connectedUsers)
 	{
 		//if (socket->socketDescriptor() == connectedUsers[i].getSocketDescriptor());
-		if(socket == connectedUsers[i].getSocket())
+		if(socket == user.getSocket())
 		{
 			//emit writeTextSignal("Socket descriptor: " + QString::number(socket->socketDescriptor()) + ", User Socket Descriptor: " + QString::number(connectedUsers[i].getSocketDescriptor()));
-			return i;
+			return user.getGuid();
 		}
 	}
-	return -1;
+	return QUuid();
 }
 
 
-int NetworkManager::getTransferByUserIndex(const int& userIndex)
-{
-	for (int i = 0; i < transfersInProgress.count(); ++i)
-	{
-		Transfer& transfer = transfersInProgress[i];
-		if (transfer.userIndex == userIndex)
-			return i;
-	}
-
-	return -1;
-}
+//int NetworkManager::getTransferByUserGuid(const QUuid& userGuid)
+//{
+//	for (int i = 0; i < transfersInProgress.count(); ++i)
+//	{
+//		Transfer& transfer = transfersInProgress[i];
+//		if (transfer.userIndex == userIndex)
+//			return i;
+//	}
+//
+//	return -1;
+//}
 
 QSslSocket* NetworkManager::getCurrentSocket()
 {
@@ -394,17 +388,17 @@ bool NetworkManager::disconnectUserSocket(QSslSocket* socket)
 }
 
 
-int NetworkManager::validateUser(const QList<User>& userList, QString name, QString password)
+QUuid NetworkManager::validateUser(const QMap<QUuid ,User>& userList, QString name, QString password)
 {
 	if (name == "" && password == "")
-		return -1;
+		return QUuid();
 
-	for (int i = 0; i < userList.count(); ++i)
+	for (const User& user : userList)
 	{
-		if (userList[i].username == name && userList[i].password == password)
-			return i;
+		if (user.username == name && user.password == password)
+			return user.getGuid();
 	}
-	return -1;
+	return QUuid();
 }
 
 bool NetworkManager::writeToClient(QSslSocket* socketToWrite, const QByteArray& data)

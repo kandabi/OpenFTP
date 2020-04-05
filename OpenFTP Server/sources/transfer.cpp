@@ -1,15 +1,15 @@
 #include "stdafx.h"
 #include "transfer.h"
 
-Transfer::Transfer(int _userIndex,QString _fileName, QString _filePath, quint64 _fileSize, bool _isBaseDir, QString _directoryToReturn) :
-   userIndex{ _userIndex } ,fileName {_fileName }, filePath{ _filePath }, fileSize{ _fileSize }, isBaseDir{ _isBaseDir }, directoryToReturn{ _directoryToReturn }
+Transfer::Transfer(QUuid _userGuid,QString _fileName, QString _filePath, quint64 _fileSize, bool _isBaseDir, QString _directoryToReturn) :
+   userGuid{ _userGuid } ,fileName {_fileName }, filePath{ _filePath }, fileSize{ _fileSize }, isBaseDir{ _isBaseDir }, directoryToReturn{ _directoryToReturn }
 {
 	saveFile = new QSaveFile(filePath + "/" + fileName);
 	bool open = saveFile->open(QIODevice::WriteOnly);
 };
 
-Transfer::Transfer(int _userIndex, QString _fileName, QString _filePath, quint64 _fileSize, bool _isBaseDir) :
-	userIndex{ _userIndex }, fileName{ _fileName }, filePath{ _filePath }, fileSize{ _fileSize }, isBaseDir{ _isBaseDir } {};
+Transfer::Transfer(QUuid _userGuid, QString _fileName, QString _filePath, quint64 _fileSize, bool _isBaseDir) :
+	userGuid{ _userGuid }, fileName{ _fileName }, filePath{ _filePath }, fileSize{ _fileSize }, isBaseDir{ _isBaseDir } {};
 
 Transfer::Transfer() {};
 

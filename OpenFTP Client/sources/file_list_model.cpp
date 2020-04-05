@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "list_model.h"
+#include "file_list_model.h"
 
 FileListServerModel::FileListServerModel(QList<File>& fileList, QObject* parent ) : QAbstractTableModel(parent), itemData(fileList)
 {	

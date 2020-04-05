@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "model.h"
 
-serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(registeredUsersList, parent), settingsManager(parent), logger(parent, "settings/Log.txt")
+serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(registeredUsers, parent), settingsManager(parent), logger(parent, "settings/Log.txt")
 {
 	if (!QSslSocket::supportsSsl()) {
 		QMessageBox::information(0, "OpenFTP Server",
@@ -13,7 +13,7 @@ serverModel::serverModel(QWidget* parent) : QObject(parent), networkManager(regi
 	QCoreApplication::setOrganizationDomain("OpenFTP.com");
 	QCoreApplication::setApplicationName("OpenFTP");
 
-	registeredUsersList = settingsManager.getUsersFromSettings();
+	registeredUsers = settingsManager.getUsersFromSettings();
 }
 
 void serverModel::init()
@@ -28,7 +28,7 @@ void serverModel::init()
 
 void serverModel::startServer(int port)
 {
-	emit writeTextSignal("Setting up OpenFTP Server.");
+	emit writeTextSignal("Setting up server.");
 
 	QString ftpDirectory = settingsManager.getFtpDirectory();
 	QDir dir;
@@ -54,7 +54,7 @@ void serverModel::startServer(int port)
 void serverModel::stopServer()
 {
 	emit stopServerSignal();
-	emit writeTextSignal("Closing OpenFTP Server, disconnecting all users.");
+	emit writeTextSignal("Closing server, disconnecting all users.");
 	networkManager.stopServer();
 }
 
@@ -63,7 +63,7 @@ void serverModel::saveFtpDirectory(QString directory)
 { 
 	settingsManager.setFtpDirectory(directory);
 	emit writeTextSignal("Set up FTP directory in: " + directory);
-	emit initializeSettingsSignal(settingsManager.getFtpDirectory(), getUserNamesFromUserList(registeredUsersList), settingsManager.getMinimizeToTray());
+	emit initializeSettingsSignal(settingsManager.getFtpDirectory(), getUserNamesFromUserMap(registeredUsers), settingsManager.getMinimizeToTray());
 }
 
 
@@ -73,8 +73,8 @@ void serverModel::createUser(QString username, QString password, QString directo
 		directoryPermitted = settingsManager.getFtpDirectory();
 
 	settingsManager.writeUserToSettings(username, password, directoryPermitted);
-	registeredUsersList = settingsManager.getUsersFromSettings();
-	emit initializeSettingsSignal(settingsManager.getFtpDirectory() ,getUserNamesFromUserList(registeredUsersList), settingsManager.getMinimizeToTray());
+	registeredUsers = settingsManager.getUsersFromSettings();
+	emit initializeSettingsSignal(settingsManager.getFtpDirectory() , getUserNamesFromUserMap(registeredUsers), settingsManager.getMinimizeToTray());
 }
 
 void serverModel::ForceUserDisconnect(QString userName)
@@ -86,12 +86,13 @@ void serverModel::ForceUserDisconnect(QString userName)
 void serverModel::deleteUser(int item)
 {
 	settingsManager.removeUserFromSettings(item);
+	registeredUsers = settingsManager.getUsersFromSettings();
 }
 
 
 void serverModel::writeUsersToSettingsScreen()
 {
-	emit initializeSettingsSignal(settingsManager.getFtpDirectory(),getUserNamesFromUserList(registeredUsersList), settingsManager.getMinimizeToTray());
+	emit initializeSettingsSignal(settingsManager.getFtpDirectory(), getUserNamesFromUserMap(registeredUsers), settingsManager.getMinimizeToTray());
 }
 
 
@@ -101,10 +102,10 @@ void serverModel::setMinimizeToTray(bool checked)
 }
 
 
-QStringList serverModel::getUserNamesFromUserList(const QList<User>& userList)
+QStringList serverModel::getUserNamesFromUserMap(const QMap<QUuid ,User>& userMap)
 {
 	QStringList nameList;
-	for (auto user : userList)
+	for (auto user : userMap)
 	{
 		nameList.append(user.username);
 	}

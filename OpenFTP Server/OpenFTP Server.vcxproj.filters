@@ -154,7 +154,7 @@
     <QtRcc Include="resources\resources.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
-    <QtRcc Include="resources\certificates.qrc">
+    <QtRcc Include="resources\certificates-debug.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
   </ItemGroup>

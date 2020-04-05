@@ -7,7 +7,7 @@ class SettingsManager : QObject
 {
 	Q_OBJECT
 public:
-	 QList<User> getUsersFromSettings();
+	 QMap<QUuid, User> getUsersFromSettings();
 	 void writeUserToSettings(QString username, QString password, QString directoryPermission);
 	 void removeUserFromSettings(int index);
 	 QString getFtpDirectory();

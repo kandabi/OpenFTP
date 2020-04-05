@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "network_manager.h"
 #include "settings_manager.h"
-#include "list_model.h"
+#include "file_list_model.h"
 #include "logger_manager.h"
 
 

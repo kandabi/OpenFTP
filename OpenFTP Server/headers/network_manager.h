@@ -9,7 +9,7 @@ class NetworkManager : public QObject
 {
 	Q_OBJECT
 public:
-	NetworkManager(QList<User>& _registeredUsersList, QWidget* parent = Q_NULLPTR);
+	NetworkManager(QMap<QUuid ,User>& _registeredUsersList, QWidget* parent = Q_NULLPTR);
 
 	bool initServer(const int& port);
 	bool stopServer();
@@ -26,19 +26,19 @@ signals:
 	void deleteUserFromListSignal(QString text);
 
 private:
-	int validateUser(const QList<User>& userList, QString name, QString password);
+	QUuid validateUser(const QMap<QUuid, User>& userList, QString name, QString password);
 	bool writeToClient(QSslSocket* socketToWrite, const QByteArray& data);
-	int getUserIndexBySocket(QSslSocket* socket);
+	QUuid getUserGuidBySocket(QSslSocket* socket);
 	QSslSocket* getCurrentSocket();
-	void parseJson(const QByteArray& data, QSslSocket* socket, int userIndex);
-	void parseUpload(const QByteArray& data, QSslSocket* socket, int userIndex);
+	void parseJson(const QByteArray& data, QSslSocket* socket, const QUuid& userGuid);
+	void parseUpload(const QByteArray& data, QSslSocket* socket, const QUuid& userGuid);
 	bool disconnectUserSocket(QSslSocket* socket);
-	int getTransferByUserIndex(const int& userIndex);
+	//int getTransferByUserGuid(const QUuid& userGuid);
 	void isEncrypted(const QSslSocket* socket);
 
-	QList<User>& registeredUsersList;
-	QList<User> connectedUsers;
-	QList<Transfer> transfersInProgress;
+	QMap<QUuid ,User>& registeredUsers;
+	QMap<QUuid ,User> connectedUsers;
+	QMap<QUuid ,Transfer> transfersInProgress;
 	//QTcpServer server;
 	SslServer server;
 

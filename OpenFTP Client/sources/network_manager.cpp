@@ -27,7 +27,7 @@ void NetworkManager::disconnectFromServer()
 
 void NetworkManager::connectToServer(const QString& serverAddress, const QString& serverPort, const QString& userName, const QString& userPassword)
 {
-	emit writeTextSignal("Attempting connection to Ftp server at: " + serverAddress + "::" + serverPort);
+	emit writeTextSignal("Attempting connection to server at: " + serverAddress + "::" + serverPort);
 
 	username = userName;
 	password = userPassword;

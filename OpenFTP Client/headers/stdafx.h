@@ -2,7 +2,7 @@
 #include <QtNetwork>
 #include <QSound>
 
-#define APP_VERSION "0.3.3" 
+#define APP_VERSION "0.3.4" 
 
 #ifdef QT_DEBUG 
 #define CRYPTO_KEY 0xb2f641dc9fffec4e

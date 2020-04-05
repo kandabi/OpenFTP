@@ -9,8 +9,7 @@ it does not support connections between non-openftp servers and clients.
 
 Available on Windows, with macOS and Linux versions planned.
 
-## Download Latest Version!
-
+[## Download Latest Version!](https://github.com/kandabi/OpenFTP/releases)
 
 ## Settings Up Dev Environment
 

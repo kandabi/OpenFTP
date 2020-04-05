@@ -20,6 +20,7 @@ void SettingsManager::writeUserToSettings(QString username, QString password, QS
 
 	settings->setArrayIndex(initialArraySize);
 
+	settings->setValue("guid", QUuid::createUuid());
 	settings->setValue("name", username);
 	settings->setValue("password", password);
 	settings->setValue("directory", directoryPermission);
@@ -74,18 +75,20 @@ void SettingsManager::setMinimizeToTray(const bool& minimize)
 }
 
 
-QList<User> SettingsManager::getUsersFromSettings()
+QMap<QUuid ,User> SettingsManager::getUsersFromSettings()
 {
-	QList<User> userList;
+	QMap<QUuid, User> userMap;
 	int arraySize = settings->beginReadArray("user");
 
 	for (int i = 0; i < arraySize; ++i) {
 		settings->setArrayIndex(i);
-		userList.append(getUser());
+
+		User user = getUser();
+		userMap.insert(user.getGuid(), user);
 	}
 
 	settings->endArray();
-	return userList;
+	return userMap;
 }
 
 
@@ -116,6 +119,7 @@ void SettingsManager::removeUserFromSettings(int index)
 			userList.append(getUser());
 		}
 
+		settings->remove("guid");
 		settings->remove("name");
 		settings->remove("password");
 		settings->remove("directory");
@@ -135,8 +139,9 @@ void SettingsManager::removeUserFromSettings(int index)
 User SettingsManager::getUser()
 {
 	return User {
-		/*crypto.decryptToString*/(settings->value("name").toString()),
-		/*crypto.decryptToString*/(settings->value("password").toString()),
+		settings->value("guid").toString(),
+		settings->value("name").toString(),
+		settings->value("password").toString(),
 		settings->value("directory").toString()
 	};
 }
