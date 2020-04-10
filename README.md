@@ -14,17 +14,19 @@ Available on Windows, with macOS and Linux versions planned.
 
 ## [Sample screenshots]
 
-**Linux**
+**Dark Theme**
 <p align="center">
-<img src="./github images/default_theme.png" width="65%" />
+<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/test_branch/github%20images/dark_theme.PNG" width="65%" />
 </p>
 
+**Default Theme**
 <p align="center">
-<img src="./github images/dark_theme.png" width="65%" />
+<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/test_branch/github%20images/default_theme.PNG" width="65%" />
 </p>
 
+**Server**
 <p align="center">
-<img src="./github images/server.png" width="65%" />
+<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/test_branch/github%20images/server.PNG" width="65%" />
 </p>
 
 
