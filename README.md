@@ -16,17 +16,17 @@ Available on Windows, with macOS and Linux versions planned.
 
 **Dark Theme**
 <p align="center">
-<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/test_branch/github%20images/dark_theme.png" width="100%" />
+<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/master/github%20images/dark_theme.png" width="100%" />
 </p>
 
 **Default Theme**
 <p align="center">
-<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/test_branch/github%20images/default_theme.png" width="100%" />
+<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/master/github%20images/default_theme.png" width="100%" />
 </p>
 
 **Server**
 <p align="center">
-<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/test_branch/github%20images/server.png" width="65%" />
+<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/master/github%20images/server.png" width="65%" />
 </p>
 
 
