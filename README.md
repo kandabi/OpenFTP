@@ -12,16 +12,16 @@ Available on Windows, with macOS and Linux versions planned.
 ## [Download Latest Version!](https://github.com/kandabi/OpenFTP/releases)
 
 
-## [Sample screenshots]
+## Sample screenshots
 
 **Dark Theme**
 <p align="center">
-<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/test_branch/github%20images/dark_theme.PNG" width="80%" />
+<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/test_branch/github%20images/dark_theme.png" width="100%" />
 </p>
 
 **Default Theme**
 <p align="center">
-<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/test_branch/github%20images/default_theme.PNG" width="80%" />
+<img src="https://raw.githubusercontent.com/kandabi/OpenFTP/test_branch/github%20images/default_theme.PNG" width="100%" />
 </p>
 
 **Server**
