@@ -11,6 +11,23 @@ Available on Windows, with macOS and Linux versions planned.
 
 ## [Download Latest Version!](https://github.com/kandabi/OpenFTP/releases)
 
+
+## [Sample screenshots]
+
+**Linux**
+<p align="center">
+<img src="./github images/default_theme.png" width="65%" />
+</p>
+
+<p align="center">
+<img src="./github images/dark_theme.png" width="65%" />
+</p>
+
+<p align="center">
+<img src="./github images/server.png" width="65%" />
+</p>
+
+
 ## Settings Up Dev Environment
 
 Necessary software to compile the solution, with the specific versions:
